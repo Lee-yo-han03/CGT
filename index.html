@@ -33,157 +33,170 @@
      crossorigin="anonymous"></script>
     <style>
         :root {
-            --primary: #4F46E5; --primary-light: #818CF8; --primary-dark: #3730A3;
-            --success: #059669; --danger: #DC2626; --warning: #D97706;
-            --bg: #F8FAFC; --card: #FFFFFF; --text: #1E293B;
-            --text-light: #64748B; --border: #E2E8F0;
+            --accent: #00E676;
+            --accent-dim: rgba(0,230,118,0.12);
+            --accent-dark: #00B85C;
+            --danger: #FF5757;
+            --loss-color: #5B9CF6;
+            --bg: #0B0D14;
+            --bg2: #111420;
+            --card: #161B29;
+            --surface: #1C2235;
+            --border: #242840;
+            --border-light: #2E3450;
+            --text: #E8EDF8;
+            --text-muted: #6A748A;
             --radius: 12px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
         /* Top Bar */
-        .top-bar { background: white; border-bottom: 1px solid var(--border); padding: 14px 0; position: sticky; top: 0; z-index: 100; }
+        .top-bar { background: rgba(11,13,20,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 13px 0; position: sticky; top: 0; z-index: 100; }
         .top-bar-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
-        .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); }
-        .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
-        .ver { font-size: 11px; color: var(--text-light); background: #F1F5F9; padding: 4px 8px; border-radius: 12px; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.3px; }
+        .logo-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .logo-text-accent { color: var(--accent); }
+        .ver { font-size: 10px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 3px 8px; border-radius: 20px; letter-spacing: 0.3px; }
+        .top-nav { display: flex; align-items: center; gap: 20px; }
+        .top-nav a { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+        .top-nav a:hover { color: var(--accent); }
 
-        .main { max-width: 960px; margin: 0 auto; padding: 24px; }
+        .main { max-width: 960px; margin: 0 auto; padding: 28px 24px; }
 
         /* Steps */
         .steps { display: flex; justify-content: center; gap: 4px; margin-bottom: 28px; }
-        .step-dot { padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 500; background: white; border: 1px solid var(--border); color: var(--text-light); transition: all 0.3s; display: flex; align-items: center; gap: 6px; }
-        .step-dot.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .step-dot.done { background: #ECFDF5; color: var(--success); border-color: #A7F3D0; }
+        .step-dot { padding: 8px 18px; border-radius: 100px; font-size: 12px; font-weight: 600; background: var(--card); border: 1px solid var(--border); color: var(--text-muted); transition: all 0.25s; display: flex; align-items: center; gap: 6px; letter-spacing: 0.2px; }
+        .step-dot.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(0,230,118,0.4); }
+        .step-dot.done { background: var(--accent-dim); color: var(--accent-dark); border-color: rgba(0,230,118,0.3); }
 
         /* Card */
-        .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 28px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-        .card-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 28px; margin-bottom: 20px; }
+        .card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; color: var(--text); letter-spacing: -0.2px; }
 
         /* Upload */
-        .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #FAFBFF; }
-        .upload-zone:hover, .upload-zone.hover { border-color: var(--primary); background: #EEF2FF; }
-        .upload-icon { font-size: 40px; margin-bottom: 12px; }
-        .upload-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-        .upload-sub { font-size: 12px; color: var(--text-light); }
+        .upload-zone { border: 1.5px dashed var(--border-light); border-radius: var(--radius); padding: 44px 20px; text-align: center; cursor: pointer; transition: all 0.25s; background: var(--bg2); }
+        .upload-zone:hover, .upload-zone.hover { border-color: var(--accent); background: var(--accent-dim); }
+        .upload-icon { font-size: 38px; margin-bottom: 12px; filter: grayscale(0.2); }
+        .upload-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        .upload-sub { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
 
         /* File List */
         .file-list { margin-top: 16px; }
-        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #F8FAFC; border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
+        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--surface); border-radius: 8px; margin-bottom: 6px; font-size: 13px; border: 1px solid var(--border); }
         .file-info { display: flex; align-items: center; gap: 8px; }
-        .file-broker { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #EEF2FF; color: var(--primary); }
-        .file-remove { cursor: pointer; color: var(--danger); font-size: 18px; line-height: 1; }
+        .file-broker { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,230,118,0.2); font-weight: 600; }
+        .file-remove { cursor: pointer; color: var(--text-muted); font-size: 18px; line-height: 1; transition: color 0.2s; }
+        .file-remove:hover { color: var(--danger); }
 
         /* Toggle */
-        .toggle-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; margin: 16px 0; }
-        .toggle-row input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+        .toggle-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: var(--bg2); border: 1px solid var(--border-light); border-radius: 10px; margin: 16px 0; }
+        .toggle-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
         .toggle-label { font-size: 14px; font-weight: 600; color: var(--text); }
-        .toggle-desc { font-size: 12px; color: var(--text-light); margin-top: 4px; line-height: 1.5; }
+        .toggle-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.6; }
 
         /* Processing */
-        .processing { text-align: center; padding: 32px; }
-        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
+        .processing { text-align: center; padding: 40px; }
+        .spinner { width: 36px; height: 36px; border: 2px solid var(--border-light); border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Summary Grid */
         .sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
-        .sum-item { background: #F8FAFC; border-radius: 10px; padding: 16px; text-align: center; }
-        .sum-label { font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .sum-value { font-size: 18px; font-weight: 700; }
+        .sum-item { background: var(--surface); border-radius: 10px; padding: 16px; text-align: center; border: 1px solid var(--border); }
+        .sum-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; font-weight: 600; }
+        .sum-value { font-size: 20px; font-weight: 700; color: var(--text); }
 
         /* Tax Box */
-        .tax-box { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); border-radius: var(--radius); padding: 28px; color: white; text-align: center; margin: 20px 0; }
-        .tax-box h3 { font-size: 13px; opacity: 0.8; margin-bottom: 6px; }
-        .tax-big { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
-        .tax-sub { font-size: 12px; opacity: 0.7; }
-        .tax-split { display: flex; justify-content: center; gap: 28px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.2); }
-        .tax-split span { font-size: 11px; opacity: 0.7; display: block; }
-        .tax-split strong { font-size: 16px; }
+        .tax-box { position: relative; overflow: hidden; background: var(--surface); border: 1px solid rgba(0,230,118,0.25); border-radius: var(--radius); padding: 32px 28px; text-align: center; margin: 20px 0; }
+        .tax-box::before { content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 200px; height: 120px; background: radial-gradient(ellipse, rgba(0,230,118,0.18) 0%, transparent 70%); pointer-events: none; }
+        .tax-box h3 { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .tax-big { font-size: 36px; font-weight: 800; color: var(--accent); margin-bottom: 4px; letter-spacing: -1px; }
+        .tax-sub { font-size: 11px; color: var(--text-muted); }
+        .tax-split { display: flex; justify-content: center; gap: 32px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+        .tax-split span { font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tax-split strong { font-size: 15px; color: var(--text); font-weight: 700; }
 
         /* Detail */
-        .detail-line { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; }
+        .detail-line { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
         .detail-line:last-child { border-bottom: none; }
-        .detail-line .l { color: var(--text-light); }
-        .detail-line .v { font-weight: 600; }
-        .detail-hl { background: #FFFBEB; margin: 0 -16px; padding: 10px 16px; border-radius: 8px; border: 1px solid #FDE68A; }
-        .detail-hl .l { color: var(--warning); font-weight: 600; }
+        .detail-line .l { color: var(--text-muted); }
+        .detail-line .v { font-weight: 600; color: var(--text); }
+        .detail-hl { background: rgba(0,230,118,0.06); margin: 4px 0; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(0,230,118,0.2); }
+        .detail-hl .l { color: var(--accent-dark); font-weight: 600; }
+        .detail-hl .v { color: var(--accent); }
 
         /* Table */
         .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin-top: 12px; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        thead { background: #F8FAFC; }
-        th { padding: 10px 12px; text-align: right; font-weight: 600; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        thead { background: var(--surface); }
+        th { padding: 10px 12px; text-align: right; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
         th:first-child { text-align: left; }
-        td { padding: 8px 12px; text-align: right; color: var(--text-light); border-bottom: 1px solid #F1F5F9; }
+        td { padding: 9px 12px; text-align: right; color: var(--text-muted); border-bottom: 1px solid var(--border); }
         td:first-child { text-align: left; color: var(--text); font-weight: 500; }
-        .profit { color: var(--danger); }
-        .loss { color: #2563EB; }
+        tbody tr:hover { background: var(--surface); }
+        tbody tr:last-child td { border-bottom: none; }
+        .profit { color: var(--danger); font-weight: 600; }
+        .loss { color: var(--loss-color); font-weight: 600; }
 
         /* Guide */
-        .guide-section { margin-top: 20px; }
-        .guide-step { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #F1F5F9; }
+        .guide-section { margin-top: 4px; }
+        .guide-step { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
         .guide-step:last-child { border-bottom: none; }
-        .guide-num { width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-        .guide-text { font-size: 14px; line-height: 1.6; }
-        .guide-text strong { color: var(--primary); }
-        .guide-tip { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #1D4ED8; margin-top: 16px; line-height: 1.5; }
+        .guide-num { width: 26px; height: 26px; background: var(--accent-dim); border: 1px solid rgba(0,230,118,0.3); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .guide-text { font-size: 13px; line-height: 1.7; color: var(--text-muted); }
+        .guide-text strong { color: var(--text); }
+        .guide-tip { background: var(--bg2); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px 16px; font-size: 12px; color: var(--text-muted); margin-top: 16px; line-height: 1.7; }
+        .guide-tip strong { color: var(--accent); }
 
         /* Buttons */
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .btn-primary:disabled { background: #CBD5E1; cursor: not-allowed; transform: none; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: #047857; }
-        .btn-outline { background: white; color: var(--text); border: 1px solid var(--border); }
-        .btn-outline:hover { background: #F8FAFC; }
-        .btn-lg { padding: 14px 28px; font-size: 15px; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; letter-spacing: -0.1px; }
+        .btn-primary { background: var(--accent); color: #0a1a10; }
+        .btn-primary:hover { background: #00ff88; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,230,118,0.3); }
+        .btn-primary:disabled { background: var(--surface); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; border: 1px solid var(--border); }
+        .btn-success { background: var(--accent); color: #0a1a10; }
+        .btn-success:hover { background: #00ff88; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,230,118,0.3); }
+        .btn-outline { background: transparent; color: var(--text-muted); border: 1px solid var(--border-light); }
+        .btn-outline:hover { background: var(--surface); color: var(--text); border-color: var(--border-light); }
+        .btn-lg { padding: 13px 28px; font-size: 15px; }
         .btn-block { width: 100%; justify-content: center; }
         .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
 
-        .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-        .alert-info { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
-        .alert-success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+        .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .alert-info { background: rgba(91,156,246,0.1); color: #8BB8FF; border: 1px solid rgba(91,156,246,0.2); }
+        .alert-success { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,230,118,0.25); }
 
         .hidden { display: none !important; }
-        .footer { text-align: center; padding: 32px 0; color: var(--text-light); font-size: 12px; }
 
-        @media (max-width: 640px) {
-            .sum-grid { grid-template-columns: 1fr; }
-            .steps { flex-wrap: wrap; }
-            .tax-big { font-size: 26px; }
-        }
+        .footer { text-align: center; padding: 36px 0; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 20px; }
+        .footer-links { margin-top: 10px; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--accent); }
 
         /* AdSense */
         .ad-wrap { max-width: 960px; margin: 0 auto; padding: 0 24px 20px; }
         .ad-wrap ins { display: block; }
 
-        /* Top Nav */
-        .top-nav { display: flex; align-items: center; gap: 20px; }
-        .top-nav a { font-size: 13px; color: var(--text-light); text-decoration: none; }
-        .top-nav a:hover { color: var(--primary); }
-
         /* Intro */
-        .intro-section { background: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 100%); border-bottom: 1px solid var(--border); padding: 48px 0 40px; }
-        .intro-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; text-align: center; }
-        .intro-inner h1 { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 10px; line-height: 1.4; }
-        .intro-inner .intro-desc { font-size: 15px; color: var(--text-light); margin-bottom: 32px; line-height: 1.7; }
-        .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-        .feature-item { background: white; border-radius: var(--radius); padding: 20px 14px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        .feature-icon { font-size: 26px; }
-        .feature-item strong { font-size: 13px; color: var(--text); text-align: center; }
-        .feature-item span { font-size: 12px; color: var(--text-light); line-height: 1.5; text-align: center; }
-
-        /* Footer Links */
-        .footer-links { margin-top: 10px; }
-        .footer-links a { color: var(--text-light); text-decoration: none; font-size: 12px; }
-        .footer-links a:hover { color: var(--primary); text-decoration: underline; }
+        .intro-section { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 56px 0 48px; position: relative; overflow: hidden; }
+        .intro-section::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 20% 50%, rgba(0,230,118,0.06) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(0,230,118,0.04) 0%, transparent 40%); pointer-events: none; }
+        .intro-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; text-align: center; position: relative; }
+        .intro-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid rgba(0,230,118,0.3); color: var(--accent); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.8px; }
+        .intro-inner h1 { font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 12px; line-height: 1.35; letter-spacing: -0.5px; }
+        .intro-inner h1 em { color: var(--accent); font-style: normal; }
+        .intro-inner .intro-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 36px; line-height: 1.8; }
+        .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .feature-item { background: var(--card); border-radius: var(--radius); padding: 20px 14px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 8px; transition: border-color 0.25s; }
+        .feature-item:hover { border-color: rgba(0,230,118,0.3); }
+        .feature-icon { font-size: 24px; }
+        .feature-item strong { font-size: 12px; color: var(--text); text-align: center; font-weight: 600; }
+        .feature-item span { font-size: 11px; color: var(--text-muted); line-height: 1.6; text-align: center; }
 
         @media (max-width: 640px) {
             .features-grid { grid-template-columns: repeat(2, 1fr); }
-            .intro-inner h1 { font-size: 19px; }
-            .intro-desc { font-size: 14px; }
+            .intro-inner h1 { font-size: 21px; }
+            .sum-grid { grid-template-columns: 1fr; }
+            .steps { flex-wrap: wrap; }
+            .tax-big { font-size: 28px; }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -193,7 +206,17 @@
 
 <div class="top-bar">
     <div class="top-bar-inner">
-        <div class="logo"><div class="logo-icon">양</div> 양도세이브</div>
+        <a href="index.html" class="logo">
+            <div class="logo-icon">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="rgba(0,230,118,0.1)" stroke="rgba(0,230,118,0.35)" stroke-width="1"/>
+                    <path d="M16 7L21 12.5H18.5V19H13.5V12.5H11L16 7Z" fill="#00E676"/>
+                    <rect x="10" y="21" width="12" height="2" rx="1" fill="rgba(0,230,118,0.5)"/>
+                    <rect x="12" y="24" width="8" height="1.5" rx="0.75" fill="rgba(0,230,118,0.3)"/>
+                </svg>
+            </div>
+            <span>양도<span class="logo-text-accent">세이브</span></span>
+        </a>
         <div style="display:flex; align-items:center; gap:16px;">
             <nav class="top-nav">
                 <a href="index.html">홈</a>
@@ -207,31 +230,35 @@
 <!-- 서비스 소개 -->
 <section class="intro-section">
     <div class="intro-inner">
-        <h1>해외주식 양도소득세, 5분 만에 자동 계산</h1>
+        <div class="intro-tag">
+            <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#00E676"/></svg>
+            해외주식 세금 자동화
+        </div>
+        <h1>양도소득세, <em>5분</em> 만에 자동 계산</h1>
         <p class="intro-desc">
-            증권사에서 다운로드한 거래내역 파일을 업로드하면<br>
-            양도소득세를 자동 계산하고 홈택스 신고용 Excel 파일을 즉시 생성합니다.
+            증권사 거래내역 파일을 업로드하면 세금을 자동 계산하고<br>
+            홈택스 신고용 Excel을 즉시 생성합니다.
         </p>
         <div class="features-grid">
             <div class="feature-item">
                 <span class="feature-icon">🏦</span>
-                <strong>국내 주요 증권사 지원</strong>
-                <span>키움·미래에셋·삼성·NH·신한 등 자동 감지</span>
+                <strong>주요 증권사 지원</strong>
+                <span>키움·미래에셋·삼성·NH·신한 자동 감지</span>
             </div>
             <div class="feature-item">
                 <span class="feature-icon">📄</span>
                 <strong>다양한 파일 형식</strong>
-                <span>PDF · Excel(.xlsx/.xls) · CSV 모두 지원</span>
+                <span>PDF · Excel · CSV 모두 지원</span>
             </div>
             <div class="feature-item">
                 <span class="feature-icon">🧮</span>
                 <strong>정확한 세금 계산</strong>
-                <span>기본공제 250만원 · 세율 22% 자동 적용</span>
+                <span>기본공제 250만원 · 22% 자동 적용</span>
             </div>
             <div class="feature-item">
                 <span class="feature-icon">📥</span>
                 <strong>홈택스 즉시 신고</strong>
-                <span>홈택스 엑셀 업로드 양식으로 바로 다운로드</span>
+                <span>홈택스 엑셀 업로드 양식 바로 생성</span>
             </div>
         </div>
     </div>
@@ -260,8 +287,11 @@
     <!-- ===== STEP 1: Upload ===== -->
     <div id="step1">
         <div class="card">
-            <div class="card-title">📁 거래내역 파일 업로드</div>
-            <p style="font-size:13px; color:var(--text-light); margin-bottom:16px;">
+            <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="rgba(0,230,118,0.15)"/><path d="M9 4L13 8H10.5V13H7.5V8H5L9 4Z" fill="#00E676"/></svg>
+                거래내역 파일 업로드
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px; line-height:1.7;">
                 증권사에서 다운로드한 해외주식 양도소득세 거래내역 파일을 올려주세요.<br>
                 증권사는 자동으로 감지됩니다. 여러 파일을 동시에 올릴 수 있습니다.
             </p>
@@ -274,7 +304,7 @@
             <div class="file-list" id="fileList"></div>
             <div style="text-align:center; margin-top:16px;">
                 <button class="btn btn-primary btn-lg hidden" id="analyzeBtn" onclick="uploadFiles()">
-                    🔍 파일 분석 및 세금 계산
+                    파일 분석 및 세금 계산 →
                 </button>
             </div>
         </div>
@@ -284,15 +314,18 @@
     <div class="card hidden" id="processingCard">
         <div class="processing">
             <div class="spinner"></div>
-            <div style="font-size:15px; font-weight:600; margin-bottom:6px;">파일 분석 중...</div>
-            <div style="font-size:13px; color:var(--text-light);" id="processingMsg">거래내역을 파싱하고 세금을 계산하고 있습니다</div>
+            <div style="font-size:15px; font-weight:600; margin-bottom:6px; color:var(--text);">파일 분석 중...</div>
+            <div style="font-size:13px; color:var(--text-muted);" id="processingMsg">거래내역을 파싱하고 세금을 계산하고 있습니다</div>
         </div>
     </div>
 
     <!-- ===== STEP 2: Results ===== -->
     <div class="hidden" id="step2">
         <div class="card">
-            <div class="card-title">✅ 거래내역 분석 결과</div>
+            <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="rgba(0,230,118,0.15)"/><path d="M5 9.5L7.5 12L13 6.5" stroke="#00E676" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                거래내역 분석 결과
+            </div>
             <div id="resultAlert"></div>
 
             <!-- 파일별 결과 -->
@@ -306,10 +339,11 @@
                 <div class="sum-item">
                     <div class="sum-label">이익 거래</div>
                     <div class="sum-value" style="color:var(--danger);" id="sumProfit">0건</div>
+
                 </div>
                 <div class="sum-item">
                     <div class="sum-label">손실 거래</div>
-                    <div class="sum-value" style="color:#2563EB;" id="sumLoss">0건</div>
+                    <div class="sum-value" style="color:var(--loss-color);" id="sumLoss">0건</div>
                 </div>
             </div>
 
@@ -336,8 +370,8 @@
 
             <!-- Trade Table -->
             <details style="margin-top:16px;">
-                <summary style="cursor:pointer; font-weight:600; font-size:13px; color:var(--primary); padding:10px 0;">
-                    📋 거래내역 상세 (<span id="tradeCountLabel">0</span>건)
+                <summary style="cursor:pointer; font-weight:600; font-size:13px; color:var(--accent); padding:10px 0;">
+                    거래내역 상세 (<span id="tradeCountLabel">0</span>건)
                 </summary>
                 <div class="table-wrap">
                     <table>
@@ -366,7 +400,10 @@
 
         <!-- ===== STEP 3: Download ===== -->
         <div class="card" id="step3">
-            <div class="card-title">📥 홈택스 업로드용 Excel 다운로드</div>
+            <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="rgba(0,230,118,0.15)"/><path d="M9 14L5 10H7.5V5H10.5V10H13L9 14Z" fill="#00E676"/></svg>
+                홈택스 업로드용 Excel 다운로드
+            </div>
 
             <!-- 취득일자 자동채움 -->
             <div class="toggle-row">
@@ -376,24 +413,26 @@
                     <div class="toggle-desc">
                         체크 시: 각 거래의 양도일 연도 1월 1일을 취득일자로 자동 입력합니다.<br>
                         (예: 양도일 2024-12-31 → 취득일 2024-01-01)<br>
-                        연간 합산 신고 시 같은 연도 내 임의 날짜 사용이 가능합니다.<br>
-                        <strong>해제 시:</strong> 취득일자를 비워두어, 다운로드 후 엑셀에서 직접 입력할 수 있습니다.
+                        <strong style="color:var(--text);">해제 시:</strong> 취득일자를 비워두어, 다운로드 후 직접 입력할 수 있습니다.
                     </div>
                 </div>
             </div>
 
             <button class="btn btn-success btn-lg btn-block" onclick="downloadExcel()" style="margin-top:16px;">
-                📥 홈택스 신고용 Excel 다운로드
+                홈택스 신고용 Excel 다운로드
             </button>
 
             <div class="btn-group">
-                <button class="btn btn-outline" onclick="resetAll()">🔄 새로운 파일 처리하기</button>
+                <button class="btn btn-outline" onclick="resetAll()">새로운 파일 처리하기</button>
             </div>
         </div>
 
         <!-- ===== 신고 안내 ===== -->
         <div class="card">
-            <div class="card-title">📝 홈택스 양도소득세 신고 안내</div>
+            <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="rgba(0,230,118,0.15)"/><text x="5" y="13" fill="#00E676" font-size="10" font-weight="bold">i</text></svg>
+                홈택스 양도소득세 신고 안내
+            </div>
             <div class="guide-section">
                 <div class="guide-step">
                     <div class="guide-num">1</div>
@@ -541,7 +580,7 @@ function renderFileList() {
             <div class="file-info">
                 <span>📄</span>
                 <span>${f.name}</span>
-                <span style="color:var(--text-light); font-size:11px;">(${(f.size/1024).toFixed(1)}KB)</span>
+                <span style="color:var(--text-muted); font-size:11px;">(${(f.size/1024).toFixed(1)}KB)</span>
             </div>
             <span class="file-remove" onclick="removeFile(${i})">✕</span>
         </div>
@@ -936,7 +975,7 @@ function displayResults() {
                     <span>📄</span>
                     <span>${f.filename}</span>
                     <span class="file-broker">${f.broker}</span>
-                    <span style="color:var(--text-light); font-size:11px;">${f.trade_count}건</span>
+                    <span style="color:var(--text-muted); font-size:11px;">${f.trade_count}건</span>
                 </div>
                 ${f.error ? `<span style="color:var(--danger); font-size:11px;">${f.error}</span>` : ''}
             </div>
