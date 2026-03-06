@@ -32,15 +32,15 @@
      crossorigin="anonymous"></script>
     <style>
         :root {
-            --accent: #00E676; --accent-dim: rgba(0,230,118,0.1);
-            --bg: #0B0D14; --bg2: #111420; --card: #161B29;
-            --surface: #1C2235; --border: #242840; --border-light: #2E3450;
-            --text: #E8EDF8; --text-muted: #6A748A; --radius: 12px;
+            --accent: #00C96A; --accent-dim: rgba(0,201,106,0.1);
+            --bg: #EEF0F6; --bg2: #E6E9F2; --card: #FFFFFF;
+            --surface: #F4F6FB; --border: #D8DCF0; --border-light: #E4E7F4;
+            --text: #1A2038; --text-muted: #6B7592; --radius: 12px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-        .top-bar { background: rgba(11,13,20,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 13px 0; position: sticky; top: 0; z-index: 100; }
+        .top-bar { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 13px 0; position: sticky; top: 0; z-index: 100; }
         .top-bar-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
         .logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.3px; }
         .logo-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
@@ -56,14 +56,17 @@
         .page-date { font-size: 13px; color: var(--text-muted); margin-bottom: 36px; }
 
         .section { margin-bottom: 36px; }
-        .section h2 { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,230,118,0.2); }
+        .section h2 { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,201,106,0.25); }
+        .nav-insta { display: flex; align-items: center; gap: 5px; text-decoration: none; font-size: 13px; color: var(--text-muted); transition: all 0.2s; }
+        .nav-insta:hover { color: #C13584; }
+        .nav-insta svg { flex-shrink: 0; }
         .section p { font-size: 14px; line-height: 1.8; color: var(--text-muted); margin-bottom: 10px; }
         .section ul { padding-left: 20px; margin-bottom: 10px; }
         .section ul li { font-size: 14px; line-height: 1.8; color: var(--text-muted); margin-bottom: 4px; }
         .section a { color: var(--accent); }
 
-        .highlight-box { background: var(--accent-dim); border: 1px solid rgba(0,230,118,0.25); border-radius: 8px; padding: 14px 16px; font-size: 14px; color: var(--accent); line-height: 1.7; margin: 14px 0; }
-        .warning-box { background: rgba(255,200,50,0.06); border: 1px solid rgba(255,200,50,0.2); border-radius: 8px; padding: 14px 16px; font-size: 14px; color: #E6C040; line-height: 1.7; margin: 14px 0; }
+        .highlight-box { background: var(--accent-dim); border: 1px solid rgba(0,201,106,0.25); border-radius: 8px; padding: 14px 16px; font-size: 14px; color: #007A40; line-height: 1.7; margin: 14px 0; }
+        .warning-box { background: rgba(255,160,0,0.06); border: 1px solid rgba(255,160,0,0.25); border-radius: 8px; padding: 14px 16px; font-size: 14px; color: #A06000; line-height: 1.7; margin: 14px 0; }
 
         .footer { text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); }
         .footer a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
@@ -84,6 +87,22 @@
             <nav class="top-nav">
                 <a href="index.html">홈</a>
                 <a href="privacy.html">개인정보처리방침</a>
+                <a href="https://www.instagram.com/0do.save?igsh=YXZqM2FxMXA1OG52&utm_source=qr" target="_blank" rel="noopener noreferrer" class="nav-insta" title="인스타그램으로 문의하기">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="ig2" cx="30%" cy="110%" r="140%">
+                                <stop offset="0%" stop-color="#FFD600"/>
+                                <stop offset="40%" stop-color="#FF0069"/>
+                                <stop offset="100%" stop-color="#D300C5"/>
+                            </radialGradient>
+                        </defs>
+                        <rect width="24" height="24" rx="6" fill="url(#ig2)"/>
+                        <rect x="5" y="5" width="14" height="14" rx="4" stroke="white" stroke-width="1.6" fill="none"/>
+                        <circle cx="12" cy="12" r="3.3" stroke="white" stroke-width="1.6" fill="none"/>
+                        <circle cx="16.8" cy="7.2" r="1.1" fill="white"/>
+                    </svg>
+                    <span>문의</span>
+                </a>
             </nav>
             <div class="ver">v3.0</div>
         </div>
@@ -193,7 +212,7 @@
         &nbsp;·&nbsp;
         <a href="privacy.html">개인정보처리방침</a>
     </div>
-    <small style="display:block; margin-top:8px; color:#94A3B8;">© 2025 양도세이브. All rights reserved.</small>
+    <small style="display:block; margin-top:8px; color:var(--text-muted);">© 2025 양도세이브. All rights reserved.</small>
 </div>
 
 </body>
