@@ -7,9 +7,12 @@
     <meta name="description" content="해외주식 양도소득세를 자동으로 계산해 드립니다. 증권사 거래내역 파일(PDF·Excel·CSV) 업로드만으로 홈택스 신고용 Excel을 즉시 생성합니다. 키움·미래에셋·삼성·NH·신한증권 지원.">
     <meta name="keywords" content="해외주식 양도소득세, 양도소득세 계산기, 해외주식 세금, 홈택스 양도소득세 신고, 양도차익 계산, 해외주식 세금 신고">
     <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://yangdosave.kr/">
     <meta property="og:title" content="양도세이브 - 해외주식 양도소득세 자동 계산">
     <meta property="og:description" content="증권사 거래내역 파일 업로드 한 번으로 홈택스 신고용 Excel을 자동 생성합니다.">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yangdosave.kr/">
+    <meta property="og:site_name" content="양도세이브">
     <!-- Microsoft Clarity -->
     <script type="text/javascript">
         (function(c,l,a,r,i,t,y){
@@ -183,6 +186,7 @@
             .intro-desc { font-size: 14px; }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -461,12 +465,10 @@
     /**
     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-    /*
     var disqus_config = function () {
-    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        this.page.url = 'https://yangdosave.kr/';
+        this.page.identifier = 'yangdosave-home';
     };
-    */
     (function() { // DON'T EDIT BELOW THIS LINE
     var d = document, s = d.createElement('script');
     s.src = 'https://cgt-2.disqus.com/embed.js';
@@ -479,7 +481,7 @@
 
 <script>
 const API = window.location.origin;
-let state = { files: [], sessionId: null, trades: [], tax: null };
+let state = { files: [], sessionId: null, trades: [], tax: null, parsedFiles: [] };
 
 // ===== Step Navigation =====
 function goStep(n) {
@@ -545,39 +547,211 @@ function renderFileList() {
     `).join('');
 }
 
+// ===== Client-Side Parsing =====
+function parseNumCS(v) {
+    if (v == null || v === '') return 0;
+    return parseFloat(String(v).replace(/,/g, '')) || 0;
+}
+
+function parseDateCS(v) {
+    if (!v) return '';
+    if (v instanceof Date) {
+        return `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}-${String(v.getDate()).padStart(2,'0')}`;
+    }
+    const s = String(v).replace(/\//g, '-').replace(/\./g, '-').trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
+    if (/^\d{8}$/.test(s)) return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+    return s;
+}
+
+function findValCS(obj, keys) {
+    for (const k of keys) {
+        const kNorm = k.replace(/[\n\r\s]/g, '').toLowerCase();
+        for (const ok of Object.keys(obj)) {
+            const okNorm = ok.replace(/[\n\r\s]/g, '').toLowerCase();
+            if (okNorm === kNorm) {
+                if (obj[ok] !== undefined && obj[ok] !== '') return obj[ok];
+            }
+        }
+    }
+    return '';
+}
+
+function normalizeTradesCS(rawData) {
+    return rawData.map(row => {
+        const name = String(findValCS(row, ['주식 종목명','주식종목명','종목명','종목','stock_name','name']) || '').trim();
+        if (!name) return null;
+        const shares = parseNumCS(findValCS(row, ['양도주식수','양도주식 수','취득유형별 양도주식 수','수량','매도수량','shares']));
+        if (shares <= 0) return null;
+        const sellTotal = parseNumCS(findValCS(row, ['양도가액','매도금액','매도대금','sell_amount']));
+        const buyTotal = parseNumCS(findValCS(row, ['취득가액','매수금액','매수대금','buy_amount']));
+        const expenses = parseNumCS(findValCS(row, ['제비용','필요경비','수수료','expenses']));
+        const plRaw = parseNumCS(findValCS(row, ['손익','비용차감 후 손익','profit_loss','손익금액','양도차익']));
+        const profitLoss = plRaw || (sellTotal - buyTotal - expenses);
+        const code = String(findValCS(row, ['주식종목코드','종목코드','ISIN','isin','stock_code','ISIN코드']) || '').trim();
+        return {
+            stock_name: name,
+            stock_code: code,
+            shares,
+            sell_date: parseDateCS(findValCS(row, ['양도일자','매도일자','매도일','sell_date'])),
+            sell_price_per_share: parseNumCS(findValCS(row, ['주당양도가액','주당매도가액','매도단가'])),
+            sell_total: Math.round(sellTotal),
+            buy_date: parseDateCS(findValCS(row, ['취득일자','매수일자','매수일','buy_date'])),
+            buy_price_per_share: parseNumCS(findValCS(row, ['주당취득가액','주당매수가액','매수단가'])),
+            buy_total: Math.round(buyTotal),
+            expenses: Math.round(expenses),
+            profit_loss: Math.round(profitLoss),
+            country_code: String(findValCS(row, ['국외자산국가코드','국가코드','country']) || 'US'),
+        };
+    }).filter(Boolean);
+}
+
+function calculateTaxCS(trades) {
+    const total_sell = trades.reduce((s, t) => s + t.sell_total, 0);
+    const total_buy = trades.reduce((s, t) => s + t.buy_total, 0);
+    const total_expenses = trades.reduce((s, t) => s + t.expenses, 0);
+    const gross_profit_loss = trades.reduce((s, t) => s + t.profit_loss, 0);
+    const basic_deduction = 2500000;
+    const taxable_income = Math.max(0, gross_profit_loss - basic_deduction);
+    const tax_amount = Math.round(taxable_income * 0.22);
+    return {
+        trade_count: trades.length,
+        total_sell, total_buy, total_expenses, gross_profit_loss,
+        basic_deduction, taxable_income, tax_amount,
+        national_tax: Math.round(taxable_income * 0.20),
+        local_tax: Math.round(taxable_income * 0.02),
+        profit_trades: trades.filter(t => t.profit_loss > 0).length,
+        loss_trades: trades.filter(t => t.profit_loss < 0).length,
+    };
+}
+
+function autoFillBuyDatesCS(trades) {
+    return trades.map(t => {
+        const d = {...t};
+        if (d.sell_date && d.sell_date.length >= 4) {
+            const year = d.sell_date.slice(0, 4);
+            const filled = `${year}-01-01`;
+            d.buy_date = filled < d.sell_date ? filled : `${parseInt(year)-1}-12-31`;
+        }
+        return d;
+    });
+}
+
+function generateHomeTaxExcelCS(trades, autoFill) {
+    const workTrades = autoFill ? autoFillBuyDatesCS(trades) : trades;
+    const headers = [
+        '주식 종목명','사업자등록번호','국내/국외 구분','취득유형별\n양도주식 수',
+        '세율구분','주식등 종류','양도물건 종류','취득유형','양도일자',
+        '주당양도가액','양도가액','취득일자','주당취득가액','취득가액',
+        '필요경비','비과세\n양도소득금액','감면종류','감면율','감면소득금액',
+        '과세이연여부','국제증권식별번호\n(ISIN코드, 종목코드)','국외자산국가코드','국외자산내용'
+    ];
+    const rows = workTrades.map(t => [
+        t.stock_name, null, 2, t.shares,
+        61, 61, 10, '01', t.sell_date,
+        Math.round(t.sell_price_per_share || 0), t.sell_total,
+        t.buy_date || '',
+        Math.round(t.buy_price_per_share || 0), t.buy_total,
+        t.expenses,
+        null, null, null, null, null,
+        t.stock_code, t.country_code || 'US', null,
+    ]);
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    ws['!cols'] = [
+        {wch:16},{wch:14},{wch:12},{wch:16},{wch:10},{wch:10},{wch:12},
+        {wch:10},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},
+        {wch:12},{wch:16},{wch:10},{wch:8},{wch:14},{wch:12},{wch:20},{wch:16},{wch:14}
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, '자료');
+    return wb;
+}
+
+async function parseFilesClientSide(files) {
+    const allTrades = [];
+    const parsedFiles = [];
+    for (const file of files) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'pdf') {
+            parsedFiles.push({ filename: file.name, broker: 'PDF', trade_count: 0, error: 'PDF는 서버 모드에서만 지원됩니다' });
+            continue;
+        }
+        try {
+            const data = await file.arrayBuffer();
+            const wb = XLSX.read(data);
+            const sheet = wb.Sheets[wb.SheetNames[0]];
+            const raw = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
+            const trades = normalizeTradesCS(raw);
+            allTrades.push(...trades);
+            parsedFiles.push({ filename: file.name, broker: '자동감지', trade_count: trades.length });
+        } catch(e) {
+            parsedFiles.push({ filename: file.name, broker: 'Error', trade_count: 0, error: e.message });
+        }
+    }
+    return { trades: allTrades, parsedFiles };
+}
+
 // ===== Upload =====
 async function uploadFiles() {
     if (state.files.length === 0) return;
 
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('processingCard').classList.remove('hidden');
-    document.getElementById('processingMsg').textContent =
-        `${state.files.length}개 파일 분석 중...`;
+    document.getElementById('processingMsg').textContent = `${state.files.length}개 파일 분석 중...`;
 
-    const formData = new FormData();
-    state.files.forEach(f => formData.append('file', f));
-
+    // 서버 연결 시도 (타임아웃 2초)
+    let serverAvailable = false;
     try {
-        const res = await fetch(`${API}/api/upload`, { method: 'POST', body: formData });
-        const data = await res.json();
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 2000);
+        const r = await fetch(`${API}/api/health`, { signal: ctrl.signal });
+        clearTimeout(tid);
+        serverAvailable = r.ok;
+    } catch {}
 
-        if (data.status === 'success') {
-            state.sessionId = data.session_id;
-            state.trades = data.trades;
-            state.tax = data.tax;
-            state.parsedFiles = data.files;
+    if (serverAvailable) {
+        // 서버 모드: PDF 포함 모든 파일 처리 가능
+        const formData = new FormData();
+        state.files.forEach(f => formData.append('file', f));
+        try {
+            const res = await fetch(`${API}/api/upload`, { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.status === 'success') {
+                state.sessionId = data.session_id;
+                state.trades = data.trades;
+                state.tax = data.tax;
+                state.parsedFiles = data.files;
+                document.getElementById('processingCard').classList.add('hidden');
+                displayResults();
+                goStep(2);
+                return;
+            }
+        } catch {}
+    }
 
-            document.getElementById('processingCard').classList.add('hidden');
-            displayResults();
-            goStep(2);
-        } else {
-            throw new Error(data.error || '파싱 실패');
-        }
-    } catch (err) {
+    // 브라우저 처리 모드: Excel/CSV만 가능
+    const { trades, parsedFiles } = await parseFilesClientSide(state.files);
+
+    if (trades.length === 0) {
         document.getElementById('processingCard').classList.add('hidden');
         goStep(1);
-        alert('에러: ' + err.message);
+        const hasPdf = state.files.some(f => f.name.split('.').pop().toLowerCase() === 'pdf');
+        if (hasPdf) {
+            alert('PDF 파일 처리는 Python 서버가 필요합니다.\n\n서버 실행 방법:\n  python3 sever/TaxEasy_Complete/server_v3.py\n  접속: http://localhost:8080\n\nExcel(.xlsx) 또는 CSV 파일로 업로드하면\n서버 없이도 바로 이용할 수 있습니다.');
+        } else {
+            alert('거래 데이터를 찾지 못했습니다.\n파일 내 컬럼명을 확인해주세요.\n(종목명, 양도가액, 취득가액 등이 있어야 합니다)');
+        }
+        return;
     }
+
+    state.sessionId = null;
+    state.trades = trades;
+    state.tax = calculateTaxCS(trades);
+    state.parsedFiles = parsedFiles;
+
+    document.getElementById('processingCard').classList.add('hidden');
+    displayResults();
+    goStep(2);
 }
 
 // ===== Add More Files =====
@@ -587,27 +761,35 @@ function showAddMore() {
 }
 
 document.getElementById('addFileInput').addEventListener('change', async function(e) {
-    if (!e.target.files.length || !state.sessionId) return;
-
-    const formData = new FormData();
-    for (const f of e.target.files) formData.append('file', f);
-    formData.append('session_id', state.sessionId);
+    if (!e.target.files.length) return;
 
     document.getElementById('addMoreZone').classList.add('hidden');
 
-    try {
-        const res = await fetch(`${API}/api/upload-additional`, { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.status === 'success') {
-            state.trades = data.trades;
-            state.tax = data.tax;
-            state.parsedFiles = data.files;
-            displayResults();
-        } else {
-            alert(data.error || '추가 업로드 실패');
+    if (state.sessionId) {
+        const formData = new FormData();
+        for (const f of e.target.files) formData.append('file', f);
+        formData.append('session_id', state.sessionId);
+        try {
+            const res = await fetch(`${API}/api/upload-additional`, { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.status === 'success') {
+                state.trades = data.trades;
+                state.tax = data.tax;
+                state.parsedFiles = data.files;
+                displayResults();
+            } else {
+                alert(data.error || '추가 업로드 실패');
+            }
+        } catch (err) {
+            alert('에러: ' + err.message);
         }
-    } catch (err) {
-        alert('에러: ' + err.message);
+    } else {
+        // 브라우저 모드 추가 업로드
+        const { trades, parsedFiles } = await parseFilesClientSide(Array.from(e.target.files));
+        state.trades = [...state.trades, ...trades];
+        state.parsedFiles = [...state.parsedFiles, ...parsedFiles];
+        state.tax = calculateTaxCS(state.trades);
+        displayResults();
     }
     e.target.value = '';
 });
@@ -616,7 +798,6 @@ document.getElementById('addFileInput').addEventListener('change', async functio
 function displayResults() {
     const { trades, tax, parsedFiles } = state;
 
-    // File results
     const fr = document.getElementById('fileResults');
     if (parsedFiles && parsedFiles.length > 0) {
         fr.innerHTML = parsedFiles.map(f => `
@@ -632,20 +813,16 @@ function displayResults() {
         `).join('');
     }
 
-    // Summary
     document.getElementById('sumCount').textContent = `${trades.length}건`;
     document.getElementById('sumProfit').textContent = `${tax.profit_trades}건`;
     document.getElementById('sumLoss').textContent = `${tax.loss_trades}건`;
     document.getElementById('tradeCountLabel').textContent = trades.length;
 
-    // Tax
     document.getElementById('taxAmount').textContent = krw(tax.tax_amount);
     document.getElementById('taxN').textContent = krw(tax.national_tax);
     document.getElementById('taxL').textContent = krw(tax.local_tax);
-    document.getElementById('taxSub').textContent =
-        `세율 22% · 기본공제 250만원 적용`;
+    document.getElementById('taxSub').textContent = `세율 22% · 기본공제 250만원 적용`;
 
-    // Detail
     document.getElementById('dSell').textContent = krw(tax.total_sell);
     document.getElementById('dBuy').textContent = krw(tax.total_buy);
     document.getElementById('dExp').textContent = krw(tax.total_expenses);
@@ -653,7 +830,6 @@ function displayResults() {
     document.getElementById('dDed').textContent = `-${krw(tax.basic_deduction)}`;
     document.getElementById('dTaxable').textContent = krw(tax.taxable_income);
 
-    // Trades
     document.getElementById('tradesBody').innerHTML = trades.map(t => {
         const pl = t.profit_loss || 0;
         return `<tr>
@@ -667,43 +843,51 @@ function displayResults() {
         </tr>`;
     }).join('');
 
-    // Alert
+    const mode = state.sessionId ? '' : ' (브라우저 처리)';
     document.getElementById('resultAlert').innerHTML =
-        `<div class="alert alert-success"><span>✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다</span></div>`;
+        `<div class="alert alert-success"><span>✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다${mode}</span></div>`;
 }
 
 // ===== Download =====
 async function downloadExcel() {
-    if (!state.sessionId) return;
     const autoFill = document.getElementById('autoFillCheck').checked;
 
-    try {
-        const res = await fetch(`${API}/api/generate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                session_id: state.sessionId,
-                auto_fill_buy_dates: autoFill,
-            }),
-        });
-        if (!res.ok) throw new Error('엑셀 생성 실패');
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `홈택스_양도소득세_${new Date().toISOString().split('T')[0]}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    } catch (err) {
-        alert('다운로드 실패: ' + err.message);
+    if (state.sessionId) {
+        // 서버 모드
+        try {
+            const res = await fetch(`${API}/api/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: state.sessionId, auto_fill_buy_dates: autoFill }),
+            });
+            if (!res.ok) throw new Error('엑셀 생성 실패');
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `홈택스_양도소득세_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            alert('다운로드 실패: ' + err.message);
+        }
+        return;
     }
+
+    // 브라우저 모드: 클라이언트에서 직접 생성
+    if (!state.trades || state.trades.length === 0) {
+        alert('다운로드할 거래 데이터가 없습니다.');
+        return;
+    }
+    const wb = generateHomeTaxExcelCS(state.trades, autoFill);
+    XLSX.writeFile(wb, `홈택스_양도소득세_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
 // ===== Reset =====
 function resetAll() {
-    state = { files: [], sessionId: null, trades: [], tax: null };
+    state = { files: [], sessionId: null, trades: [], tax: null, parsedFiles: [] };
     document.getElementById('fileList').innerHTML = '';
     document.getElementById('analyzeBtn').classList.add('hidden');
     document.getElementById('fileInput').value = '';
