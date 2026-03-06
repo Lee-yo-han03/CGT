@@ -717,6 +717,14 @@ async function uploadFiles() {
             const res = await fetch(`${API}/api/upload`, { method: 'POST', body: formData });
             const data = await res.json();
             if (data.status === 'success') {
+                if (data.trade_count === 0) {
+                    document.getElementById('processingCard').classList.add('hidden');
+                    goStep(1);
+                    const errFile = (data.files || []).find(f => f.error);
+                    const msg = errFile ? `파싱 실패: ${errFile.error}` : '거래 데이터를 찾지 못했습니다.\n파일을 확인해주세요.';
+                    alert(msg);
+                    return;
+                }
                 state.sessionId = data.session_id;
                 state.trades = data.trades;
                 state.tax = data.tax;
@@ -843,9 +851,17 @@ function displayResults() {
         </tr>`;
     }).join('');
 
+    const errorFiles = parsedFiles.filter(f => f.error);
     const mode = state.sessionId ? '' : ' (브라우저 처리)';
-    document.getElementById('resultAlert').innerHTML =
-        `<div class="alert alert-success"><span>✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다${mode}</span></div>`;
+    if (errorFiles.length > 0) {
+        const errNames = errorFiles.map(f => f.filename).join(', ');
+        document.getElementById('resultAlert').innerHTML =
+            `<div class="alert alert-success"><span>✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건 처리${mode}</span></div>` +
+            `<div class="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;"><span>⚠️</span><span>파싱 실패 파일: ${errNames}</span></div>`;
+    } else {
+        document.getElementById('resultAlert').innerHTML =
+            `<div class="alert alert-success"><span>✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다${mode}</span></div>`;
+    }
 }
 
 // ===== Download =====
