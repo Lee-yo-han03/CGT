@@ -187,6 +187,7 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -667,13 +668,142 @@ function generateHomeTaxExcelCS(trades, autoFill) {
     return wb;
 }
 
+// ===== PDF Client-Side Parser (한국투자증권 형식) =====
+function detectCountryCS(code) {
+    if (!code) return 'US';
+    const p = code.substring(0, 2).toUpperCase();
+    return { US:'US', KY:'US', JP:'JP', HK:'HK', GB:'GB', DE:'DE', FR:'FR', CA:'CA', AU:'AU', CN:'CN', TW:'TW', SG:'SG' }[p] || 'US';
+}
+
+async function parsePDFClientSide(file) {
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    const allItems = [];
+
+    for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const vp = page.getViewport({ scale: 1.0 });
+        const tc = await page.getTextContent();
+        for (const item of tc.items) {
+            const t = (item.str || '').trim();
+            if (!t) continue;
+            allItems.push({
+                text: t,
+                x: item.transform[4],
+                y: vp.height - item.transform[5]   // PDF 좌표를 top-down으로 변환
+            });
+        }
+    }
+
+    // y 오름차순(위→아래), x 오름차순(좌→우) 정렬
+    allItems.sort((a, b) => a.y - b.y || a.x - b.x);
+
+    // y 3px 이내 항목을 같은 "밴드(행)" 로 묶기
+    const bands = [];
+    for (const item of allItems) {
+        const last = bands[bands.length - 1];
+        if (last && Math.abs(item.y - last.y) <= 3) {
+            last.items.push(item);
+        } else {
+            bands.push({ y: item.y, items: [item] });
+        }
+    }
+
+    const trades = [];
+    const dateRe = /^(\d{4})\.(\d{2})\.(\d{2})$/;
+
+    for (let bi = 0; bi < bands.length; bi++) {
+        const band = bands[bi];
+
+        // 양도일자 패턴 (x: 190~255) 이 있는 밴드 = 거래 데이터 행
+        const dateItem = band.items.find(i => {
+            const m = i.text.match(dateRe);
+            return m && i.x >= 190 && i.x <= 255;
+        });
+        if (!dateItem) continue;
+
+        const dm = dateItem.text.match(dateRe);
+        const sellDate = `${dm[1]}-${dm[2]}-${dm[3]}`;
+
+        // 해당 밴드 ±15px 범위의 항목을 하나의 "블록"으로 수집
+        const block = allItems.filter(i => Math.abs(i.y - band.y) <= 15);
+
+        // x 범위로 숫자 추출 (여러 조각 이어붙이기)
+        const getNum = (xMin, xMax) => {
+            const txt = block
+                .filter(i => i.x >= xMin && i.x <= xMax)
+                .sort((a, b) => a.y - b.y || a.x - b.x)
+                .map(i => i.text.replace(/,/g, '')).join('');
+            return parseFloat(txt) || 0;
+        };
+
+        // 종목명: x < 90 (여러 줄 합치기)
+        const nameItems = block.filter(i => i.x >= 30 && i.x < 90)
+            .sort((a, b) => a.y - b.y || a.x - b.x);
+        const stockName = nameItems.map(i => i.text).join(' ').trim();
+        if (!stockName || /합계|소계|합산/.test(stockName)) continue;
+
+        // ISIN 코드: x 82~115, 영숫자만
+        const isinItems = block.filter(i => i.x >= 82 && i.x < 115 && /^[A-Z0-9]+$/i.test(i.text))
+            .sort((a, b) => a.y - b.y || a.x - b.x);
+        const stockCode = isinItems.map(i => i.text.toUpperCase()).join('');
+
+        // 양도주식수: x 150~210
+        const shares = getNum(150, 210);
+        if (shares <= 0) continue;
+
+        // 양도가액: x 305~375
+        const sellTotal = getNum(305, 375);
+        if (sellTotal <= 0) continue;
+
+        // 취득가액: x 400~475
+        const buyTotal = getNum(400, 475);
+
+        // 제비용: x 455~525
+        const expenses = getNum(455, 525);
+
+        // 손익 (음수 가능): x 512~560
+        const plItems = block.filter(i => i.x >= 512 && i.x <= 560)
+            .sort((a, b) => a.y - b.y || a.x - b.x);
+        const plText = plItems.map(i => i.text.replace(/,/g, '')).join('');
+        const profitLoss = parseFloat(plText) || (sellTotal - buyTotal - expenses);
+
+        trades.push({
+            stock_name: stockName,
+            stock_code: stockCode,
+            shares,
+            sell_date: sellDate,
+            sell_price_per_share: shares > 0 ? Math.round(sellTotal / shares) : 0,
+            sell_total: Math.round(sellTotal),
+            buy_date: '',
+            buy_price_per_share: shares > 0 ? Math.round(buyTotal / shares) : 0,
+            buy_total: Math.round(buyTotal),
+            expenses: Math.round(expenses),
+            profit_loss: Math.round(profitLoss),
+            country_code: detectCountryCS(stockCode),
+        });
+    }
+
+    return trades;
+}
+
 async function parseFilesClientSide(files) {
     const allTrades = [];
     const parsedFiles = [];
     for (const file of files) {
         const ext = file.name.split('.').pop().toLowerCase();
         if (ext === 'pdf') {
-            parsedFiles.push({ filename: file.name, broker: 'PDF', trade_count: 0, error: 'PDF는 서버 모드에서만 지원됩니다' });
+            try {
+                const trades = await parsePDFClientSide(file);
+                allTrades.push(...trades);
+                parsedFiles.push({ filename: file.name, broker: '한국투자증권(자동)', trade_count: trades.length,
+                    ...(trades.length === 0 ? { error: '거래 데이터를 찾지 못했습니다' } : {}) });
+            } catch(e) {
+                parsedFiles.push({ filename: file.name, broker: 'PDF', trade_count: 0, error: e.message });
+            }
             continue;
         }
         try {
@@ -737,18 +867,13 @@ async function uploadFiles() {
         } catch {}
     }
 
-    // 브라우저 처리 모드: Excel/CSV만 가능
+    // 브라우저 처리 모드 (PDF.js + XLSX.js 클라이언트 처리)
     const { trades, parsedFiles } = await parseFilesClientSide(state.files);
 
     if (trades.length === 0) {
         document.getElementById('processingCard').classList.add('hidden');
         goStep(1);
-        const hasPdf = state.files.some(f => f.name.split('.').pop().toLowerCase() === 'pdf');
-        if (hasPdf) {
-            alert('PDF 파일 처리는 Python 서버가 필요합니다.\n\n서버 실행 방법:\n  python3 sever/TaxEasy_Complete/server_v3.py\n  접속: http://localhost:8080\n\nExcel(.xlsx) 또는 CSV 파일로 업로드하면\n서버 없이도 바로 이용할 수 있습니다.');
-        } else {
-            alert('거래 데이터를 찾지 못했습니다.\n파일 내 컬럼명을 확인해주세요.\n(종목명, 양도가액, 취득가액 등이 있어야 합니다)');
-        }
+        alert('거래 데이터를 찾지 못했습니다.\n\nPDF: 한국투자증권 양도소득세 내역서 형식을 지원합니다.\nExcel/CSV: 종목명, 양도가액, 취득가액 컬럼이 있어야 합니다.');
         return;
     }
 
