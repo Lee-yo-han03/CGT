@@ -1,14 +1,576 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxEasy Global - 해외 양도소득세 자동 계산</title>
+    <style>
+        :root {
+            --primary: #4F46E5; --primary-light: #818CF8; --primary-dark: #3730A3;
+            --success: #059669; --danger: #DC2626; --warning: #D97706;
+            --bg: #F8FAFC; --card: #FFFFFF; --text: #1E293B;
+            --text-light: #64748B; --border: #E2E8F0;
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* Top Bar */
+        .top-bar { background: white; border-bottom: 1px solid var(--border); padding: 14px 0; position: sticky; top: 0; z-index: 100; }
+        .top-bar-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; color: var(--primary); }
+        .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .ver { font-size: 11px; color: var(--text-light); background: #F1F5F9; padding: 4px 8px; border-radius: 12px; }
+
+        .main { max-width: 960px; margin: 0 auto; padding: 24px; }
+
+        /* Steps */
+        .steps { display: flex; justify-content: center; gap: 4px; margin-bottom: 28px; }
+        .step-dot { padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 500; background: white; border: 1px solid var(--border); color: var(--text-light); transition: all 0.3s; display: flex; align-items: center; gap: 6px; }
+        .step-dot.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .step-dot.done { background: #ECFDF5; color: var(--success); border-color: #A7F3D0; }
+
+        /* Card */
+        .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 28px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        .card-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+
+        /* Upload */
+        .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #FAFBFF; }
+        .upload-zone:hover, .upload-zone.hover { border-color: var(--primary); background: #EEF2FF; }
+        .upload-icon { font-size: 40px; margin-bottom: 12px; }
+        .upload-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+        .upload-sub { font-size: 12px; color: var(--text-light); }
+
+        /* File List */
+        .file-list { margin-top: 16px; }
+        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #F8FAFC; border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
+        .file-info { display: flex; align-items: center; gap: 8px; }
+        .file-broker { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #EEF2FF; color: var(--primary); }
+        .file-remove { cursor: pointer; color: var(--danger); font-size: 18px; line-height: 1; }
+
+        /* Toggle */
+        .toggle-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; margin: 16px 0; }
+        .toggle-row input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; }
+        .toggle-label { font-size: 14px; font-weight: 600; color: var(--text); }
+        .toggle-desc { font-size: 12px; color: var(--text-light); margin-top: 4px; line-height: 1.5; }
+
+        /* Processing */
+        .processing { text-align: center; padding: 32px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Summary Grid */
+        .sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+        .sum-item { background: #F8FAFC; border-radius: 10px; padding: 16px; text-align: center; }
+        .sum-label { font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .sum-value { font-size: 18px; font-weight: 700; }
+
+        /* Tax Box */
+        .tax-box { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); border-radius: var(--radius); padding: 28px; color: white; text-align: center; margin: 20px 0; }
+        .tax-box h3 { font-size: 13px; opacity: 0.8; margin-bottom: 6px; }
+        .tax-big { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+        .tax-sub { font-size: 12px; opacity: 0.7; }
+        .tax-split { display: flex; justify-content: center; gap: 28px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.2); }
+        .tax-split span { font-size: 11px; opacity: 0.7; display: block; }
+        .tax-split strong { font-size: 16px; }
+
+        /* Detail */
+        .detail-line { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #F1F5F9; font-size: 14px; }
+        .detail-line:last-child { border-bottom: none; }
+        .detail-line .l { color: var(--text-light); }
+        .detail-line .v { font-weight: 600; }
+        .detail-hl { background: #FFFBEB; margin: 0 -16px; padding: 10px 16px; border-radius: 8px; border: 1px solid #FDE68A; }
+        .detail-hl .l { color: var(--warning); font-weight: 600; }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin-top: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        thead { background: #F8FAFC; }
+        th { padding: 10px 12px; text-align: right; font-weight: 600; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        th:first-child { text-align: left; }
+        td { padding: 8px 12px; text-align: right; color: var(--text-light); border-bottom: 1px solid #F1F5F9; }
+        td:first-child { text-align: left; color: var(--text); font-weight: 500; }
+        .profit { color: var(--danger); }
+        .loss { color: #2563EB; }
+
+        /* Guide */
+        .guide-section { margin-top: 20px; }
+        .guide-step { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #F1F5F9; }
+        .guide-step:last-child { border-bottom: none; }
+        .guide-num { width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+        .guide-text { font-size: 14px; line-height: 1.6; }
+        .guide-text strong { color: var(--primary); }
+        .guide-tip { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #1D4ED8; margin-top: 16px; line-height: 1.5; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-primary:disabled { background: #CBD5E1; cursor: not-allowed; transform: none; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #047857; }
+        .btn-outline { background: white; color: var(--text); border: 1px solid var(--border); }
+        .btn-outline:hover { background: #F8FAFC; }
+        .btn-lg { padding: 14px 28px; font-size: 15px; }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+
+        .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .alert-info { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+        .alert-success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+
+        .hidden { display: none !important; }
+        .footer { text-align: center; padding: 32px 0; color: var(--text-light); font-size: 12px; }
+
+        @media (max-width: 640px) {
+            .sum-grid { grid-template-columns: 1fr; }
+            .steps { flex-wrap: wrap; }
+            .tax-big { font-size: 26px; }
+        }
+    </style>
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+
+<div class="top-bar">
+    <div class="top-bar-inner">
+        <div class="logo"><div class="logo-icon">T</div> TaxEasy Global</div>
+        <div class="ver">v3.0</div>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- Steps -->
+    <div class="steps" id="stepsNav">
+        <div class="step-dot active" data-s="1">1. 파일 업로드</div>
+        <div class="step-dot" data-s="2">2. 결과 확인</div>
+        <div class="step-dot" data-s="3">3. 엑셀 다운로드</div>
+    </div>
+
+    <!-- ===== STEP 1: Upload ===== -->
+    <div id="step1">
+        <div class="card">
+            <div class="card-title">📁 거래내역 파일 업로드</div>
+            <p style="font-size:13px; color:var(--text-light); margin-bottom:16px;">
+                증권사에서 다운로드한 해외주식 양도소득세 거래내역 파일을 올려주세요.<br>
+                증권사는 자동으로 감지됩니다. 여러 파일을 동시에 올릴 수 있습니다.
+            </p>
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">📤</div>
+                <div class="upload-title">파일을 드래그하거나 클릭하여 업로드</div>
+                <div class="upload-sub">PDF, Excel(.xlsx/.xls), CSV · 여러 파일 동시 업로드 가능</div>
+                <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls,.csv" style="display:none;">
+            </div>
+            <div class="file-list" id="fileList"></div>
+            <div style="text-align:center; margin-top:16px;">
+                <button class="btn btn-primary btn-lg hidden" id="analyzeBtn" onclick="uploadFiles()">
+                    🔍 파일 분석 및 세금 계산
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing -->
+    <div class="card hidden" id="processingCard">
+        <div class="processing">
+            <div class="spinner"></div>
+            <div style="font-size:15px; font-weight:600; margin-bottom:6px;">파일 분석 중...</div>
+            <div style="font-size:13px; color:var(--text-light);" id="processingMsg">거래내역을 파싱하고 세금을 계산하고 있습니다</div>
+        </div>
+    </div>
+
+    <!-- ===== STEP 2: Results ===== -->
+    <div class="hidden" id="step2">
+        <div class="card">
+            <div class="card-title">✅ 거래내역 분석 결과</div>
+            <div id="resultAlert"></div>
+
+            <!-- 파일별 결과 -->
+            <div id="fileResults"></div>
+
+            <div class="sum-grid">
+                <div class="sum-item">
+                    <div class="sum-label">총 거래건수</div>
+                    <div class="sum-value" id="sumCount">0건</div>
+                </div>
+                <div class="sum-item">
+                    <div class="sum-label">이익 거래</div>
+                    <div class="sum-value" style="color:var(--danger);" id="sumProfit">0건</div>
+                </div>
+                <div class="sum-item">
+                    <div class="sum-label">손실 거래</div>
+                    <div class="sum-value" style="color:#2563EB;" id="sumLoss">0건</div>
+                </div>
+            </div>
+
+            <!-- Tax Box -->
+            <div class="tax-box">
+                <h3>납부할 양도소득세</h3>
+                <div class="tax-big" id="taxAmount">0원</div>
+                <div class="tax-sub" id="taxSub"></div>
+                <div class="tax-split">
+                    <div><span>국세 (20%)</span><strong id="taxN">0원</strong></div>
+                    <div><span>지방세 (2%)</span><strong id="taxL">0원</strong></div>
+                </div>
+            </div>
+
+            <!-- Detail -->
+            <div style="padding:8px 0;">
+                <div class="detail-line"><span class="l">총 양도가액 (매도금액)</span><span class="v" id="dSell">0</span></div>
+                <div class="detail-line"><span class="l">총 취득가액 (매수금액)</span><span class="v" id="dBuy">0</span></div>
+                <div class="detail-line"><span class="l">필요경비 (수수료)</span><span class="v" id="dExp">0</span></div>
+                <div class="detail-line" style="border-bottom:2px solid var(--border);"><span class="l" style="font-weight:600;">양도차익</span><span class="v" style="font-size:16px;" id="dPL">0</span></div>
+                <div class="detail-line detail-hl"><span class="l">기본공제</span><span class="v" id="dDed">-2,500,000원</span></div>
+                <div class="detail-line"><span class="l">과세표준</span><span class="v" id="dTaxable">0</span></div>
+            </div>
+
+            <!-- Trade Table -->
+            <details style="margin-top:16px;">
+                <summary style="cursor:pointer; font-weight:600; font-size:13px; color:var(--primary); padding:10px 0;">
+                    📋 거래내역 상세 (<span id="tradeCountLabel">0</span>건)
+                </summary>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th style="text-align:left;">종목명</th>
+                            <th>수량</th>
+                            <th>양도일</th>
+                            <th>양도가액</th>
+                            <th>취득가액</th>
+                            <th>경비</th>
+                            <th>손익</th>
+                        </tr></thead>
+                        <tbody id="tradesBody"></tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- 추가 파일 업로드 -->
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                <button class="btn btn-outline" onclick="showAddMore()">➕ 파일 추가 업로드</button>
+                <div class="hidden" id="addMoreZone" style="margin-top:12px;">
+                    <input type="file" id="addFileInput" multiple accept=".pdf,.xlsx,.xls,.csv">
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 3: Download ===== -->
+        <div class="card" id="step3">
+            <div class="card-title">📥 홈택스 업로드용 Excel 다운로드</div>
+
+            <!-- 취득일자 자동채움 -->
+            <div class="toggle-row">
+                <input type="checkbox" id="autoFillCheck" checked>
+                <div>
+                    <div class="toggle-label">취득일자 자동 채움</div>
+                    <div class="toggle-desc">
+                        체크 시: 각 거래의 양도일 연도 1월 1일을 취득일자로 자동 입력합니다.<br>
+                        (예: 양도일 2024-12-31 → 취득일 2024-01-01)<br>
+                        연간 합산 신고 시 같은 연도 내 임의 날짜 사용이 가능합니다.<br>
+                        <strong>해제 시:</strong> 취득일자를 비워두어, 다운로드 후 엑셀에서 직접 입력할 수 있습니다.
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-lg btn-block" onclick="downloadExcel()" style="margin-top:16px;">
+                📥 홈택스 신고용 Excel 다운로드
+            </button>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="resetAll()">🔄 새로운 파일 처리하기</button>
+            </div>
+        </div>
+
+        <!-- ===== 신고 안내 ===== -->
+        <div class="card">
+            <div class="card-title">📝 홈택스 양도소득세 신고 안내</div>
+            <div class="guide-section">
+                <div class="guide-step">
+                    <div class="guide-num">1</div>
+                    <div class="guide-text">
+                        <strong>홈택스 접속</strong> → 로그인 후
+                        <strong>세금신고 → 양도소득세 → 확정신고</strong>로 이동합니다.
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-num">2</div>
+                    <div class="guide-text">
+                        <strong>신고서 작성</strong> 화면에서 "주식등" 탭을 선택하고,
+                        <strong>양도소득금액 계산</strong> 영역에서 <strong>"엑셀 업로드"</strong> 버튼을 클릭합니다.
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-num">3</div>
+                    <div class="guide-text">
+                        위에서 다운로드한 Excel 파일을 선택하여 업로드합니다.
+                        업로드 후 거래내역이 자동으로 입력됩니다.
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-num">4</div>
+                    <div class="guide-text">
+                        업로드된 내용을 <strong>반드시 확인</strong>한 후, 특히 <strong>취득일자</strong>가
+                        올바른지 검토합니다. 자동채움을 사용하지 않았다면 이 단계에서 직접 입력합니다.
+                    </div>
+                </div>
+                <div class="guide-step">
+                    <div class="guide-num">5</div>
+                    <div class="guide-text">
+                        모든 내용 확인 후 <strong>신고서 제출</strong>을 클릭합니다.<br>
+                        국세와 지방세는 별도로 납부해야 합니다.
+                    </div>
+                </div>
+            </div>
+            <div class="guide-tip">
+                💡 <strong>신고 기한:</strong> 해외주식 양도소득세는 매년 <strong>5월 1일 ~ 5월 31일</strong>에 전년도 거래분을 신고합니다.
+                기한 내 미신고 시 가산세가 부과될 수 있습니다.<br><br>
+                💡 <strong>기본공제:</strong> 연간 양도차익에서 250만원을 공제합니다. 양도차익이 250만원 이하이면 납부할 세금이 없지만 <strong>신고는 해야 합니다</strong>.
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        TaxEasy Global v3.0 · 해외 양도소득세 자동 계산<br>
+        <small>이 서비스는 참고용이며, 최종 신고는 홈택스에서 직접 확인하시기 바랍니다.</small>
+    </div>
+</div>
+
+<script>
+const API = window.location.origin;
+let state = { files: [], sessionId: null, trades: [], tax: null };
+
+// ===== Step Navigation =====
+function goStep(n) {
+    document.querySelectorAll('.step-dot').forEach((el, i) => {
+        el.classList.remove('active','done');
+        if (i + 1 < n) el.classList.add('done');
+        if (i + 1 === n) el.classList.add('active');
+    });
+    ['step1','step2','processingCard'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+    const target = document.getElementById(`step${n}`);
+    if (target) target.classList.remove('hidden');
+}
+
+// ===== File Handling =====
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('hover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('hover'));
+uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('hover');
+    addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => { addFiles(e.target.files); fileInput.value = ''; });
+
+function addFiles(filesList) {
+    for (const f of filesList) {
+        if (!state.files.some(x => x.name === f.name && x.size === f.size)) {
+            state.files.push(f);
+        }
+    }
+    renderFileList();
+}
+
+function removeFile(idx) {
+    state.files.splice(idx, 1);
+    renderFileList();
+}
+
+function renderFileList() {
+    const list = document.getElementById('fileList');
+    const btn = document.getElementById('analyzeBtn');
+    if (state.files.length === 0) {
+        list.innerHTML = '';
+        btn.classList.add('hidden');
+        return;
+    }
+    btn.classList.remove('hidden');
+    list.innerHTML = state.files.map((f, i) => `
+        <div class="file-item">
+            <div class="file-info">
+                <span>📄</span>
+                <span>${f.name}</span>
+                <span style="color:var(--text-light); font-size:11px;">(${(f.size/1024).toFixed(1)}KB)</span>
+            </div>
+            <span class="file-remove" onclick="removeFile(${i})">✕</span>
+        </div>
+    `).join('');
+}
+
+// ===== Upload =====
+async function uploadFiles() {
+    if (state.files.length === 0) return;
+
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('processingCard').classList.remove('hidden');
+    document.getElementById('processingMsg').textContent =
+        `${state.files.length}개 파일 분석 중...`;
+
+    const formData = new FormData();
+    state.files.forEach(f => formData.append('file', f));
+
+    try {
+        const res = await fetch(`${API}/api/upload`, { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+            state.sessionId = data.session_id;
+            state.trades = data.trades;
+            state.tax = data.tax;
+            state.parsedFiles = data.files;
+
+            document.getElementById('processingCard').classList.add('hidden');
+            displayResults();
+            goStep(2);
+        } else {
+            throw new Error(data.error || '파싱 실패');
+        }
+    } catch (err) {
+        document.getElementById('processingCard').classList.add('hidden');
+        goStep(1);
+        alert('에러: ' + err.message);
+    }
+}
+
+// ===== Add More Files =====
+function showAddMore() {
+    document.getElementById('addMoreZone').classList.remove('hidden');
+    document.getElementById('addFileInput').click();
+}
+
+document.getElementById('addFileInput').addEventListener('change', async function(e) {
+    if (!e.target.files.length || !state.sessionId) return;
+
+    const formData = new FormData();
+    for (const f of e.target.files) formData.append('file', f);
+    formData.append('session_id', state.sessionId);
+
+    document.getElementById('addMoreZone').classList.add('hidden');
+
+    try {
+        const res = await fetch(`${API}/api/upload-additional`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.status === 'success') {
+            state.trades = data.trades;
+            state.tax = data.tax;
+            state.parsedFiles = data.files;
+            displayResults();
+        } else {
+            alert(data.error || '추가 업로드 실패');
+        }
+    } catch (err) {
+        alert('에러: ' + err.message);
+    }
+    e.target.value = '';
+});
+
+// ===== Display =====
+function displayResults() {
+    const { trades, tax, parsedFiles } = state;
+
+    // File results
+    const fr = document.getElementById('fileResults');
+    if (parsedFiles && parsedFiles.length > 0) {
+        fr.innerHTML = parsedFiles.map(f => `
+            <div class="file-item">
+                <div class="file-info">
+                    <span>📄</span>
+                    <span>${f.filename}</span>
+                    <span class="file-broker">${f.broker}</span>
+                    <span style="color:var(--text-light); font-size:11px;">${f.trade_count}건</span>
+                </div>
+                ${f.error ? `<span style="color:var(--danger); font-size:11px;">${f.error}</span>` : ''}
+            </div>
+        `).join('');
+    }
+
+    // Summary
+    document.getElementById('sumCount').textContent = `${trades.length}건`;
+    document.getElementById('sumProfit').textContent = `${tax.profit_trades}건`;
+    document.getElementById('sumLoss').textContent = `${tax.loss_trades}건`;
+    document.getElementById('tradeCountLabel').textContent = trades.length;
+
+    // Tax
+    document.getElementById('taxAmount').textContent = krw(tax.tax_amount);
+    document.getElementById('taxN').textContent = krw(tax.national_tax);
+    document.getElementById('taxL').textContent = krw(tax.local_tax);
+    document.getElementById('taxSub').textContent =
+        `세율 22% · 기본공제 250만원 적용`;
+
+    // Detail
+    document.getElementById('dSell').textContent = krw(tax.total_sell);
+    document.getElementById('dBuy').textContent = krw(tax.total_buy);
+    document.getElementById('dExp').textContent = krw(tax.total_expenses);
+    document.getElementById('dPL').textContent = krw(tax.gross_profit_loss);
+    document.getElementById('dDed').textContent = `-${krw(tax.basic_deduction)}`;
+    document.getElementById('dTaxable').textContent = krw(tax.taxable_income);
+
+    // Trades
+    document.getElementById('tradesBody').innerHTML = trades.map(t => {
+        const pl = t.profit_loss || 0;
+        return `<tr>
+            <td>${t.stock_name||'-'}</td>
+            <td>${t.shares||0}</td>
+            <td>${t.sell_date||'-'}</td>
+            <td>${num(t.sell_total)}</td>
+            <td>${num(t.buy_total)}</td>
+            <td>${num(t.expenses)}</td>
+            <td class="${pl > 0 ? 'profit' : pl < 0 ? 'loss' : ''}">${num(pl)}</td>
+        </tr>`;
+    }).join('');
+
+    // Alert
+    document.getElementById('resultAlert').innerHTML =
+        `<div class="alert alert-success"><span>✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다</span></div>`;
+}
+
+// ===== Download =====
+async function downloadExcel() {
+    if (!state.sessionId) return;
+    const autoFill = document.getElementById('autoFillCheck').checked;
+
+    try {
+        const res = await fetch(`${API}/api/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: state.sessionId,
+                auto_fill_buy_dates: autoFill,
+            }),
+        });
+        if (!res.ok) throw new Error('엑셀 생성 실패');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `홈택스_양도소득세_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        alert('다운로드 실패: ' + err.message);
+    }
+}
+
+// ===== Reset =====
+function resetAll() {
+    state = { files: [], sessionId: null, trades: [], tax: null };
+    document.getElementById('fileList').innerHTML = '';
+    document.getElementById('analyzeBtn').classList.add('hidden');
+    document.getElementById('fileInput').value = '';
+    goStep(1);
+}
+
+// ===== Helpers =====
+function krw(n) { return (n||0).toLocaleString('ko-KR') + '원'; }
+function num(n) { return (n||0).toLocaleString('ko-KR'); }
+</script>
 </body>
 </html>
