@@ -293,13 +293,8 @@
         .footer-links a:hover { color: var(--accent); }
 
         /* AdSense */
-        /* ===== AdSense 광고 단위 ===== */
+        /* ===== AdSense ===== */
         .ad-wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
-        .ad-unit { display: block; background: transparent; text-align: center; overflow: hidden; }
-        /* 레이아웃 쉬프트(CLS) 방지 — 광고 로드 전 최소 높이 */
-        .ad-unit-banner  { min-height: 90px;  }   /* 리더보드/배너 */
-        .ad-unit-rect    { min-height: 250px; }   /* 직사각형 */
-        .ad-unit-infeed  { min-height: 200px; }   /* 인피드 */
 
         /* Intro */
         .intro-section { background: linear-gradient(160deg, #E8EBF5 0%, #EEF0F6 60%, #E8F5EE 100%); border-bottom: 1px solid var(--border); padding: 56px 0 48px; position: relative; overflow: hidden; }
@@ -475,15 +470,8 @@
     </div>
 </section>
 
-<!-- ▣ 광고 1: 히어로 하단 가로 배너 (최상단 노출, 높은 CPM) -->
-<div class="ad-wrap" style="padding: 16px 24px;">
-    <ins class="adsbygoogle ad-unit ad-unit-banner"
-         data-ad-client="ca-pub-3785485618874450"
-         data-ad-slot="1111111111"
-         data-ad-format="horizontal"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+<!-- ▣ 광고 1: 히어로 하단 — Auto Ads 삽입 구역 -->
+<div class="ad-wrap" style="padding: 8px 24px;" data-ad-zone="hero-bottom"></div>
 
 <div class="main">
 
@@ -688,15 +676,8 @@
         </div>
     </div>
 
-    <!-- ▣ 광고 2: 다운로드 완료 후 직사각형 (사용자가 목적 달성 직후 → 높은 CTR) -->
-    <div class="ad-wrap" style="padding: 20px 0 4px;">
-        <ins class="adsbygoogle ad-unit ad-unit-rect"
-             data-ad-client="ca-pub-3785485618874450"
-             data-ad-slot="2222222222"
-             data-ad-format="rectangle"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
+    <!-- ▣ 광고 2: 다운로드 완료 후 — Auto Ads 삽입 구역 -->
+    <div class="ad-wrap" style="padding: 16px 0;" data-ad-zone="post-download"></div>
 
     <!-- 피드백 및 소감 -->
     <div class="feedback-section" id="feedbackSection">
@@ -753,15 +734,8 @@
         </div>
     </div>
 
-    <!-- ▣ 광고 3: 피드백 이후 인피드 배너 (스크롤 중간 노출) -->
-    <div class="ad-wrap" style="padding: 4px 24px 20px;">
-        <ins class="adsbygoogle ad-unit ad-unit-infeed"
-             data-ad-client="ca-pub-3785485618874450"
-             data-ad-slot="3333333333"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
+    <!-- ▣ 광고 3: 피드백 이후 — Auto Ads 삽입 구역 -->
+    <div class="ad-wrap" style="padding: 4px 24px 16px;" data-ad-zone="mid-page"></div>
 
     <!-- ===== SEO/GEO Content Sections ===== -->
     <div class="seo-section" style="margin-top:20px;">
@@ -870,15 +844,8 @@
             </div>
         </section>
 
-        <!-- ▣ 광고 4: FAQ 이후 하단 배너 (푸터 직전, 스크롤 끝 노출) -->
-        <div style="margin-top: 32px;">
-            <ins class="adsbygoogle ad-unit ad-unit-banner"
-                 data-ad-client="ca-pub-3785485618874450"
-                 data-ad-slot="4444444444"
-                 data-ad-format="horizontal"
-                 data-full-width-responsive="true"></ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>
+        <!-- ▣ 광고 4: FAQ 이후 하단 — Auto Ads 삽입 구역 -->
+        <div style="margin-top: 24px;" data-ad-zone="pre-footer"></div>
     </div>
 
     <div class="footer">
