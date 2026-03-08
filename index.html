@@ -825,18 +825,18 @@ function generateHomeTaxExcelCS(trades, autoFill) {
         set(7,  { t: 's', s: S[7],  v: '01' });
         // I: 양도일자 (YYYY-MM-DD 텍스트 — 시리얼 변환 방지)
         set(8,  { t: 's', s: S[8],  v: t.sell_date || '' });
-        // J: 주당양도가액 (숫자)
-        set(9,  { t: 'n', s: S[9],  v: Math.round(t.sell_price_per_share || 0) });
-        // K: 양도가액 (숫자)
-        set(10, { t: 'n', s: S[10], v: Math.round(t.sell_total || 0) });
+        // J: 주당양도가액 (숫자, 천단위 구분)
+        set(9,  { t: 'n', s: S[9],  v: Math.round(t.sell_price_per_share || 0), z: '#,##0' });
+        // K: 양도가액 (숫자, 천단위 구분)
+        set(10, { t: 'n', s: S[10], v: Math.round(t.sell_total || 0),           z: '#,##0' });
         // L: 취득일자 (YYYY-MM-DD 텍스트 — 시리얼 변환 방지)
         set(11, { t: 's', s: S[11], v: t.buy_date || '' });
-        // M: 주당취득가액 (숫자)
-        set(12, { t: 'n', s: S[12], v: Math.round(t.buy_price_per_share || 0) });
-        // N: 취득가액 (숫자)
-        set(13, { t: 'n', s: S[13], v: Math.round(t.buy_total || 0) });
-        // O: 필요경비 (숫자)
-        set(14, { t: 'n', s: S[14], v: Math.round(t.expenses || 0) });
+        // M: 주당취득가액 (숫자, 천단위 구분)
+        set(12, { t: 'n', s: S[12], v: Math.round(t.buy_price_per_share || 0),  z: '#,##0' });
+        // N: 취득가액 (숫자, 천단위 구분)
+        set(13, { t: 'n', s: S[13], v: Math.round(t.buy_total || 0),            z: '#,##0' });
+        // O: 필요경비 (숫자, 천단위 구분)
+        set(14, { t: 'n', s: S[14], v: Math.round(t.expenses || 0),             z: '#,##0' });
         // P~T: 비과세/감면/과세이연 (빈 숫자셀 — 템플릿과 동일)
         set(15, { t: 'n', s: S[15] });
         set(16, { t: 'n', s: S[16] });

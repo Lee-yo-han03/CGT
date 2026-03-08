@@ -434,6 +434,10 @@ class HometaxExcelGenerator:
         # 템플릿 분석 결과:
         #   숫자(t=n): C(국내/국외), D(주식수), J/K/M/N/O(금액), B/P/Q/R/S/T/U/W(빈셀)
         #   텍스트(t=s): A(종목명), E/F/G(코드), H(취득유형), I/L(날짜), U(ISIN), V(국가코드)
+        thin = Side(style='thin')
+        all_border = Border(left=thin, right=thin, top=thin, bottom=thin)
+        amount_cols = {10, 11, 13, 14, 15}  # J, K, M, N, O
+
         for row_idx, trade in enumerate(trades, 2):
             buy_date = ''
             if buy_date_resolver:
@@ -442,7 +446,10 @@ class HometaxExcelGenerator:
                 buy_date = trade['buy_date']
 
             def set_cell(col, value):
-                ws.cell(row=row_idx, column=col, value=value)
+                cell = ws.cell(row=row_idx, column=col, value=value)
+                cell.border = all_border
+                if col in amount_cols and value is not None:
+                    cell.number_format = '#,##0'
 
             # A: 주식 종목명 (텍스트)
             set_cell(1,  trade['stock_name'] or '')
@@ -462,17 +469,17 @@ class HometaxExcelGenerator:
             set_cell(8,  '01')
             # I: 양도일자 (YYYY-MM-DD 문자열 — Python datetime 금지, 시리얼 변환 방지)
             set_cell(9,  str(trade['sell_date']) if trade.get('sell_date') else '')
-            # J: 주당양도가액 (숫자)
+            # J: 주당양도가액 (숫자, 천단위 구분)
             set_cell(10, int(round(trade.get('sell_price_per_share', 0) or 0)))
-            # K: 양도가액 (숫자)
+            # K: 양도가액 (숫자, 천단위 구분)
             set_cell(11, int(round(trade.get('sell_total', 0) or 0)))
             # L: 취득일자 (YYYY-MM-DD 문자열)
             set_cell(12, str(buy_date) if buy_date else '')
-            # M: 주당취득가액 (숫자)
+            # M: 주당취득가액 (숫자, 천단위 구분)
             set_cell(13, int(round(trade.get('buy_price_per_share', 0) or 0)))
-            # N: 취득가액 (숫자)
+            # N: 취득가액 (숫자, 천단위 구분)
             set_cell(14, int(round(trade.get('buy_total', 0) or 0)))
-            # O: 필요경비 (숫자)
+            # O: 필요경비 (숫자, 천단위 구분)
             set_cell(15, int(round(trade.get('expenses', 0) or 0)))
             # P~T: 비과세/감면/과세이연 (None → 빈 셀)
             for col in range(16, 21):
