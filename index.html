@@ -111,6 +111,30 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3785485618874450" crossorigin="anonymous"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+    // ⚠️ Firebase Console → 프로젝트 설정 → 내 앱 → firebaseConfig 붙여넣기
+    const FIREBASE_CONFIG = {
+        apiKey:            "YOUR_API_KEY",
+        authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId:         "YOUR_PROJECT_ID",
+        storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId:             "YOUR_APP_ID"
+    };
+
+    let db = null;
+    try {
+        if (FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+            firebase.initializeApp(FIREBASE_CONFIG);
+            db = firebase.firestore();
+        }
+    } catch(e) {
+        console.warn('Firebase 초기화 실패:', e.message);
+    }
+    </script>
 
     <style>
         /* ─── Design Tokens ─── */
@@ -1982,27 +2006,27 @@
 
         <div class="reaction-label">이 서비스가 어땠나요?</div>
         <div class="reaction-list">
-            <button class="reaction-btn" data-key="fast" onclick="toggleReaction(this)">
+            <button class="reaction-btn" data-key="fast" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">⚡</span>
                 <span>빠르고 편해요</span>
                 <span class="r-count" id="rc-fast">0</span>
             </button>
-            <button class="reaction-btn" data-key="accurate" onclick="toggleReaction(this)">
+            <button class="reaction-btn" data-key="accurate" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">✅</span>
                 <span>계산이 정확해요</span>
                 <span class="r-count" id="rc-accurate">0</span>
             </button>
-            <button class="reaction-btn" data-key="helpful" onclick="toggleReaction(this)">
+            <button class="reaction-btn" data-key="helpful" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">💡</span>
                 <span>도움이 됐어요</span>
                 <span class="r-count" id="rc-helpful">0</span>
             </button>
-            <button class="reaction-btn" data-key="easy" onclick="toggleReaction(this)">
+            <button class="reaction-btn" data-key="easy" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">👌</span>
                 <span>쓰기 쉬워요</span>
                 <span class="r-count" id="rc-easy">0</span>
             </button>
-            <button class="reaction-btn" data-key="improve" onclick="toggleReaction(this)">
+            <button class="reaction-btn" data-key="improve" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">🔧</span>
                 <span>개선이 필요해요</span>
                 <span class="r-count" id="rc-improve">0</span>
@@ -2896,6 +2920,174 @@ function toggleFaq(btn) {
         btn.setAttribute('aria-expanded', 'true');
     }
 }
+
+// ===================================================================
+// ===== Firebase Firestore 피드백 (리액션 + 댓글) ===================
+// ===================================================================
+
+const REACTION_KEYS = ['fast', 'accurate', 'helpful', 'easy', 'improve'];
+const LS_KEY = 'yangdosave_reactions_v1'; // localStorage 중복 방지 키
+
+// localStorage에서 이미 투표한 리액션 목록 가져오기
+function getVotedReactions() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+    catch { return {}; }
+}
+function setVotedReaction(key, voted) {
+    const v = getVotedReactions();
+    if (voted) v[key] = true; else delete v[key];
+    localStorage.setItem(LS_KEY, JSON.stringify(v));
+}
+
+// UI 카운트 업데이트
+function updateReactionUI(key, count, active) {
+    const countEl = document.getElementById(`rc-${key}`);
+    if (countEl) countEl.textContent = count;
+    const btn = document.querySelector(`.reaction-btn[data-key="${key}"]`);
+    if (!btn) return;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
+}
+
+// 페이지 로드 시 리액션 카운트 불러오기
+async function loadReactions() {
+    if (!db) return;
+    try {
+        const snap = await db.collection('reactions').get();
+        const voted = getVotedReactions();
+        snap.forEach(doc => {
+            const { key, count } = doc.data();
+            if (REACTION_KEYS.includes(key)) {
+                updateReactionUI(key, count || 0, !!voted[key]);
+            }
+        });
+    } catch(e) {
+        console.warn('리액션 로드 실패:', e.message);
+    }
+}
+
+// 리액션 토글 (중복 방지 + Firestore 업데이트)
+async function toggleReaction(btn) {
+    if (!db) { alert('피드백 기능을 사용하려면 Firebase 설정이 필요합니다.'); return; }
+
+    const key = btn.dataset.key;
+    if (!key) return;
+
+    const voted = getVotedReactions();
+    const isActive = !!voted[key];
+    const delta = isActive ? -1 : 1;
+
+    // 낙관적 UI 업데이트
+    const countEl = document.getElementById(`rc-${key}`);
+    const currentCount = parseInt(countEl?.textContent || '0', 10);
+    updateReactionUI(key, Math.max(0, currentCount + delta), !isActive);
+    setVotedReaction(key, !isActive);
+
+    try {
+        const ref = db.collection('reactions').doc(key);
+        await db.runTransaction(async tx => {
+            const doc = await tx.get(ref);
+            const prev = doc.exists ? (doc.data().count || 0) : 0;
+            tx.set(ref, { key, count: Math.max(0, prev + delta) }, { merge: true });
+        });
+    } catch(e) {
+        // 트랜잭션 실패 시 UI 롤백
+        console.error('리액션 저장 실패:', e.message);
+        updateReactionUI(key, Math.max(0, currentCount), isActive);
+        setVotedReaction(key, isActive);
+        alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+}
+
+// 댓글 목록 렌더링
+function renderComments(docs) {
+    const list = document.getElementById('commentList');
+    if (!list) return;
+    if (!docs || docs.length === 0) {
+        list.innerHTML = '<p class="comment-empty">아직 댓글이 없습니다. 첫 댓글을 남겨보세요!</p>';
+        return;
+    }
+    list.innerHTML = docs.map(doc => {
+        const d = doc.data ? doc.data() : doc;
+        const name = escHtml(d.name || '익명');
+        const text = escHtml(d.text || '');
+        const ts = d.createdAt?.toDate ? d.createdAt.toDate() : new Date(d.createdAt || Date.now());
+        const date = ts.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
+        return `
+        <div class="comment-item">
+            <div class="comment-meta">
+                <span class="comment-name">${name}</span>
+                <span class="comment-date">${date}</span>
+            </div>
+            <div class="comment-body">${text}</div>
+        </div>`;
+    }).join('');
+}
+
+// 페이지 로드 시 댓글 불러오기 (최신순 50개)
+async function loadComments() {
+    if (!db) return;
+    try {
+        const snap = await db.collection('comments')
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+        renderComments(snap.docs);
+    } catch(e) {
+        console.warn('댓글 로드 실패:', e.message);
+    }
+}
+
+// 댓글 등록
+async function submitComment() {
+    if (!db) { alert('피드백 기능을 사용하려면 Firebase 설정이 필요합니다.'); return; }
+
+    const nameEl = document.getElementById('cmtName');
+    const textEl = document.getElementById('cmtText');
+    const name = (nameEl?.value || '').trim();
+    const text = (textEl?.value || '').trim();
+
+    if (!text) { alert('내용을 입력해주세요.'); textEl?.focus(); return; }
+    if (text.length > 500) { alert('댓글은 500자 이내로 작성해주세요.'); return; }
+
+    const submitBtn = document.querySelector('.comment-submit');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '등록 중...'; }
+
+    try {
+        await db.collection('comments').add({
+            name: name || '익명',
+            text,               // Firestore 저장은 raw, 렌더링 시 escHtml 처리
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        if (nameEl) nameEl.value = '';
+        if (textEl) { textEl.value = ''; }
+        const charEl = document.getElementById('cmtChar');
+        if (charEl) charEl.textContent = '0 / 500';
+        await loadComments();
+    } catch(e) {
+        console.error('댓글 저장 실패:', e.message);
+        alert('댓글 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '등록'; }
+    }
+}
+
+// 댓글 글자수 카운터
+(function() {
+    const textEl = document.getElementById('cmtText');
+    const charEl = document.getElementById('cmtChar');
+    if (textEl && charEl) {
+        textEl.addEventListener('input', () => {
+            charEl.textContent = `${textEl.value.length} / 500`;
+        });
+    }
+})();
+
+// 페이지 로드 시 데이터 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    loadReactions();
+    loadComments();
+});
 </script>
 </body>
 </html>
