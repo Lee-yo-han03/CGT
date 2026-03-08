@@ -12,6 +12,10 @@
     <meta name="author" content="양도세이브">
     <link rel="canonical" href="https://yangdosave.kr/">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+
     <!-- ===== Open Graph ===== -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://yangdosave.kr/">
@@ -175,7 +179,7 @@
         .top-bar { background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 13px 0; position: sticky; top: 0; z-index: 100; }
         .top-bar-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
         .logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.3px; }
-        .logo-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .logo-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .logo-text-accent { color: var(--accent); }
         .ver { font-size: 10px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 3px 8px; border-radius: 20px; letter-spacing: 0.3px; }
         .top-nav { display: flex; align-items: center; gap: 20px; }
@@ -297,19 +301,48 @@
         .ad-wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
 
         /* Intro */
-        .intro-section { background: linear-gradient(160deg, #E8EBF5 0%, #EEF0F6 60%, #E8F5EE 100%); border-bottom: 1px solid var(--border); padding: 56px 0 48px; position: relative; overflow: hidden; }
+        .intro-section { background: linear-gradient(160deg, #E8EBF5 0%, #EEF0F6 60%, #E8F5EE 100%); border-bottom: 1px solid var(--border); padding: 48px 0 44px; position: relative; overflow: hidden; }
         .intro-section::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 75% 30%, rgba(0,201,106,0.08) 0%, transparent 45%); pointer-events: none; }
         .intro-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; text-align: center; position: relative; }
-        .intro-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid rgba(0,230,118,0.3); color: var(--accent); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.8px; }
-        .intro-inner h1 { font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 12px; line-height: 1.35; letter-spacing: -0.5px; }
+
+        .intro-logo-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; }
+        .intro-logo-img { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 16px rgba(0,201,106,0.2); border: 2px solid rgba(0,230,118,0.25); }
+        .intro-logo-text { font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+
+        .intro-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid rgba(0,230,118,0.3); color: var(--accent); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.8px; }
+        .intro-inner h1 { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 12px; line-height: 1.35; letter-spacing: -0.5px; }
         .intro-inner h1 em { color: var(--accent); font-style: normal; }
-        .intro-inner .intro-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 36px; line-height: 1.8; }
+        .intro-inner .intro-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.8; }
+
+        /* Target Banner */
+        .target-banner { display: flex; align-items: stretch; background: rgba(255,255,255,0.85); border: 1.5px solid rgba(0,230,118,0.25); border-radius: 14px; padding: 0; margin-bottom: 28px; overflow: hidden; box-shadow: 0 2px 12px rgba(26,32,56,0.07); }
+        .target-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; flex: 1; text-align: left; }
+        .target-icon { font-size: 24px; flex-shrink: 0; }
+        .target-item strong { display: block; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+        .target-item span { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+        .target-divider { width: 1px; background: var(--border); align-self: stretch; margin: 10px 0; }
+
         .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .feature-item { background: var(--card); border-radius: var(--radius); padding: 20px 14px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 8px; transition: border-color 0.25s; }
-        .feature-item:hover { border-color: rgba(0,230,118,0.3); }
+        .feature-item { background: var(--card); border-radius: var(--radius); padding: 18px 12px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.25s; }
+        .feature-item:hover { border-color: rgba(0,230,118,0.4); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,201,106,0.1); }
         .feature-icon { font-size: 24px; }
         .feature-item strong { font-size: 12px; color: var(--text); text-align: center; font-weight: 600; }
         .feature-item span { font-size: 11px; color: var(--text-muted); line-height: 1.6; text-align: center; }
+
+        /* Who Section */
+        .who-section { background: var(--card); border-bottom: 1px solid var(--border); padding: 52px 0; }
+        .who-inner { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+        .who-header { text-align: center; margin-bottom: 32px; }
+        .who-header h2 { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.4px; margin-bottom: 8px; }
+        .who-header p { font-size: 14px; color: var(--text-muted); }
+        .who-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .who-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px 20px; display: flex; flex-direction: column; gap: 10px; transition: all 0.25s; }
+        .who-card:hover { border-color: rgba(0,230,118,0.35); box-shadow: 0 4px 20px rgba(0,201,106,0.1); transform: translateY(-2px); }
+        .who-emoji { font-size: 32px; }
+        .who-card h3 { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.4; letter-spacing: -0.2px; }
+        .who-card p { font-size: 12px; color: var(--text-muted); line-height: 1.7; flex: 1; }
+        .who-card p strong { color: var(--text); }
+        .who-tag { display: inline-flex; align-items: center; background: var(--accent-dim); border: 1px solid rgba(0,230,118,0.3); color: var(--accent-dark); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.3px; align-self: flex-start; margin-top: 4px; }
 
         /* Instagram nav */
         .nav-insta { display: flex; align-items: center; gap: 5px; text-decoration: none; font-size: 13px; color: var(--text-muted); transition: all 0.2s; }
@@ -356,13 +389,18 @@
 
         @media (max-width: 640px) {
             .features-grid { grid-template-columns: repeat(2, 1fr); }
-            .intro-inner h1 { font-size: 21px; }
+            .intro-inner h1 { font-size: 20px; }
+            .intro-logo-img { width: 44px; height: 44px; }
+            .intro-logo-text { font-size: 22px; }
             .sum-grid { grid-template-columns: 1fr; }
             .steps { flex-wrap: wrap; }
             .tax-big { font-size: 28px; }
             .nav-insta span { display: none; }
             .reaction-list { gap: 6px; }
             .reaction-btn { padding: 7px 12px; font-size: 12px; }
+            .target-banner { flex-direction: column; }
+            .target-divider { width: auto; height: 1px; margin: 0 10px; }
+            .who-grid { grid-template-columns: 1fr; }
         }
 
         /* ===== SEO Content Sections ===== */
@@ -398,12 +436,7 @@
     <div class="top-bar-inner">
         <a href="index.html" class="logo">
             <div class="logo-icon">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="32" height="32" rx="8" fill="rgba(0,230,118,0.1)" stroke="rgba(0,230,118,0.35)" stroke-width="1"/>
-                    <path d="M16 7L21 12.5H18.5V19H13.5V12.5H11L16 7Z" fill="#00E676"/>
-                    <rect x="10" y="21" width="12" height="2" rx="1" fill="rgba(0,230,118,0.5)"/>
-                    <rect x="12" y="24" width="8" height="1.5" rx="0.75" fill="rgba(0,230,118,0.3)"/>
-                </svg>
+                <img src="logo.png" alt="양도세이브 로고" width="36" height="36" style="border-radius:8px; object-fit:cover;">
             </div>
             <span>양도<span class="logo-text-accent">세이브</span></span>
         </a>
@@ -436,15 +469,39 @@
 <!-- 서비스 소개 -->
 <section class="intro-section">
     <div class="intro-inner">
+        <div class="intro-logo-wrap">
+            <img src="logo.png" alt="양도세이브" class="intro-logo-img">
+            <div class="intro-logo-text">양도<span style="color:var(--accent);">세이브</span></div>
+        </div>
         <div class="intro-tag">
             <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#00E676"/></svg>
-            해외주식 세금 자동화
+            해외주식 양도소득세 자동화
         </div>
         <h1>해외주식 양도소득세 계산기 — <em>5분</em> 만에 자동 계산</h1>
         <p class="intro-desc">
             증권사 거래내역 파일을 업로드하면 <strong>해외주식 세금을 자동 계산</strong>하고<br>
-            홈택스 신고용 엑셀을 즉시 생성합니다. 무료 · 설치 불필요.
+            홈택스 신고용 엑셀을 즉시 생성합니다. <strong>무료 · 설치 불필요.</strong>
         </p>
+
+        <!-- 타겟 배너 -->
+        <div class="target-banner">
+            <div class="target-item">
+                <span class="target-icon">⚠️</span>
+                <div>
+                    <strong>5월 종합소득세 신고를 놓치셨나요?</strong>
+                    <span>기한 후 신고도 가능합니다. 먼저 세금부터 계산해보세요.</span>
+                </div>
+            </div>
+            <div class="target-divider"></div>
+            <div class="target-item">
+                <span class="target-icon">📋</span>
+                <div>
+                    <strong>증권사 양도소득세 대행 신청을 놓치셨나요?</strong>
+                    <span>직접 셀프 신고도 어렵지 않아요. 양도세이브가 도와드립니다.</span>
+                </div>
+            </div>
+        </div>
+
         <div class="features-grid">
             <div class="feature-item">
                 <span class="feature-icon">🏦</span>
@@ -465,6 +522,36 @@
                 <span class="feature-icon">📥</span>
                 <strong>홈택스 즉시 신고</strong>
                 <span>홈택스 엑셀 업로드 양식 바로 생성</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 타겟 소개 섹션 -->
+<section class="who-section">
+    <div class="who-inner">
+        <div class="who-header">
+            <h2>이런 분들을 위해 만들었습니다</h2>
+            <p>해외주식 세금 신고, 생각보다 어렵지 않아요</p>
+        </div>
+        <div class="who-grid">
+            <div class="who-card">
+                <div class="who-emoji">😰</div>
+                <h3>5월 종합소득세 신고를 놓쳤어요</h3>
+                <p>매년 5월이 양도소득세 신고 기간인데, 깜빡하거나 바빠서 신고를 못 하셨나요? <strong>기한 후 신고</strong>로 지금이라도 신고하면 가산세를 줄일 수 있습니다. 양도세이브로 세금을 먼저 계산해보세요.</p>
+                <div class="who-tag">기한 후 신고 가능</div>
+            </div>
+            <div class="who-card">
+                <div class="who-emoji">🏦</div>
+                <h3>증권사 대행 신청 기간을 놓쳤어요</h3>
+                <p>증권사는 보통 1~2월에 양도소득세 대행 신청을 받습니다. 신청 기간을 놓쳤다면 직접 셀프 신고를 해야 하는데, 양도세이브가 <strong>홈택스 업로드용 엑셀을 자동으로</strong> 만들어 드립니다.</p>
+                <div class="who-tag">셀프 신고 지원</div>
+            </div>
+            <div class="who-card">
+                <div class="who-emoji">📊</div>
+                <h3>거래 내역이 많아 직접 계산이 어려워요</h3>
+                <p>수십~수백 건의 해외주식 거래를 일일이 계산하는 건 거의 불가능에 가깝습니다. 증권사 파일을 업로드하기만 하면 <strong>모든 거래를 자동으로 합산</strong>해 정확한 세금을 계산합니다.</p>
+                <div class="who-tag">자동 합산 계산</div>
             </div>
         </div>
     </div>
