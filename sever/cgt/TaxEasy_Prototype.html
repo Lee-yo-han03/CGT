@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxEasy Global - 해외 양도소득세 자동 계산기</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="양도소득세avicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="양도소득세/favicon.svg" />
+<link rel="shortcut icon" href="양도소득세/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="양도소득세/apple-touch-icon.png" />
+<link rel="manifest" href="양도소득세
+/site.webmanifest" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #1B3A5C;
+  --accent: #2E75B6;
+  --accent-light: #E8F0FE;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --gray-50: #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-500: #6B7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-900); line-height: 1.6; }
+
+/* Navbar */
+.navbar { background: var(--primary); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.navbar .logo { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.navbar .logo span { color: var(--accent); }
+.navbar .nav-links { display: flex; gap: 8px; }
+.navbar .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
+.navbar .nav-links a:hover, .navbar .nav-links a.active { background: rgba(255,255,255,0.15); color: #fff; }
+
+/* Layout */
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* Steps indicator */
+.steps { display: flex; justify-content: center; gap: 0; margin-bottom: 32px; background: #fff; border-radius: var(--radius); padding: 16px 24px; box-shadow: var(--shadow); }
+.step { display: flex; align-items: center; gap: 10px; padding: 8px 20px; position: relative; }
+.step::after { content: ''; position: absolute; right: -12px; width: 24px; height: 24px; border-top: 2px solid var(--gray-200); border-right: 2px solid var(--gray-200); transform: rotate(45deg); z-index: 1; }
+.step:last-child::after { display: none; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; background: var(--gray-200); color: var(--gray-500); transition: all 0.3s; }
+.step.active .step-num { background: var(--accent); color: #fff; }
+.step.done .step-num { background: var(--success); color: #fff; }
+.step-label { font-size: 14px; color: var(--gray-500); font-weight: 500; }
+.step.active .step-label { color: var(--accent); font-weight: 600; }
+.step.done .step-label { color: var(--success); }
+
+/* Cards */
+.card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px; margin-bottom: 24px; }
+.card-title { font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+.card-subtitle { font-size: 14px; color: var(--gray-500); margin-bottom: 24px; }
+
+/* Upload area */
+.upload-zone { border: 2px dashed var(--gray-300); border-radius: var(--radius); padding: 48px 24px; text-align: center; transition: all 0.3s; cursor: pointer; position: relative; }
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--accent-light); }
+.upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-icon { font-size: 48px; margin-bottom: 16px; }
+.upload-text { font-size: 16px; color: var(--gray-700); margin-bottom: 4px; }
+.upload-hint { font-size: 13px; color: var(--gray-500); }
+.supported-formats { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+.format-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.format-badge.pdf { background: #FEE2E2; color: #DC2626; }
+.format-badge.xlsx { background: #D1FAE5; color: #059669; }
+.format-badge.csv { background: #DBEAFE; color: #2563EB; }
+
+/* File list */
+.file-list { margin-top: 20px; }
+.file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--gray-50); border-radius: 8px; margin-bottom: 8px; }
+.file-info { display: flex; align-items: center; gap: 12px; }
+.file-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.file-icon.pdf { background: #FEE2E2; }
+.file-icon.xlsx { background: #D1FAE5; }
+.file-icon.csv { background: #DBEAFE; }
+.file-name { font-weight: 500; font-size: 14px; }
+.file-size { font-size: 12px; color: var(--gray-500); }
+.file-status { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+.file-status.parsed { background: #D1FAE5; color: #059669; }
+.file-status.error { background: #FEE2E2; color: #DC2626; }
+.file-remove { background: none; border: none; color: var(--gray-500); cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 4px; }
+.file-remove:hover { background: #FEE2E2; color: var(--danger); }
+
+/* Broker select */
+.broker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.broker-card { padding: 16px; border: 2px solid var(--gray-200); border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.broker-card:hover { border-color: var(--accent); }
+.broker-card.selected { border-color: var(--accent); background: var(--accent-light); }
+.broker-name { font-weight: 600; font-size: 14px; margin-top: 8px; }
+.broker-icon { font-size: 28px; }
+
+/* Table */
+.table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--gray-200); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: var(--primary); color: #fff; padding: 10px 12px; text-align: left; font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
+tbody td { padding: 8px 12px; border-bottom: 1px solid var(--gray-100); white-space: nowrap; }
+tbody tr:hover { background: var(--accent-light); }
+tbody tr:nth-child(even) { background: var(--gray-50); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.positive { color: var(--success); }
+.negative { color: var(--danger); }
+
+/* Buttons */
+.btn { padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #2563EB; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #059669; }
+.btn-outline { background: #fff; color: var(--accent); border: 2px solid var(--accent); }
+.btn-outline:hover { background: var(--accent-light); }
+.btn-lg { padding: 14px 32px; font-size: 16px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-group { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+
+/* Summary boxes */
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.summary-box { padding: 20px; border-radius: var(--radius); text-align: center; }
+.summary-box.blue { background: linear-gradient(135deg, #1B3A5C, #2E75B6); color: #fff; }
+.summary-box.green { background: linear-gradient(135deg, #059669, #10B981); color: #fff; }
+.summary-box.orange { background: linear-gradient(135deg, #D97706, #F59E0B); color: #fff; }
+.summary-box.red { background: linear-gradient(135deg, #DC2626, #EF4444); color: #fff; }
+.summary-label { font-size: 13px; opacity: 0.9; margin-bottom: 4px; }
+.summary-value { font-size: 28px; font-weight: 700; }
+.summary-detail { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+
+/* Modal overlay */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; }
+.modal { background: #fff; border-radius: var(--radius); padding: 32px; max-width: 500px; width: 90%; text-align: center; }
+.modal h3 { font-size: 20px; margin-bottom: 12px; }
+.modal p { color: var(--gray-500); margin-bottom: 24px; }
+.spinner { width: 48px; height: 48px; border: 4px solid var(--gray-200); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.checkmark { font-size: 64px; color: var(--success); margin-bottom: 16px; }
+
+/* Alert */
+.alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; }
+.alert.info { background: var(--accent-light); color: var(--accent); border: 1px solid #BFDBFE; }
+.alert.warning { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+
+/* Tab */
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--gray-200); margin-bottom: 20px; }
+.tab { padding: 10px 20px; font-size: 14px; font-weight: 500; color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+.tab:hover { color: var(--gray-700); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* Progress */
+.progress-bar { height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin: 12px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); border-radius: 4px; transition: width 0.5s ease; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .steps { flex-direction: column; align-items: stretch; }
+  .step::after { display: none; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .broker-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Hidden */
+.hidden { display: none !important; }
+
+/* Fade in */
+.fade-in { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">TaxEasy <span>Global</span></div>
+  <div class="nav-links">
+    <a href="#" class="active">세금 계산</a>
+    <a href="#">절세 시뮬레이션</a>
+    <a href="#">신고 가이드</a>
+    <a href="#">마이페이지</a>
+  </div>
+</nav>
+
+<div class="container" id="app"></div>
+
+<script>
+// ============ APPLICATION STATE ============
+const state = {
+  currentStep: 1,
+  broker: '',
+  files: [],
+  parsedTrades: [],
+  hometaxData: [],
+  taxSummary: null,
+  processing: false,
+  downloadReady: false,
+};
+
+// ============ DATA PARSING LOGIC ============
+
+// Parse CSV text into trade objects
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    return obj;
+  });
+}
+
+// Parse Excel file into array of objects
+function parseExcelFile(wb) {
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  if (data.length < 2) return [];
+
+  const headers = data[0].map(h => String(h || '').trim());
+  return data.slice(1).filter(row => row.some(c => c != null && c !== '')).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] != null ? row[i] : '');
+    return obj;
+  });
+}
+
+// Detect and normalize trade data from various broker formats
+function normalizeTrades(rawData, broker) {
+  return rawData.map(row => {
+    // Try to detect column mappings based on common patterns
+    const trade = {
+      stockName: findVal(row, ['주식 종목명','주식종목명','종목명','종목','stock_name','Stock Name']) || '',
+      stockCode: findVal(row, ['주식종목코드','종목코드','ISIN','isin','국제증권식별번호','stock_code']) || '',
+      stockTypeCode: findVal(row, ['주식종류코드','주식등 종류','주식등종류']) || '61',
+      shares: parseNum(findVal(row, ['양도주식수','양도주식 수','취득유형별\n양도주식 수','취득유형별 양도주식 수','수량','shares'])),
+      sellDate: parseDate(findVal(row, ['양도일자','매도일자','매도일','sell_date'])),
+      sellPricePerShare: parseNum(findVal(row, ['주당양도가액','주당매도가액','매도단가','sell_price'])),
+      sellPriceTotal: parseNum(findVal(row, ['양도가액','매도금액','sell_amount'])),
+      buyDate: parseDate(findVal(row, ['취득일자','매수일자','매수일','buy_date'])),
+      buyPricePerShare: parseNum(findVal(row, ['주당취득가액','주당매수가액','매수단가','buy_price'])),
+      buyPriceTotal: parseNum(findVal(row, ['취득가액','매수금액','buy_amount'])),
+      expenses: parseNum(findVal(row, ['제비용','필요경비','수수료','expenses','commission'])),
+      countryCode: findVal(row, ['국외자산국가코드','국가코드','country']) || 'US',
+    };
+    // Calculate profit/loss
+    trade.profitLoss = trade.sellPriceTotal - trade.buyPriceTotal - trade.expenses;
+    return trade;
+  }).filter(t => t.stockName && t.shares > 0);
+}
+
+function findVal(obj, keys) {
+  for (const k of keys) {
+    if (obj[k] !== undefined && obj[k] !== '') return obj[k];
+    // Also check keys that might have newlines
+    for (const ok of Object.keys(obj)) {
+      if (ok.replace(/\n/g, '').includes(k.replace(/\n/g, ''))) return obj[ok];
+    }
+  }
+  return '';
+}
+
+function parseNum(v) {
+  if (v == null || v === '') return 0;
+  return parseFloat(String(v).replace(/,/g, '')) || 0;
+}
+
+function parseDate(v) {
+  if (!v) return '';
+  if (v instanceof Date) {
+    return `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}-${String(v.getDate()).padStart(2,'0')}`;
+  }
+  const s = String(v).replace(/\//g, '-').trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
+  if (/^\d{8}$/.test(s)) return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+  return s;
+}
+
+// Convert parsed trades to HomeTax format
+function convertToHometax(trades) {
+  return trades.map(t => ({
+    '주식 종목명': t.stockName,
+    '사업자등록번호': '',
+    '국내/국외 구분': 2,
+    '취득유형별 양도주식 수': t.shares,
+    '세율구분': 61,
+    '주식등 종류': 61,
+    '양도물건 종류': 10,
+    '취득유형': '01',
+    '양도일자': t.sellDate,
+    '주당양도가액': Math.round(t.sellPricePerShare),
+    '양도가액': Math.round(t.sellPriceTotal),
+    '취득일자': t.buyDate,
+    '주당취득가액': Math.round(t.buyPricePerShare),
+    '취득가액': Math.round(t.buyPriceTotal),
+    '필요경비': Math.round(t.expenses),
+    '비과세 양도소득금액': '',
+    '감면종류': '',
+    '감면율': '',
+    '감면소득금액': '',
+    '과세이연여부': '',
+    'ISIN코드': t.stockCode,
+    '국외자산국가코드': t.countryCode,
+    '국외자산내용': '',
+  }));
+}
+
+// Calculate tax summary
+function calculateTaxSummary(trades) {
+  const totalSellAmount = trades.reduce((s, t) => s + t.sellPriceTotal, 0);
+  const totalBuyAmount = trades.reduce((s, t) => s + t.buyPriceTotal, 0);
+  const totalExpenses = trades.reduce((s, t) => s + t.expenses, 0);
+  const totalProfitLoss = trades.reduce((s, t) => s + t.profitLoss, 0);
+  const basicDeduction = 2500000;
+  const taxableIncome = Math.max(0, totalProfitLoss - basicDeduction);
+  const taxRate = 0.22;
+  const taxAmount = Math.round(taxableIncome * taxRate);
+  const tradeCount = trades.length;
+  const profitTrades = trades.filter(t => t.profitLoss > 0).length;
+  const lossTrades = trades.filter(t => t.profitLoss < 0).length;
+
+  return {
+    totalSellAmount, totalBuyAmount, totalExpenses, totalProfitLoss,
+    basicDeduction, taxableIncome, taxRate, taxAmount,
+    tradeCount, profitTrades, lossTrades
+  };
+}
+
+// Generate HomeTax Excel file
+function generateHometaxExcel(hometaxData) {
+  const headers = [
+    '주식 종목명','사업자등록번호','국내/국외 구분','취득유형별\n양도주식 수',
+    '세율구분','주식등 종류','양도물건 종류','취득유형','양도일자',
+    '주당양도가액','양도가액','취득일자','주당취득가액','취득가액',
+    '필요경비','비과세\n양도소득금액','감면종류','감면율','감면소득금액',
+    '과세이연여부','국제증권식별번호\n(ISIN코드, 종목코드)','국외자산국가코드','국외자산내용'
+  ];
+
+  const wsData = [headers];
+  hometaxData.forEach(row => {
+    wsData.push([
+      row['주식 종목명'], row['사업자등록번호'], row['국내/국외 구분'],
+      row['취득유형별 양도주식 수'], row['세율구분'], row['주식등 종류'],
+      row['양도물건 종류'], row['취득유형'], row['양도일자'],
+      row['주당양도가액'], row['양도가액'], row['취득일자'],
+      row['주당취득가액'], row['취득가액'], row['필요경비'],
+      row['비과세 양도소득금액'], row['감면종류'], row['감면율'],
+      row['감면소득금액'], row['과세이연여부'], row['ISIN코드'],
+      row['국외자산국가코드'], row['국외자산내용']
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Set column widths
+  ws['!cols'] = [
+    {wch:16},{wch:14},{wch:12},{wch:16},{wch:10},{wch:10},{wch:12},
+    {wch:10},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},
+    {wch:12},{wch:16},{wch:10},{wch:8},{wch:14},{wch:12},{wch:20},{wch:16},{wch:14}
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, '자료');
+  return wb;
+}
+
+// ============ UI RENDERING ============
+
+function formatKRW(n) {
+  if (n == null) return '-';
+  return Math.round(n).toLocaleString('ko-KR') + '원';
+}
+
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    ${renderSteps()}
+    <div class="fade-in">
+      ${state.currentStep === 1 ? renderStep1() : ''}
+      ${state.currentStep === 2 ? renderStep2() : ''}
+      ${state.currentStep === 3 ? renderStep3() : ''}
+      ${state.currentStep === 4 ? renderStep4() : ''}
+    </div>
+    ${state.processing ? renderProcessingModal() : ''}
+  `;
+  attachEvents();
+}
+
+function renderSteps() {
+  const steps = [
+    { num: 1, label: '증권사 선택 & 파일 업로드' },
+    { num: 2, label: '거래내역 확인' },
+    { num: 3, label: '세금 계산 결과' },
+    { num: 4, label: '홈택스 파일 다운로드' },
+  ];
+  return `<div class="steps">${steps.map(s => `
+    <div class="step ${s.num === state.currentStep ? 'active' : ''} ${s.num < state.currentStep ? 'done' : ''}">
+      <div class="step-num">${s.num < state.currentStep ? '✓' : s.num}</div>
+      <div class="step-label">${s.label}</div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function renderStep1() {
+  const brokers = [
+    { id: 'koreainvestment', name: '한국투자증권', icon: '🏦' },
+    { id: 'kium', name: '키움증권', icon: '📊' },
+    { id: 'mirae', name: '미래에셋증권', icon: '🌐' },
+    { id: 'samsung', name: '삼성증권', icon: '💎' },
+    { id: 'nh', name: 'NH투자증권', icon: '🌾' },
+    { id: 'other', name: '기타 증권사', icon: '📁' },
+  ];
+
+  return `
+    <div class="card">
+      <div class="card-title">1단계: 증권사 선택</div>
+      <div class="card-subtitle">사용하시는 증권사를 선택해주세요. 증권사별 파일 형식에 맞게 자동으로 데이터를 파싱합니다.</div>
+      <div class="broker-grid">
+        ${brokers.map(b => `
+          <div class="broker-card ${state.broker === b.id ? 'selected' : ''}" data-broker="${b.id}">
+            <div class="broker-icon">${b.icon}</div>
+            <div class="broker-name">${b.name}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">거래내역 파일 업로드</div>
+      <div class="card-subtitle">증권사에서 다운로드 받은 양도소득세 계산내역 파일을 업로드해주세요.</div>
+
+      <div class="alert info">
+        💡 증권사 홈페이지 또는 MTS에서 "해외주식 양도소득세 계산내역" 파일을 다운로드 받으실 수 있습니다.
+      </div>
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls,.csv,.tsv">
+        <div class="upload-icon">📂</div>
+        <div class="upload-text">파일을 드래그하거나 클릭하여 업로드</div>
+        <div class="upload-hint">복수 파일 동시 업로드 가능 (여러 증권사 통합 지원)</div>
+        <div class="supported-formats">
+          <span class="format-badge pdf">PDF</span>
+          <span class="format-badge xlsx">XLSX</span>
+          <span class="format-badge csv">CSV</span>
+        </div>
+      </div>
+
+      ${state.files.length > 0 ? `
+        <div class="file-list">
+          ${state.files.map((f, i) => `
+            <div class="file-item">
+              <div class="file-info">
+                <div class="file-icon ${f.type}">${f.type === 'pdf' ? '📕' : f.type === 'xlsx' ? '📗' : '📘'}</div>
+                <div>
+                  <div class="file-name">${f.name}</div>
+                  <div class="file-size">${(f.size / 1024).toFixed(1)} KB · ${f.tradeCount || 0}건 감지</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="file-status ${f.parsed ? 'parsed' : ''}">${f.parsed ? '✓ 파싱 완료' : '대기중'}</span>
+                <button class="file-remove" data-remove="${i}">✕</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      <div class="btn-group">
+        <button class="btn btn-primary btn-lg" id="btnParse" ${state.files.length === 0 ? 'disabled' : ''}>
+          🔍 데이터 분석 시작
+        </button>
+      </div>
+    </div>
+
+    <div class="card" style="background: linear-gradient(135deg, #F0F9FF, #E0F2FE); border: 1px solid #BAE6FD;">
+      <div class="card-title" style="color: var(--accent);">💡 데모 모드</div>
+      <div class="card-subtitle" style="margin-bottom:16px;">파일 없이 샘플 데이터로 전체 플로우를 체험해보세요.</div>
+      <button class="btn btn-outline" id="btnDemo">샘플 데이터로 체험하기</button>
+    </div>
+  `;
+}
+
+function renderStep2() {
+  const trades = state.parsedTrades;
+  return `
+    <div class="card">
+      <div class="card-title">2단계: 거래내역 확인</div>
+      <div class="card-subtitle">파싱된 거래내역을 확인하고, 필요시 수정해주세요. 총 ${trades.length}건의 거래가 감지되었습니다.</div>
+
+      <div class="alert info">
+        ℹ️ 주당양도가액과 주당취득가액은 원화(KRW) 환산 금액입니다. 환율은 결제일(T+2) 기준 한국은행 고시환율이 적용되어 있습니다.
+      </div>
+
+      <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>종목명</th>
+              <th>ISIN코드</th>
+              <th>양도일자</th>
+              <th>양도주식수</th>
+              <th>주당양도가액</th>
+              <th>양도가액</th>
+              <th>취득일자</th>
+              <th>주당취득가액</th>
+              <th>취득가액</th>
+              <th>필요경비</th>
+              <th>손익</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${trades.map((t, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td><strong>${t.stockName}</strong></td>
+                <td style="font-size:11px;">${t.stockCode}</td>
+                <td>${t.sellDate}</td>
+                <td class="num">${t.shares.toLocaleString()}</td>
+                <td class="num">${Math.round(t.sellPricePerShare).toLocaleString()}</td>
+                <td class="num">${Math.round(t.sellPriceTotal).toLocaleString()}</td>
+                <td>${t.buyDate}</td>
+                <td class="num">${Math.round(t.buyPricePerShare).toLocaleString()}</td>
+                <td class="num">${Math.round(t.buyPriceTotal).toLocaleString()}</td>
+                <td class="num">${Math.round(t.expenses).toLocaleString()}</td>
+                <td class="num ${t.profitLoss >= 0 ? 'positive' : 'negative'}">
+                  <strong>${t.profitLoss >= 0 ? '+' : ''}${Math.round(t.profitLoss).toLocaleString()}</strong>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-outline" id="btnBack1">← 이전</button>
+        <button class="btn btn-primary btn-lg" id="btnCalcTax">📊 세금 계산하기</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStep3() {
+  const s = state.taxSummary;
+  return `
+    <div class="card">
+      <div class="card-title">3단계: 양도소득세 계산 결과</div>
+      <div class="card-subtitle">2024년도 해외주식 양도소득세 계산 결과입니다.</div>
+
+      <div class="summary-grid">
+        <div class="summary-box blue">
+          <div class="summary-label">총 양도가액</div>
+          <div class="summary-value">${formatKRW(s.totalSellAmount)}</div>
+          <div class="summary-detail">${s.tradeCount}건 거래</div>
+        </div>
+        <div class="summary-box ${s.totalProfitLoss >= 0 ? 'green' : 'red'}">
+          <div class="summary-label">양도차익 (손익통산 후)</div>
+          <div class="summary-value">${formatKRW(s.totalProfitLoss)}</div>
+          <div class="summary-detail">이익 ${s.profitTrades}건 / 손실 ${s.lossTrades}건</div>
+        </div>
+        <div class="summary-box orange">
+          <div class="summary-label">과세표준</div>
+          <div class="summary-value">${formatKRW(s.taxableIncome)}</div>
+          <div class="summary-detail">기본공제 250만원 적용</div>
+        </div>
+        <div class="summary-box red">
+          <div class="summary-label">예상 납부세액</div>
+          <div class="summary-value">${formatKRW(s.taxAmount)}</div>
+          <div class="summary-detail">세율 22% (국세 20% + 지방세 2%)</div>
+        </div>
+      </div>
+
+      <div class="card" style="background: var(--gray-50); box-shadow: none; padding: 24px;">
+        <h4 style="margin-bottom: 16px; color: var(--primary);">📋 상세 계산 내역</h4>
+        <table style="max-width: 600px;">
+          <tbody>
+            <tr><td style="padding:8px 16px;">총 양도가액</td><td class="num" style="padding:8px 16px;">${formatKRW(s.totalSellAmount)}</td></tr>
+            <tr><td style="padding:8px 16px;">(-) 총 취득가액</td><td class="num" style="padding:8px 16px;">${formatKRW(s.totalBuyAmount)}</td></tr>
+            <tr><td style="padding:8px 16px;">(-) 필요경비 합계</td><td class="num" style="padding:8px 16px;">${formatKRW(s.totalExpenses)}</td></tr>
+            <tr style="border-top:2px solid var(--gray-300);font-weight:700;">
+              <td style="padding:8px 16px;">= 양도차익</td><td class="num" style="padding:8px 16px;">${formatKRW(s.totalProfitLoss)}</td></tr>
+            <tr><td style="padding:8px 16px;">(-) 기본공제</td><td class="num" style="padding:8px 16px;">${formatKRW(s.basicDeduction)}</td></tr>
+            <tr style="border-top:2px solid var(--gray-300);font-weight:700;">
+              <td style="padding:8px 16px;">= 과세표준</td><td class="num" style="padding:8px 16px;">${formatKRW(s.taxableIncome)}</td></tr>
+            <tr><td style="padding:8px 16px;">(×) 세율</td><td class="num" style="padding:8px 16px;">22%</td></tr>
+            <tr style="border-top:2px solid var(--primary);font-weight:700;color:var(--danger);">
+              <td style="padding:12px 16px;font-size:16px;">= 납부할 세액</td>
+              <td class="num" style="padding:12px 16px;font-size:18px;">${formatKRW(s.taxAmount)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert warning" style="margin-top:16px;">
+        ⚠️ 본 계산은 참고용이며, 실제 신고 시에는 세무 전문가의 확인을 받으시는 것을 권장합니다. 신고기한: 2025년 5월 1일 ~ 5월 31일
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-outline" id="btnBack2">← 이전</button>
+        <button class="btn btn-success btn-lg" id="btnGenerate">📥 홈택스 엑셀 파일 생성</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStep4() {
+  return `
+    <div class="card" style="text-align:center;">
+      <div style="font-size:80px;margin-bottom:16px;">🎉</div>
+      <div class="card-title" style="font-size:24px;">홈택스 제출용 엑셀 파일이 준비되었습니다!</div>
+      <div class="card-subtitle" style="font-size:16px;margin-bottom:32px;">아래 버튼을 클릭하여 다운로드 후, 홈택스에 업로드하세요.</div>
+
+      <div class="btn-group" style="justify-content:center;">
+        <button class="btn btn-success btn-lg" id="btnDownload">
+          📥 홈택스 엑셀 파일 다운로드
+        </button>
+      </div>
+
+      <div style="margin-top:32px; text-align:left;">
+        <div class="card" style="background:var(--gray-50); box-shadow:none;">
+          <h4 style="margin-bottom:16px; color:var(--primary);">📋 홈택스 업로드 가이드</h4>
+          <div style="display:grid; gap:12px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">1</span>
+              <div>
+                <strong>홈택스 접속</strong>
+                <p style="color:var(--gray-500);font-size:14px;">홈택스(hometax.go.kr) → 신고/납부 → 양도소득세 → 확정신고</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">2</span>
+              <div>
+                <strong>기본정보 입력</strong>
+                <p style="color:var(--gray-500);font-size:14px;">양도년도 2024년, 신고구분 확정신고 선택</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">3</span>
+              <div>
+                <strong>엑셀 업로드</strong>
+                <p style="color:var(--gray-500);font-size:14px;">주식 양도소득 계산명세서 → "엑셀업로드" 버튼 클릭 → 다운로드한 파일 선택</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">4</span>
+              <div>
+                <strong>확인 및 제출</strong>
+                <p style="color:var(--gray-500);font-size:14px;">업로드된 데이터 확인 후 신고서 제출 및 세금 납부</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group" style="margin-top:24px;">
+        <button class="btn btn-outline" id="btnBack3">← 처음부터 다시</button>
+        <button class="btn btn-primary" onclick="window.open('https://www.hometax.go.kr','_blank')">
+          🔗 홈택스 바로가기
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderProcessingModal() {
+  return `
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="spinner"></div>
+        <h3>데이터 처리 중...</h3>
+        <p>거래내역을 분석하고 홈택스 양식으로 변환하고 있습니다.</p>
+        <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+      </div>
+    </div>
+  `;
+}
+
+// ============ SAMPLE DATA ============
+function getSampleTrades() {
+  return [
+    { stockName:'그랩 홀딩스', stockCode:'KYG4124C1096', stockTypeCode:'61', shares:665, sellDate:'2024-05-30', sellPricePerShare:4995, sellPriceTotal:3321786, buyDate:'2023-06-22', buyPricePerShare:4671, buyPriceTotal:3106173, expenses:5850, countryCode:'US', profitLoss:209763 },
+    { stockName:'펩시코', stockCode:'US7134481081', stockTypeCode:'61', shares:0.272146, sellDate:'2024-05-31', sellPricePerShare:237215, sellPriceTotal:64557, buyDate:'2023-11-15', buyPricePerShare:219430, buyPriceTotal:59717, expenses:160, countryCode:'US', profitLoss:4680 },
+    { stockName:'그랩 홀딩스', stockCode:'KYG4124C1096', stockTypeCode:'61', shares:535, sellDate:'2024-05-31', sellPricePerShare:5038, sellPriceTotal:2695324, buyDate:'2023-06-22', buyPricePerShare:4671, buyPriceTotal:2498952, expenses:4728, countryCode:'US', profitLoss:191644 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:150, sellDate:'2024-06-28', sellPricePerShare:8919, sellPriceTotal:1337799, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:1417749, expenses:2078, countryCode:'US', profitLoss:-82028 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:1335, sellDate:'2024-07-19', sellPricePerShare:10760, sellPriceTotal:14364483, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:12617969, expenses:20938, countryCode:'US', profitLoss:1725576 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:500, sellDate:'2024-08-28', sellPricePerShare:10204, sellPriceTotal:5102084, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:4725831, expenses:7577, countryCode:'US', profitLoss:368676 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:200, sellDate:'2024-09-02', sellPricePerShare:11012, sellPriceTotal:2202420, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:1890332, expenses:3184, countryCode:'US', profitLoss:308904 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:250, sellDate:'2024-09-19', sellPricePerShare:10877, sellPriceTotal:2719233, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:2362915, expenses:3942, countryCode:'US', profitLoss:352376 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:200, sellDate:'2024-10-10', sellPricePerShare:11254, sellPriceTotal:2250826, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:1890332, expenses:3216, countryCode:'US', profitLoss:357278 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:200, sellDate:'2024-10-10', sellPricePerShare:11375, sellPriceTotal:2275086, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:1890333, expenses:3230, countryCode:'US', profitLoss:381523 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:150, sellDate:'2024-10-11', sellPricePerShare:11578, sellPriceTotal:1736677, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:1417749, expenses:2448, countryCode:'US', profitLoss:316480 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:300, sellDate:'2024-10-16', sellPricePerShare:12199, sellPriceTotal:3659843, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:2835499, expenses:5086, countryCode:'US', profitLoss:819258 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:150, sellDate:'2024-10-16', sellPricePerShare:13604, sellPriceTotal:2040600, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:1417750, expenses:2746, countryCode:'US', profitLoss:620104 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:115.1826, sellDate:'2024-10-18', sellPricePerShare:13761, sellPriceTotal:1584989, buyDate:'2023-12-26', buyPricePerShare:10501, buyPriceTotal:1209481, expenses:6986, countryCode:'US', profitLoss:368522 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:100, sellDate:'2024-10-22', sellPricePerShare:13903, sellPriceTotal:1390270, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:945166, expenses:1845, countryCode:'US', profitLoss:443259 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:50, sellDate:'2024-10-23', sellPricePerShare:14325, sellPriceTotal:716271, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:472583, expenses:947, countryCode:'US', profitLoss:242741 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:30, sellDate:'2024-10-30', sellPricePerShare:15601, sellPriceTotal:468041, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:283550, expenses:599, countryCode:'US', profitLoss:183892 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:70, sellDate:'2024-11-01', sellPricePerShare:15641, sellPriceTotal:1094888, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:661617, expenses:1419, countryCode:'US', profitLoss:431852 },
+    { stockName:'소파이 테크놀로지', stockCode:'US83406F1021', stockTypeCode:'61', shares:100, sellDate:'2024-11-07', sellPricePerShare:15863, sellPriceTotal:1586310, buyDate:'2023-12-26', buyPricePerShare:9452, buyPriceTotal:945168, expenses:2045, countryCode:'US', profitLoss:639097 },
+  ];
+}
+
+// ============ EVENT HANDLERS ============
+function attachEvents() {
+  // Broker selection
+  document.querySelectorAll('.broker-card').forEach(el => {
+    el.addEventListener('click', () => {
+      state.broker = el.dataset.broker;
+      render();
+    });
+  });
+
+  // File upload
+  const fileInput = document.getElementById('fileInput');
+  const uploadZone = document.getElementById('uploadZone');
+
+  if (fileInput) {
+    fileInput.addEventListener('change', handleFiles);
+  }
+  if (uploadZone) {
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('dragover'); handleDroppedFiles(e.dataTransfer.files); });
+  }
+
+  // File remove
+  document.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.files.splice(parseInt(btn.dataset.remove), 1);
+      render();
+    });
+  });
+
+  // Demo button
+  const btnDemo = document.getElementById('btnDemo');
+  if (btnDemo) btnDemo.addEventListener('click', loadDemo);
+
+  // Parse button
+  const btnParse = document.getElementById('btnParse');
+  if (btnParse) btnParse.addEventListener('click', parseFiles);
+
+  // Navigation
+  const btnBack1 = document.getElementById('btnBack1');
+  if (btnBack1) btnBack1.addEventListener('click', () => { state.currentStep = 1; render(); });
+  const btnBack2 = document.getElementById('btnBack2');
+  if (btnBack2) btnBack2.addEventListener('click', () => { state.currentStep = 2; render(); });
+  const btnBack3 = document.getElementById('btnBack3');
+  if (btnBack3) btnBack3.addEventListener('click', () => { state.currentStep = 1; state.files = []; state.parsedTrades = []; state.hometaxData = []; state.taxSummary = null; render(); });
+
+  // Calculate tax
+  const btnCalcTax = document.getElementById('btnCalcTax');
+  if (btnCalcTax) btnCalcTax.addEventListener('click', () => {
+    state.taxSummary = calculateTaxSummary(state.parsedTrades);
+    state.hometaxData = convertToHometax(state.parsedTrades);
+    state.currentStep = 3;
+    render();
+  });
+
+  // Generate
+  const btnGenerate = document.getElementById('btnGenerate');
+  if (btnGenerate) btnGenerate.addEventListener('click', () => {
+    state.currentStep = 4;
+    render();
+  });
+
+  // Download
+  const btnDownload = document.getElementById('btnDownload');
+  if (btnDownload) btnDownload.addEventListener('click', downloadExcel);
+}
+
+function handleFiles(e) {
+  const files = e.target.files;
+  processUploadedFiles(files);
+}
+
+function handleDroppedFiles(files) {
+  processUploadedFiles(files);
+}
+
+function processUploadedFiles(files) {
+  for (const file of files) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const type = ext === 'pdf' ? 'pdf' : (ext === 'xlsx' || ext === 'xls') ? 'xlsx' : 'csv';
+    state.files.push({ name: file.name, size: file.size, type, file, parsed: false, tradeCount: 0 });
+  }
+  render();
+}
+
+async function parseFiles() {
+  state.processing = true;
+  render();
+
+  const allTrades = [];
+
+  for (let i = 0; i < state.files.length; i++) {
+    const f = state.files[i];
+    try {
+      if (f.type === 'xlsx') {
+        const data = await f.file.arrayBuffer();
+        const wb = XLSX.read(data);
+        const rawData = parseExcelFile(wb);
+        const trades = normalizeTrades(rawData, state.broker);
+        allTrades.push(...trades);
+        f.tradeCount = trades.length;
+        f.parsed = true;
+      } else if (f.type === 'csv') {
+        const text = await f.file.text();
+        const rawData = parseCSV(text);
+        const trades = normalizeTrades(rawData, state.broker);
+        allTrades.push(...trades);
+        f.tradeCount = trades.length;
+        f.parsed = true;
+      } else if (f.type === 'pdf') {
+        // PDF parsing would need a backend - show message
+        f.parsed = false;
+        f.tradeCount = 0;
+      }
+    } catch (err) {
+      console.error('Parse error:', err);
+      f.parsed = false;
+    }
+  }
+
+  state.parsedTrades = allTrades;
+
+  // If no trades parsed but have PDF files, suggest using demo
+  if (allTrades.length === 0) {
+    alert('파싱 가능한 거래 데이터를 찾지 못했습니다.\n\nPDF 파일은 서버측 처리가 필요합니다.\n엑셀(XLSX) 또는 CSV 파일을 업로드하거나,\n데모 모드를 이용해주세요.');
+    state.processing = false;
+    render();
+    return;
+  }
+
+  state.processing = false;
+  state.currentStep = 2;
+  render();
+}
+
+function loadDemo() {
+  state.broker = 'koreainvestment';
+  state.parsedTrades = getSampleTrades();
+  state.files = [{ name: '양도소득세 2024data.pdf', size: 84123, type: 'pdf', parsed: true, tradeCount: 19 }];
+  state.currentStep = 2;
+  render();
+}
+
+function downloadExcel() {
+  const wb = generateHometaxExcel(state.hometaxData);
+  XLSX.writeFile(wb, '홈택스_양도소득세_업로드용.xlsx');
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>
+
