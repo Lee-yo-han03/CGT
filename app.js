@@ -554,34 +554,16 @@ async function parsePDFClientSide(file) {
     const brokerId  = detectBrokerFromText(firstText);
     const brokerName = brokerId ? BROKER_NAMES[brokerId] : null;
 
-    // 한국투자증권: 검증된 좌표 기반 파서 사용
+    // 한국투자증권만 PDF 파싱 지원
     if (brokerId === 'koreainvestment') {
         const trades = await parseKoreaInvestmentPDF(pdf);
         return { trades, brokerName: '한국투자증권' };
     }
 
-    // 다른 지원 증권사: 헤더 감지 기반 범용 파서 시도
-    if (brokerId) {
-        const trades = await parseGenericBrokerPDF(pdf);
-        if (trades && trades.length > 0) {
-            return { trades, brokerName };
-        }
-        // 헤더 감지 실패 시 명확한 에러
-        throw new Error(
-            `${brokerName} PDF 파싱에 실패했습니다. ` +
-            `${brokerName} HTS/앱에서 Excel 또는 CSV 형식으로 내려받아 업로드해주세요.`
-        );
-    }
-
-    // 증권사 감지 실패 → 범용 파서 시도 후 안내
-    const genericTrades = await parseGenericBrokerPDF(pdf);
-    if (genericTrades && genericTrades.length > 0) {
-        return { trades: genericTrades, brokerName: '자동감지' };
-    }
-
+    // 그 외 모든 증권사: Excel/CSV 안내
     throw new Error(
-        '이 증권사 PDF 형식은 아직 지원되지 않습니다. ' +
-        'Excel 또는 CSV 파일로 업로드해주세요.'
+        '현재 PDF 파싱은 한국투자증권만 지원됩니다. ' +
+        '다른 증권사는 Excel/CSV 파일로 업로드해주세요.'
     );
 }
 

@@ -492,6 +492,22 @@
             background: var(--green);
             flex-shrink: 0;
         }
+        .broker-fmt {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--muted);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 5px;
+            margin-left: 2px;
+            letter-spacing: 0;
+        }
+        .broker-fmt--pdf {
+            color: var(--green-dark);
+            background: var(--green-light);
+            border-color: var(--green-mid);
+        }
 
         /* File List */
         .file-list { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
@@ -1135,6 +1151,9 @@
         /* ─── BROKER TAGS ─── */
         .broker-tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .broker-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             background: var(--bg-2);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
