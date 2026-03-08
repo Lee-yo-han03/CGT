@@ -2503,7 +2503,8 @@ function displayResults() {
     document.getElementById('sumLoss').textContent = `${tax.loss_trades}건`;
     document.getElementById('tradeCountLabel').textContent = trades.length;
 
-    document.getElementById('taxAmount').textContent = krw(tax.tax_amount);\n    const ta2 = document.getElementById('taxAmount2'); if (ta2) ta2.textContent = krw(tax.tax_amount);
+    document.getElementById('taxAmount').textContent = krw(tax.tax_amount);
+    const ta2 = document.getElementById('taxAmount2'); if (ta2) ta2.textContent = krw(tax.tax_amount);
     document.getElementById('taxN').textContent = krw(tax.national_tax);
     document.getElementById('taxL').textContent = krw(tax.local_tax);
     document.getElementById('taxSub').textContent = `세율 22% · 기본공제 250만원 적용`;
