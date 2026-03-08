@@ -430,7 +430,10 @@ class HometaxExcelGenerator:
         while ws.max_row > 1:
             ws.delete_rows(ws.max_row)
 
-        # 데이터 행 작성
+        # 데이터 행 작성 — 템플릿의 정확한 셀 타입 규칙 준수
+        # 템플릿 분석 결과:
+        #   숫자(t=n): C(국내/국외), D(주식수), J/K/M/N/O(금액), B/P/Q/R/S/T/U/W(빈셀)
+        #   텍스트(t=s): A(종목명), E/F/G(코드), H(취득유형), I/L(날짜), U(ISIN), V(국가코드)
         for row_idx, trade in enumerate(trades, 2):
             buy_date = ''
             if buy_date_resolver:
@@ -438,29 +441,49 @@ class HometaxExcelGenerator:
             elif trade.get('buy_date'):
                 buy_date = trade['buy_date']
 
-            row = [
-                trade['stock_name'] or '',                       # A: 주식 종목명
-                '',                                              # B: 사업자등록번호
-                2,                                               # C: 국내/국외 구분 (숫자, 2=국외)
-                trade['shares'],                                 # D: 취득유형별 양도주식 수
-                '61',                                            # E: 세율구분 (문자열 코드)
-                '61',                                            # F: 주식등 종류 (문자열 코드)
-                '10',                                            # G: 양도물건 종류 (문자열 코드)
-                '01',                                            # H: 취득유형 (선행0 유지)
-                trade['sell_date'],                              # I: 양도일자 (YYYY-MM-DD)
-                int(round(trade['sell_price_per_share'])),       # J: 주당양도가액
-                int(round(trade['sell_total'])),                 # K: 양도가액
-                buy_date,                                        # L: 취득일자 (YYYY-MM-DD)
-                int(round(trade['buy_price_per_share'])),        # M: 주당취득가액
-                int(round(trade['buy_total'])),                  # N: 취득가액
-                int(round(trade['expenses'])),                   # O: 필요경비
-                '', '', '', '', '',                              # P-T: 빈값
-                trade.get('stock_code', '') or '',               # U: ISIN/종목코드
-                trade.get('country_code', 'US'),                 # V: 국가코드
-                '',                                              # W: 국외자산내용
-            ]
-            for col_idx, val in enumerate(row, 1):
-                ws.cell(row=row_idx, column=col_idx, value=val)
+            def set_cell(col, value):
+                ws.cell(row=row_idx, column=col, value=value)
+
+            # A: 주식 종목명 (텍스트)
+            set_cell(1,  trade['stock_name'] or '')
+            # B: 사업자등록번호 (None → 빈 셀)
+            set_cell(2,  None)
+            # C: 국내/국외 구분 (숫자, 2=국외)
+            set_cell(3,  2)
+            # D: 취득유형별 양도주식 수 (숫자)
+            set_cell(4,  trade['shares'] if trade['shares'] is not None else 0)
+            # E: 세율구분 (텍스트 코드 — openpyxl은 문자열을 그대로 텍스트로 저장)
+            set_cell(5,  '61')
+            # F: 주식등 종류 (텍스트 코드)
+            set_cell(6,  '61')
+            # G: 양도물건 종류 (텍스트 코드)
+            set_cell(7,  '10')
+            # H: 취득유형 (텍스트, '01' 선행0 반드시 유지)
+            set_cell(8,  '01')
+            # I: 양도일자 (YYYY-MM-DD 문자열 — Python datetime 금지, 시리얼 변환 방지)
+            set_cell(9,  str(trade['sell_date']) if trade.get('sell_date') else '')
+            # J: 주당양도가액 (숫자)
+            set_cell(10, int(round(trade.get('sell_price_per_share', 0) or 0)))
+            # K: 양도가액 (숫자)
+            set_cell(11, int(round(trade.get('sell_total', 0) or 0)))
+            # L: 취득일자 (YYYY-MM-DD 문자열)
+            set_cell(12, str(buy_date) if buy_date else '')
+            # M: 주당취득가액 (숫자)
+            set_cell(13, int(round(trade.get('buy_price_per_share', 0) or 0)))
+            # N: 취득가액 (숫자)
+            set_cell(14, int(round(trade.get('buy_total', 0) or 0)))
+            # O: 필요경비 (숫자)
+            set_cell(15, int(round(trade.get('expenses', 0) or 0)))
+            # P~T: 비과세/감면/과세이연 (None → 빈 셀)
+            for col in range(16, 21):
+                set_cell(col, None)
+            # U: ISIN코드/종목코드 (있으면 텍스트, 없으면 None)
+            isin = trade.get('stock_code', '') or ''
+            set_cell(21, isin if isin else None)
+            # V: 국외자산국가코드 (텍스트)
+            set_cell(22, trade.get('country_code', 'US') or 'US')
+            # W: 국외자산내용 (None → 빈 셀)
+            set_cell(23, None)
 
         wb.save(output_path)
         return output_path
