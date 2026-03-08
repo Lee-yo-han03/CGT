@@ -36,6 +36,7 @@
             -webkit-font-smoothing: antialiased;
         }
         .hidden { display: none !important; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
         /* ─── NAV ─── */
         .nav {
@@ -685,7 +686,7 @@
             letter-spacing: 0.5px;
             margin-bottom: 8px;
         }
-        .metric-card.highlight .metric-label { color: #64748B; }
+        .metric-card.highlight .metric-label { color: #94A3B8; }
         .metric-value {
             font-size: 24px;
             font-weight: 800;
@@ -699,7 +700,7 @@
             color: var(--muted-2);
             margin-top: 4px;
         }
-        .metric-card.highlight .metric-sub { color: #475569; }
+        .metric-card.highlight .metric-sub { color: #94A3B8; }
 
         /* ─── RESULT: Trade Summary ─── */
         .trade-summary {

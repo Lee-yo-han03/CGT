@@ -144,7 +144,7 @@
 <header class="nav">
     <div class="nav-inner">
         <a href="index.html" class="nav-logo" aria-label="양도세이브 홈으로 이동">
-            <img src="logo.png" alt="">
+            <img src="logo.png" alt="양도세이브 로고">
             <span class="nav-logo-text">양도<span>세이브</span></span>
         </a>
         <button class="nav-hamburger" id="navHamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navMobileMenu" onclick="toggleMobileNav()">
@@ -184,7 +184,7 @@
 <section class="hero" id="hero-section">
     <div class="hero-inner">
         <div class="hero-logo">
-            <img src="logo.png" alt="양도세이브">
+            <img src="logo.png" alt="양도세이브 로고">
             <div class="hero-logo-name">양도<span>세이브</span></div>
         </div>
         <div class="hero-chip">
@@ -424,6 +424,7 @@
                 </summary>
                 <div class="table-wrap" style="margin-top:12px;">
                     <table>
+                        <caption class="sr-only">해외주식 양도소득세 거래내역 상세</caption>
                         <thead><tr>
                             <th style="text-align:left;">종목명</th>
                             <th>수량</th>
@@ -763,8 +764,8 @@
                 <input class="comment-input" id="cmtName" type="text" placeholder="닉네임 (선택)" maxlength="20">
                 <button class="btn btn-primary comment-submit" onclick="submitComment()">등록</button>
             </div>
-            <textarea class="comment-textarea" id="cmtText" placeholder="서비스 사용 소감, 궁금한 점, 개선 의견을 자유롭게 남겨주세요." rows="3" maxlength="500"></textarea>
-            <div class="comment-char" id="cmtChar">0 / 500</div>
+            <textarea class="comment-textarea" id="cmtText" placeholder="서비스 사용 소감, 궁금한 점, 개선 의견을 자유롭게 남겨주세요." rows="3" maxlength="500" aria-describedby="cmtChar"></textarea>
+            <div class="comment-char" id="cmtChar" aria-live="polite">0 / 500</div>
         </div>
 
         <div class="comment-list" id="commentList"></div>
@@ -774,7 +775,7 @@
 <!-- ─── FOOTER ─── -->
 <footer class="footer">
     <div class="footer-logo">
-        <img src="logo.png" alt="양도세이브">
+        <img src="logo.png" alt="양도세이브 로고">
         <span class="footer-logo-text">양도<span>세이브</span></span>
     </div>
     <p class="footer-disclaimer">
