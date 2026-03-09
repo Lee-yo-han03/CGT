@@ -932,7 +932,21 @@ function simulateTaxSaving() {
 async function shareResult() {
     const tax = state.tax;
     if (!tax) return;
-    const text = `📊 해외주식 양도소득세 계산 결과\n총 양도차익: ${krw(tax.gross_profit_loss)}\n예상 납부세액: ${krw(tax.tax_amount)}\n\n양도세이브에서 무료로 계산해보세요!`;
+
+    // 가산세 정보 포함 여부 확인
+    let penaltyLine = '';
+    const penTotal = document.getElementById('penTotal');
+    const penNonFiling = document.getElementById('penNonFiling');
+    const penLatePay = document.getElementById('penLatePay');
+    const penResultEl = document.getElementById('penaltyResult');
+    if (penResultEl && !penResultEl.classList.contains('hidden') && penTotal) {
+        const nonFiling = penNonFiling?.textContent || '0원';
+        const latePay   = penLatePay?.textContent   || '0원';
+        const total     = penTotal.textContent       || '0원';
+        penaltyLine = `\n무신고 가산세: ${nonFiling} / 납부불성실 가산세: ${latePay}\n예상 납부세액: ${krw(tax.tax_amount)} + 가산세 → 총 ${total}`;
+    }
+
+    const text = `📊 해외주식 양도소득세 계산 결과\n총 양도차익: ${krw(tax.gross_profit_loss)}${penaltyLine || `\n예상 납부세액: ${krw(tax.tax_amount)}`}\n\n양도세이브에서 무료로 계산해보세요!`;
     const url = 'https://yangdosave.kr';
     if (navigator.share) {
         try { await navigator.share({ title: '해외주식 양도소득세 계산 결과 | 양도세이브', text, url }); } catch {}
@@ -1226,10 +1240,24 @@ function initPenaltyCard() {
     const today = new Date().toISOString().substring(0, 10);
     fileDateEl.value = today;
 
-    // 오늘이 기한 이후이면 자동으로 체크 + 입력 영역 표시
+    // 오늘이 기한 이후이면 자동 체크 + 입력 표시 + 자동 계산 + 경고 배너
     if (today > deadlineStr) {
         if (toggleEl) toggleEl.checked = true;
         if (inputsEl) inputsEl.classList.remove('hidden');
+
+        // resultAlert에 경고 배너 추가
+        const alertEl = document.getElementById('resultAlert');
+        if (alertEl) {
+            const deadlineFormatted = `${tradeYear + 1}.5.31`;
+            const warningBanner = `<div class="result-alert" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FCD34D;margin-top:8px;">
+                <span aria-hidden="true">⚠️</span>
+                <span>이 거래의 신고 기한(${deadlineFormatted})이 지났습니다. 아래에서 예상 가산세를 확인하세요.</span>
+            </div>`;
+            alertEl.innerHTML += warningBanner;
+        }
+
+        // 가산세 자동 계산
+        calculatePenalty();
     }
 }
 
