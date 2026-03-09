@@ -796,7 +796,7 @@ function displayResults() {
 
     // 공유 버튼 표시
     const shareBtn = document.getElementById('shareBtn');
-    if (shareBtn) shareBtn.style.display = '';
+    if (shareBtn) shareBtn.style.display = 'inline-flex';
 
     document.getElementById('tradesBody').innerHTML = trades.map(t => {
         const pl = t.profit_loss || 0;
@@ -876,8 +876,19 @@ function num(n) { return (n||0).toLocaleString('ko-KR'); }
 
 // ===== 절세 시뮬레이션 =====
 function simulateTaxSaving() {
-    const gain = parseFloat(document.getElementById('simGain').value) || 0;
-    const loss = parseFloat(document.getElementById('simLoss').value) || 0;
+    const gainRaw = document.getElementById('simGain').value.trim();
+    const lossRaw = document.getElementById('simLoss').value.trim();
+
+    if (!gainRaw) {
+        document.getElementById('simGain').focus();
+        document.getElementById('simGain').classList.add('sim-input--error');
+        setTimeout(() => document.getElementById('simGain').classList.remove('sim-input--error'), 1500);
+        return;
+    }
+
+    const gain = Math.max(0, parseFloat(gainRaw) || 0);
+    const loss = Math.abs(parseFloat(lossRaw) || 0); // 음수 입력 시 절댓값으로 처리
+
     const DEDUCTION = 2500000;
     const RATE = 0.22;
     const taxBefore = Math.round(Math.max(0, gain - DEDUCTION) * RATE);
@@ -890,15 +901,17 @@ function simulateTaxSaving() {
     document.getElementById('simSaving').textContent = saving > 0 ? `−${krw(saving)}` : krw(0);
 
     let desc;
-    if (gain <= 0) {
-        desc = '올해 실현 양도차익을 입력해주세요.';
-    } else if (loss <= 0) {
+    if (loss <= 0) {
         desc = '매도 예정 손실액을 입력하면 절세 효과를 계산합니다.';
     } else if (saving > 0) {
-        desc = `손실 종목을 ${krw(loss)} 매도하면 과세표준이 줄어들어 세금을 약 <strong style="color:var(--green);">${krw(saving)}</strong> 절감할 수 있습니다.<br>단, 실제 매도 전에 수수료·환율·향후 주가 회복 가능성도 함께 고려하세요.`;
+        desc = `손실 종목을 ${krw(loss)} 매도하면 과세표준이 줄어들어 세금을 약 <strong style="color:var(--green);">${krw(saving)}</strong> 절감할 수 있습니다.` +
+               `<br>단, 실제 매도 전에 거래 수수료·환율 변동·향후 주가 회복 가능성도 함께 고려하세요.`;
     } else {
-        desc = `현재 양도차익에서 기본공제(250만원)를 이미 초과하지 않거나, 손실 매도 후에도 세금 변화가 없습니다.`;
+        desc = `손실 매도 후에도 과세표준이 기본공제(250만원) 이하여서 세금 차이가 없습니다.`;
     }
+    // 면책 문구 항상 표시
+    desc += `<br><span style="color:var(--muted);font-size:11px;">⚠️ 이 시뮬레이션은 참고용이며, 실제 절세 효과는 매도 시점의 환율·시세·수수료에 따라 달라질 수 있습니다. 정확한 세금은 세무사와 상담하세요.</span>`;
+
     document.getElementById('simDesc').innerHTML = desc;
     document.getElementById('simResult').classList.remove('hidden');
 }
@@ -935,24 +948,40 @@ function toggleFaq(btn) {
 }
 
 // ===================================================================
-// ===== Firebase Firestore 피드백 (리액션 + 댓글) ===================
+// ===== 피드백 (리액션 + 댓글): Firebase 우선, localStorage 폴백 ====
 // ===================================================================
 
 const REACTION_KEYS = ['fast', 'accurate', 'helpful', 'easy', 'improve'];
-const LS_KEY = 'yangdosave_reactions_v1'; // localStorage 중복 방지 키
+const LS_VOTED    = 'yangdosave_reactions_v1';   // 내가 누른 리액션 (중복 방지)
+const LS_COUNTS   = 'yangdosave_react_cnt_v1';   // 로컬 카운트 (Firebase 없을 때)
+const LS_COMMENTS = 'yangdosave_comments_v1';    // 로컬 댓글 (Firebase 없을 때)
 
-// localStorage에서 이미 투표한 리액션 목록 가져오기
+// ── localStorage helpers ──────────────────────────────────────────
 function getVotedReactions() {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
-    catch { return {}; }
+    try { return JSON.parse(localStorage.getItem(LS_VOTED) || '{}'); } catch { return {}; }
 }
 function setVotedReaction(key, voted) {
     const v = getVotedReactions();
     if (voted) v[key] = true; else delete v[key];
-    localStorage.setItem(LS_KEY, JSON.stringify(v));
+    localStorage.setItem(LS_VOTED, JSON.stringify(v));
+}
+function getLocalCounts() {
+    try { return JSON.parse(localStorage.getItem(LS_COUNTS) || '{}'); } catch { return {}; }
+}
+function setLocalCount(key, count) {
+    const c = getLocalCounts(); c[key] = count;
+    localStorage.setItem(LS_COUNTS, JSON.stringify(c));
+}
+function getLocalComments() {
+    try { return JSON.parse(localStorage.getItem(LS_COMMENTS) || '[]'); } catch { return []; }
+}
+function saveLocalComment(name, text) {
+    const list = getLocalComments();
+    list.unshift({ name: name || '익명', text, createdAt: new Date().toISOString() });
+    localStorage.setItem(LS_COMMENTS, JSON.stringify(list.slice(0, 50)));
 }
 
-// UI 카운트 업데이트
+// ── UI 공통 ──────────────────────────────────────────────────────
 function updateReactionUI(key, count, active) {
     const countEl = document.getElementById(`rc-${key}`);
     if (countEl) countEl.textContent = count;
@@ -962,72 +991,20 @@ function updateReactionUI(key, count, active) {
     btn.setAttribute('aria-pressed', String(active));
 }
 
-// 페이지 로드 시 리액션 카운트 불러오기
-async function loadReactions() {
-    if (!db) return;
-    try {
-        const snap = await db.collection('reactions').get();
-        const voted = getVotedReactions();
-        snap.forEach(doc => {
-            const { key, count } = doc.data();
-            if (REACTION_KEYS.includes(key)) {
-                updateReactionUI(key, count || 0, !!voted[key]);
-            }
-        });
-    } catch(e) {
-        console.warn('리액션 로드 실패:', e.message);
-    }
-}
-
-// 리액션 토글 (중복 방지 + Firestore 업데이트)
-async function toggleReaction(btn) {
-    if (!db) { alert('피드백 기능을 사용하려면 Firebase 설정이 필요합니다.'); return; }
-
-    const key = btn.dataset.key;
-    if (!key) return;
-
-    const voted = getVotedReactions();
-    const isActive = !!voted[key];
-    const delta = isActive ? -1 : 1;
-
-    // 낙관적 UI 업데이트
-    const countEl = document.getElementById(`rc-${key}`);
-    const currentCount = parseInt(countEl?.textContent || '0', 10);
-    updateReactionUI(key, Math.max(0, currentCount + delta), !isActive);
-    setVotedReaction(key, !isActive);
-
-    try {
-        const ref = db.collection('reactions').doc(key);
-        await db.runTransaction(async tx => {
-            const doc = await tx.get(ref);
-            const prev = doc.exists ? (doc.data().count || 0) : 0;
-            tx.set(ref, { key, count: Math.max(0, prev + delta) }, { merge: true });
-        });
-    } catch(e) {
-        // 트랜잭션 실패 시 UI 롤백
-        console.error('리액션 저장 실패:', e.message);
-        updateReactionUI(key, Math.max(0, currentCount), isActive);
-        setVotedReaction(key, isActive);
-        alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
-    }
-}
-
-// 댓글 목록 렌더링
-function renderComments(docs) {
+function renderComments(items) {
     const list = document.getElementById('commentList');
     if (!list) return;
-    if (!docs || docs.length === 0) {
+    if (!items || items.length === 0) {
         list.innerHTML = '<p class="comment-empty">아직 댓글이 없습니다. 첫 댓글을 남겨보세요!</p>';
         return;
     }
-    list.innerHTML = docs.map(doc => {
-        const d = doc.data ? doc.data() : doc;
-        const name = escHtml(d.name || '익명');
-        const text = escHtml(d.text || '');
-        const ts = d.createdAt?.toDate ? d.createdAt.toDate() : new Date(d.createdAt || Date.now());
+    list.innerHTML = items.map(d => {
+        const raw = d.data ? d.data() : d;
+        const name = escHtml(raw.name || '익명');
+        const text = escHtml(raw.text || '');
+        const ts   = raw.createdAt?.toDate ? raw.createdAt.toDate() : new Date(raw.createdAt || Date.now());
         const date = ts.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
-        return `
-        <div class="comment-item">
+        return `<div class="comment-item">
             <div class="comment-meta">
                 <span class="comment-name">${name}</span>
                 <span class="comment-date">${date}</span>
@@ -1037,43 +1014,111 @@ function renderComments(docs) {
     }).join('');
 }
 
-// 페이지 로드 시 댓글 불러오기 (최신순 50개)
-async function loadComments() {
-    if (!db) return;
-    try {
-        const snap = await db.collection('comments')
-            .orderBy('createdAt', 'desc')
-            .limit(50)
-            .get();
-        renderComments(snap.docs);
-    } catch(e) {
-        console.warn('댓글 로드 실패:', e.message);
-    }
+function showFeedbackLocalNote() {
+    const sec = document.getElementById('feedbackSection');
+    if (!sec || sec.querySelector('.feedback-local-note')) return;
+    const note = document.createElement('p');
+    note.className = 'feedback-local-note';
+    note.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;margin-top:8px;';
+    note.textContent = '※ 현재 이 기기에만 저장됩니다 (Firebase 미연결)';
+    sec.querySelector('.feedback-inner')?.appendChild(note);
 }
 
-// 댓글 등록
-async function submitComment() {
-    if (!db) { alert('피드백 기능을 사용하려면 Firebase 설정이 필요합니다.'); return; }
+// ── 리액션 로드 ───────────────────────────────────────────────────
+async function loadReactions() {
+    const voted = getVotedReactions();
+    if (db) {
+        try {
+            const snap = await db.collection('reactions').get();
+            snap.forEach(doc => {
+                const { key, count } = doc.data();
+                if (REACTION_KEYS.includes(key)) updateReactionUI(key, count || 0, !!voted[key]);
+            });
+            return;
+        } catch(e) { console.warn('Firebase 리액션 로드 실패:', e.message); }
+    }
+    // localStorage 폴백
+    const counts = getLocalCounts();
+    REACTION_KEYS.forEach(k => updateReactionUI(k, counts[k] || 0, !!voted[k]));
+    showFeedbackLocalNote();
+}
 
+// ── 리액션 토글 ───────────────────────────────────────────────────
+async function toggleReaction(btn) {
+    const key = btn.dataset.key;
+    if (!key) return;
+
+    const voted      = getVotedReactions();
+    const isActive   = !!voted[key];
+    const delta      = isActive ? -1 : 1;
+    const countEl    = document.getElementById(`rc-${key}`);
+    const currentCnt = parseInt(countEl?.textContent || '0', 10);
+    const newCnt     = Math.max(0, currentCnt + delta);
+
+    // 낙관적 UI
+    updateReactionUI(key, newCnt, !isActive);
+    setVotedReaction(key, !isActive);
+
+    if (db) {
+        try {
+            const ref = db.collection('reactions').doc(key);
+            await db.runTransaction(async tx => {
+                const doc  = await tx.get(ref);
+                const prev = doc.exists ? (doc.data().count || 0) : 0;
+                tx.set(ref, { key, count: Math.max(0, prev + delta) }, { merge: true });
+            });
+            return;
+        } catch(e) {
+            console.error('Firebase 리액션 저장 실패:', e.message);
+            // 롤백
+            updateReactionUI(key, currentCnt, isActive);
+            setVotedReaction(key, isActive);
+        }
+    }
+    // localStorage 폴백: 카운트 저장
+    setLocalCount(key, newCnt);
+    showFeedbackLocalNote();
+}
+
+// ── 댓글 로드 ─────────────────────────────────────────────────────
+async function loadComments() {
+    if (db) {
+        try {
+            const snap = await db.collection('comments')
+                .orderBy('createdAt', 'desc').limit(50).get();
+            renderComments(snap.docs);
+            return;
+        } catch(e) { console.warn('Firebase 댓글 로드 실패:', e.message); }
+    }
+    // localStorage 폴백
+    renderComments(getLocalComments());
+}
+
+// ── 댓글 등록 ─────────────────────────────────────────────────────
+async function submitComment() {
     const nameEl = document.getElementById('cmtName');
     const textEl = document.getElementById('cmtText');
-    const name = (nameEl?.value || '').trim();
-    const text = (textEl?.value || '').trim();
+    const name   = (nameEl?.value || '').trim();
+    const text   = (textEl?.value || '').trim();
 
-    if (!text) { alert('내용을 입력해주세요.'); textEl?.focus(); return; }
+    if (!text) { textEl?.focus(); return; }
     if (text.length > 500) { alert('댓글은 500자 이내로 작성해주세요.'); return; }
 
     const submitBtn = document.querySelector('.comment-submit');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '등록 중...'; }
 
     try {
-        await db.collection('comments').add({
-            name: name || '익명',
-            text,               // Firestore 저장은 raw, 렌더링 시 escHtml 처리
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
+        if (db) {
+            await db.collection('comments').add({
+                name: name || '익명', text,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+        } else {
+            saveLocalComment(name, text);
+            showFeedbackLocalNote();
+        }
         if (nameEl) nameEl.value = '';
-        if (textEl) { textEl.value = ''; }
+        if (textEl) textEl.value = '';
         const charEl = document.getElementById('cmtChar');
         if (charEl) charEl.textContent = '0 / 500';
         await loadComments();

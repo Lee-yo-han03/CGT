@@ -1355,6 +1355,15 @@
             font-family: inherit;
         }
         .sim-input:focus { border-color: var(--green); background: #fff; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
+        .sim-input--error {
+            border-color: var(--red) !important;
+            animation: shake 0.35s ease;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%     { transform: translateX(-6px); }
+            60%     { transform: translateX(6px); }
+        }
         .sim-hint { font-size: 11px; color: var(--muted); }
         .sim-result {
             margin-top: 24px;
