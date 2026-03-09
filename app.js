@@ -1134,6 +1134,10 @@ async function toggleReaction(btn) {
 
 // ── 댓글 로드 ─────────────────────────────────────────────────────
 async function loadComments() {
+    // Firebase 모듈 초기화 대기 (loadReactions와 동일하게 최대 5초)
+    if (window._firebaseReady) {
+        await Promise.race([window._firebaseReady, new Promise(r => setTimeout(r, 5000))]);
+    }
     if (window.db && window._fs) {
         const fs = window._fs;
         try {
@@ -1242,7 +1246,7 @@ function initPenaltyCard() {
 
     // 오늘이 기한 이후이면 자동 체크 + 입력 표시 + 자동 계산 + 경고 배너
     if (today > deadlineStr) {
-        if (toggleEl) toggleEl.checked = true;
+        if (toggleEl) { toggleEl.checked = true; toggleEl.setAttribute('aria-expanded', 'true'); }
         if (inputsEl) inputsEl.classList.remove('hidden');
 
         // resultAlert에 경고 배너 추가
@@ -1262,14 +1266,17 @@ function initPenaltyCard() {
 }
 
 function togglePenaltyCalc() {
-    const checked = document.getElementById('penaltyToggle')?.checked;
+    const toggleEl = document.getElementById('penaltyToggle');
+    const checked  = toggleEl?.checked;
     const inputsEl = document.getElementById('penaltyInputs');
     const resultEl = document.getElementById('penaltyResult');
     if (!inputsEl) return;
     if (checked) {
         inputsEl.classList.remove('hidden');
+        if (toggleEl) toggleEl.setAttribute('aria-expanded', 'true');
     } else {
         inputsEl.classList.add('hidden');
+        if (toggleEl) toggleEl.setAttribute('aria-expanded', 'false');
         if (resultEl) resultEl.classList.add('hidden');
     }
 }

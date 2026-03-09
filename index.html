@@ -415,7 +415,8 @@
                 </p>
                 <div class="penalty-toggle">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                        <input type="checkbox" id="penaltyToggle" onchange="togglePenaltyCalc()">
+                        <input type="checkbox" id="penaltyToggle" onchange="togglePenaltyCalc()"
+                               aria-controls="penaltyInputs" aria-expanded="false">
                         기한 후 신고 가산세 계산하기
                     </label>
                 </div>
@@ -423,13 +424,15 @@
                     <div class="penalty-grid">
                         <div class="penalty-field">
                             <label for="penaltyDeadline">신고 기한일</label>
-                            <input type="date" id="penaltyDeadline" class="penalty-input">
-                            <div class="penalty-hint">기본값: 귀속 연도 다음 해 5월 31일</div>
+                            <input type="date" id="penaltyDeadline" class="penalty-input"
+                                   aria-describedby="penaltyDeadlineHint">
+                            <div class="penalty-hint" id="penaltyDeadlineHint">기본값: 귀속 연도 다음 해 5월 31일</div>
                         </div>
                         <div class="penalty-field">
                             <label for="penaltyFileDate">신고 예정일 (또는 오늘)</label>
-                            <input type="date" id="penaltyFileDate" class="penalty-input">
-                            <div class="penalty-hint">기본값: 오늘 날짜</div>
+                            <input type="date" id="penaltyFileDate" class="penalty-input"
+                                   aria-describedby="penaltyFileDateHint">
+                            <div class="penalty-hint" id="penaltyFileDateHint">기본값: 오늘 날짜</div>
                         </div>
                     </div>
                     <button class="btn btn-primary" onclick="calculatePenalty()" style="margin-top:16px; width:100%;">
