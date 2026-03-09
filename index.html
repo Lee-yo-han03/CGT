@@ -13,9 +13,10 @@
     <link rel="canonical" href="https://yangdosave.kr/">
 
     <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
@@ -114,31 +115,6 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3785485618874450" crossorigin="anonymous"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- Firebase SDK (compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script>
-    // ⚠️ Firebase Console → 프로젝트 설정 → 내 앱 → firebaseConfig 붙여넣기
-    const FIREBASE_CONFIG = {
-        apiKey:            "YOUR_API_KEY",
-        authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId:         "YOUR_PROJECT_ID",
-        storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId:             "YOUR_APP_ID"
-    };
-
-    let db = null;
-    try {
-        if (FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
-            firebase.initializeApp(FIREBASE_CONFIG);
-            db = firebase.firestore();
-        }
-    } catch(e) {
-        console.warn('Firebase 초기화 실패:', e.message);
-    }
-    </script>
-
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -172,7 +148,7 @@
                 </svg>
                 <span class="nav-link">문의</span>
             </a>
-            <span class="nav-badge">v3.0</span>
+            <span class="nav-badge">v3.1</span>
         </div>
     </div>
     <!-- 모바일 메뉴 -->
@@ -480,7 +456,13 @@
                 홈택스 신고용 Excel 다운로드
             </button>
 
-            <div style="text-align:center; margin-top:16px;">
+            <div style="text-align:center; margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <button class="btn btn-kakao" onclick="shareResult()" id="shareBtn" style="display:none;">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                        <path d="M9 1.5C4.86 1.5 1.5 4.13 1.5 7.35c0 2.04 1.33 3.83 3.34 4.87L3.9 15l3.74-2.43C8.2 12.68 8.6 12.72 9 12.72c4.14 0 7.5-2.63 7.5-5.87S13.14 1.5 9 1.5z" fill="#191919"/>
+                    </svg>
+                    결과 공유하기
+                </button>
                 <button class="btn btn-outline" onclick="resetAll()">새 파일로 다시 계산하기</button>
             </div>
         </div>
@@ -655,6 +637,48 @@
     </div>
 </section>
 
+<!-- ─── TAX SIMULATOR ─── -->
+<section class="section-full" id="sim-section">
+    <div class="section-inner">
+        <div class="section-label">절세 전략</div>
+        <div class="section-title">절세 시뮬레이션</div>
+        <p class="section-sub">12월 31일 전에 손실 종목을 매도하면 세금이 얼마나 줄어드는지 계산해보세요.</p>
+        <div class="card sim-card">
+            <div class="sim-grid">
+                <div class="sim-field">
+                    <label class="sim-label" for="simGain">올해 실현 양도차익 (원)</label>
+                    <input type="number" id="simGain" class="sim-input" placeholder="예: 10000000" min="0" inputmode="numeric">
+                    <div class="sim-hint">파일 업로드 후 자동으로 채워집니다</div>
+                </div>
+                <div class="sim-field">
+                    <label class="sim-label" for="simLoss">매도 예정 손실액 (원)</label>
+                    <input type="number" id="simLoss" class="sim-input" placeholder="예: 3000000" min="0" inputmode="numeric">
+                    <div class="sim-hint">보유 중인 손실 종목의 예상 손실 금액</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="simulateTaxSaving()" style="margin-top:20px; width:100%;">절세액 계산하기</button>
+            <div class="sim-result hidden" id="simResult">
+                <div class="sim-result-grid">
+                    <div class="sim-result-item">
+                        <div class="sim-result-label">현재 예상 세금</div>
+                        <div class="sim-result-val" id="simTaxBefore">0원</div>
+                    </div>
+                    <div class="sim-arrow" aria-hidden="true">→</div>
+                    <div class="sim-result-item">
+                        <div class="sim-result-label">매도 후 예상 세금</div>
+                        <div class="sim-result-val" id="simTaxAfter">0원</div>
+                    </div>
+                    <div class="sim-result-item sim-highlight">
+                        <div class="sim-result-label">절세 효과</div>
+                        <div class="sim-result-val sim-save" id="simSaving">0원</div>
+                    </div>
+                </div>
+                <div class="sim-desc" id="simDesc"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ─── FAQ ─── -->
 <section class="section-full" id="faq-heading" style="background:var(--bg);">
     <div class="section-inner">
@@ -794,6 +818,40 @@
 
 <script defer src="template.js"></script>
 <script defer src="app.js"></script>
+
+<!-- Firebase SDK (compat) — body 하단에서 로드하여 렌더링 차단 방지 -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// ⚠️ Firebase Console → 프로젝트 설정 → 내 앱 → firebaseConfig 붙여넣기
+const FIREBASE_CONFIG = {
+    apiKey:            "YOUR_API_KEY",
+    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId:         "YOUR_PROJECT_ID",
+    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId:             "YOUR_APP_ID"
+};
+
+let db = null;
+try {
+    if (FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+    }
+} catch(e) {
+    console.warn('Firebase 초기화 실패:', e.message);
+}
+</script>
+
+<!-- PWA 서비스 워커 등록 -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+}
+</script>
 </body>
 </html>
 

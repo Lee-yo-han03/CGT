@@ -788,6 +788,16 @@ function displayResults() {
     document.getElementById('dDed').textContent = `-${krw(tax.basic_deduction)}`;
     document.getElementById('dTaxable').textContent = krw(tax.taxable_income);
 
+    // 절세 시뮬레이터 자동 채움
+    const simGainEl = document.getElementById('simGain');
+    if (simGainEl && tax.gross_profit_loss > 0) {
+        simGainEl.value = tax.gross_profit_loss;
+    }
+
+    // 공유 버튼 표시
+    const shareBtn = document.getElementById('shareBtn');
+    if (shareBtn) shareBtn.style.display = '';
+
     document.getElementById('tradesBody').innerHTML = trades.map(t => {
         const pl = t.profit_loss || 0;
         return `<tr>
@@ -863,6 +873,51 @@ function resetAll() {
 // ===== Helpers =====
 function krw(n) { return (n||0).toLocaleString('ko-KR') + '원'; }
 function num(n) { return (n||0).toLocaleString('ko-KR'); }
+
+// ===== 절세 시뮬레이션 =====
+function simulateTaxSaving() {
+    const gain = parseFloat(document.getElementById('simGain').value) || 0;
+    const loss = parseFloat(document.getElementById('simLoss').value) || 0;
+    const DEDUCTION = 2500000;
+    const RATE = 0.22;
+    const taxBefore = Math.round(Math.max(0, gain - DEDUCTION) * RATE);
+    const newGain = Math.max(0, gain - loss);
+    const taxAfter = Math.round(Math.max(0, newGain - DEDUCTION) * RATE);
+    const saving = taxBefore - taxAfter;
+
+    document.getElementById('simTaxBefore').textContent = krw(taxBefore);
+    document.getElementById('simTaxAfter').textContent = krw(taxAfter);
+    document.getElementById('simSaving').textContent = saving > 0 ? `−${krw(saving)}` : krw(0);
+
+    let desc;
+    if (gain <= 0) {
+        desc = '올해 실현 양도차익을 입력해주세요.';
+    } else if (loss <= 0) {
+        desc = '매도 예정 손실액을 입력하면 절세 효과를 계산합니다.';
+    } else if (saving > 0) {
+        desc = `손실 종목을 ${krw(loss)} 매도하면 과세표준이 줄어들어 세금을 약 <strong style="color:var(--green);">${krw(saving)}</strong> 절감할 수 있습니다.<br>단, 실제 매도 전에 수수료·환율·향후 주가 회복 가능성도 함께 고려하세요.`;
+    } else {
+        desc = `현재 양도차익에서 기본공제(250만원)를 이미 초과하지 않거나, 손실 매도 후에도 세금 변화가 없습니다.`;
+    }
+    document.getElementById('simDesc').innerHTML = desc;
+    document.getElementById('simResult').classList.remove('hidden');
+}
+
+// ===== 결과 공유하기 =====
+async function shareResult() {
+    const tax = state.tax;
+    if (!tax) return;
+    const text = `📊 해외주식 양도소득세 계산 결과\n총 양도차익: ${krw(tax.gross_profit_loss)}\n예상 납부세액: ${krw(tax.tax_amount)}\n\n양도세이브에서 무료로 계산해보세요!`;
+    const url = 'https://yangdosave.kr';
+    if (navigator.share) {
+        try { await navigator.share({ title: '해외주식 양도소득세 계산 결과 | 양도세이브', text, url }); } catch {}
+    } else {
+        try {
+            await navigator.clipboard.writeText(`${text}\n${url}`);
+            alert('결과가 클립보드에 복사되었습니다.');
+        } catch { alert(`공유 링크: ${url}`); }
+    }
+}
 
 
 // ===== FAQ Accordion =====

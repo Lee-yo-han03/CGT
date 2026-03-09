@@ -1,7 +1,20 @@
 {
-  "name": "양도세이브",
+  "name": "양도세이브 - 해외주식 양도소득세 계산기",
   "short_name": "양도세이브",
+  "description": "해외주식 양도소득세 자동 계산 및 홈택스 신고용 엑셀 생성. 무료.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#059669",
+  "background_color": "#ffffff",
+  "lang": "ko",
+  "categories": ["finance", "utilities"],
   "icons": [
+    {
+      "src": "/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
     {
       "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
@@ -15,7 +28,11 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "shortcuts": [
+    {
+      "name": "세금 계산 시작",
+      "url": "/#upload-anchor",
+      "description": "해외주식 양도소득세 계산 바로 시작"
+    }
+  ]
 }
