@@ -794,8 +794,15 @@ function displayResults() {
         simGainEl.value = tax.gross_profit_loss;
     }
 
-    // 가산세 계산기 초기화
+    // 가산세 계산기 초기화 (결과 카드 내)
     initPenaltyCalc();
+
+    // 독립 가산세 계산기에도 양도차익 자동 채움
+    const saGainEl = document.getElementById('saGain');
+    if (saGainEl && tax.gross_profit_loss > 0) {
+        saGainEl.value = tax.gross_profit_loss;
+        calcStandalonePenalty();
+    }
 
     // 공유 버튼 표시
     const shareBtn = document.getElementById('shareBtn');
@@ -1190,7 +1197,111 @@ async function submitComment() {
 document.addEventListener('DOMContentLoaded', () => {
     loadReactions();
     loadComments();
+    initStandalonePenalty();
 });
+
+// ===================================================================
+// ===== 독립 가산세 계산기 (파일 업로드 없이 사용 가능) ==============
+// ===================================================================
+
+function initStandalonePenalty() {
+    const yearEl = document.getElementById('saYear');
+    const dateEl = document.getElementById('saDate');
+    if (!yearEl || !dateEl) return;
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    yearEl.innerHTML = '';
+    for (let y = currentYear - 1; y >= currentYear - 6; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = `${y}년 (신고기한: ${y + 1}-05-31)`;
+        yearEl.appendChild(opt);
+    }
+    dateEl.value = now.toISOString().substring(0, 10);
+}
+
+function calcStandalonePenalty() {
+    const gainRaw = parseFloat(document.getElementById('saGain')?.value) || 0;
+    const taxYear = parseInt(document.getElementById('saYear')?.value);
+    const filingDateStr = document.getElementById('saDate')?.value;
+    const resultEl = document.getElementById('saResult');
+    if (!resultEl || !filingDateStr || !taxYear) return;
+
+    // 납부세액 = max(0, 양도차익 - 250만) × 22%
+    const taxAmount = Math.round(Math.max(0, gainRaw - 2_500_000) * 0.22);
+    const deadline = new Date(`${taxYear + 1}-05-31`);
+    const filingDate = new Date(filingDateStr);
+
+    resultEl.style.display = 'block';
+
+    if (gainRaw <= 0) {
+        resultEl.innerHTML = `<div class="penalty-info-row" style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
+            ℹ️ 양도차익을 입력하면 가산세를 계산합니다.
+        </div>`;
+        return;
+    }
+
+    if (filingDate <= deadline) {
+        resultEl.innerHTML = `<div class="penalty-info-row" style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
+            ✅ 신고기한(${taxYear + 1}-05-31) 이내입니다. 가산세가 없습니다.<br>
+            <strong>납부세액:</strong> ${krw(taxAmount)}
+        </div>`;
+        return;
+    }
+
+    if (taxAmount === 0) {
+        resultEl.innerHTML = `<div class="penalty-info-row" style="background:#FEF3C7;color:#92400E;">
+            ℹ️ 양도차익 250만원 이하로 납부세액 0원. 가산세도 0원입니다.<br>
+            단, 신고 의무 자체는 존재할 수 있습니다.
+        </div>`;
+        return;
+    }
+
+    const dayAfterDeadline = new Date(deadline);
+    dayAfterDeadline.setDate(dayAfterDeadline.getDate() + 1);
+    const overdueDays = Math.floor((filingDate - dayAfterDeadline) / (1000 * 60 * 60 * 24)) + 1;
+
+    let reductionRate, reductionLabel;
+    if (overdueDays <= 30)       { reductionRate = 0.50; reductionLabel = '1개월 이내 — 50% 감면'; }
+    else if (overdueDays <= 90)  { reductionRate = 0.30; reductionLabel = '3개월 이내 — 30% 감면'; }
+    else if (overdueDays <= 180) { reductionRate = 0.20; reductionLabel = '6개월 이내 — 20% 감면'; }
+    else if (overdueDays <= 365) { reductionRate = 0.10; reductionLabel = '1년 이내 — 10% 감면'; }
+    else if (overdueDays <= 730) { reductionRate = 0.05; reductionLabel = '2년 이내 — 5% 감면'; }
+    else                         { reductionRate = 0;    reductionLabel = '2년 초과 — 감면 없음'; }
+
+    const noFilingPenalty = Math.round(taxAmount * 0.20 * (1 - reductionRate));
+    const latePenalty     = Math.round(taxAmount * overdueDays * 0.00022);
+    const totalPenalty    = noFilingPenalty + latePenalty;
+    const grandTotal      = taxAmount + totalPenalty;
+    const penaltyRatio    = ((totalPenalty / taxAmount) * 100).toFixed(1);
+
+    resultEl.innerHTML = `
+        <div class="penalty-result-grid">
+            <div class="penalty-result-item">
+                <div class="penalty-result-label">원래 납부세액</div>
+                <div class="penalty-result-val" style="color:var(--text);">${krw(taxAmount)}</div>
+            </div>
+            <div class="penalty-result-item">
+                <div class="penalty-result-label">무신고 가산세<br>(감면 적용)</div>
+                <div class="penalty-result-val">${krw(noFilingPenalty)}</div>
+            </div>
+            <div class="penalty-result-item">
+                <div class="penalty-result-label">납부지연 가산세<br>(${overdueDays.toLocaleString()}일)</div>
+                <div class="penalty-result-val">${krw(latePenalty)}</div>
+            </div>
+        </div>
+        <div class="penalty-info-row" style="margin-top:8px;">
+            <strong>신고기한 초과:</strong> ${overdueDays.toLocaleString()}일 / ${reductionLabel}<br>
+            <strong>무신고 가산세율:</strong> 20% × (1 − ${Math.round(reductionRate * 100)}%) = ${(20 * (1 - reductionRate)).toFixed(0)}% 적용<br>
+            <strong>납부지연 가산세율:</strong> 0.022%/일 × ${overdueDays.toLocaleString()}일 = ${(0.022 * overdueDays).toFixed(3)}% 적용
+        </div>
+        <div class="penalty-grand" style="margin-top:8px;">
+            <span class="penalty-grand-label">최종 납부 총액 <span style="font-weight:400;font-size:12px;">(가산세 ${penaltyRatio}% 추가)</span></span>
+            <span class="penalty-grand-val">${krw(grandTotal)}</span>
+        </div>
+    `;
+}
 
 
 // ===================================================================

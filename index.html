@@ -702,6 +702,38 @@
     </div>
 </section>
 
+<!-- ─── 가산세 계산기 (독립 섹션) ─── -->
+<section class="section-full" id="penalty-section" style="background:var(--bg);">
+    <div class="section-inner">
+        <div class="section-label">기한후 신고</div>
+        <div class="section-title">가산세 계산기</div>
+        <p class="section-sub">신고 기한(매년 5월 31일)을 넘긴 경우, 자진 신고일에 따라 가산세가 얼마인지 미리 계산해보세요.</p>
+        <div class="card sim-card">
+            <div class="sim-grid">
+                <div class="sim-field">
+                    <label class="sim-label" for="saGain">양도차익 (원)</label>
+                    <input type="number" id="saGain" class="sim-input" placeholder="예: 10000000" min="0" inputmode="numeric" oninput="calcStandalonePenalty()">
+                    <div class="sim-hint">파일 업로드 후 자동으로 채워집니다</div>
+                </div>
+                <div class="sim-field">
+                    <label class="sim-label" for="saYear">양도 연도</label>
+                    <select id="saYear" class="sim-input" style="height:44px;" onchange="calcStandalonePenalty()"></select>
+                </div>
+            </div>
+            <div class="sim-grid" style="margin-top:12px;">
+                <div class="sim-field">
+                    <label class="sim-label" for="saDate">신고·납부 예정일</label>
+                    <input type="date" id="saDate" class="sim-input" oninput="calcStandalonePenalty()">
+                </div>
+                <div class="sim-field" style="display:flex; align-items:flex-end;">
+                    <button class="btn btn-primary" onclick="calcStandalonePenalty()" style="width:100%; height:44px;">가산세 계산하기</button>
+                </div>
+            </div>
+            <div id="saResult" class="sim-result" style="display:none; margin-top:20px; padding:0; background:transparent; border:none;"></div>
+        </div>
+    </div>
+</section>
+
 <!-- ─── FAQ ─── -->
 <section class="section-full" id="faq-heading" style="background:var(--bg);">
     <div class="section-inner">
