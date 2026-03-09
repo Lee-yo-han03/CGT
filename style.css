@@ -1405,114 +1405,29 @@
         }
 
         /* ─── 기한후 신고 가산세 계산기 ─── */
-        .penalty-toggle-btn {
-            width: 100%;
-            margin-top: 16px;
-            padding: 10px 14px;
-            background: #FFFBEB;
-            border: 1px solid #FCD34D;
-            border-radius: var(--radius-sm);
-            color: #92400E;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.15s;
-        }
-        .penalty-toggle-btn:hover { background: #FEF3C7; }
-        .penalty-toggle-btn .penalty-arrow { margin-left: auto; font-size: 11px; transition: transform 0.2s; }
-        .penalty-toggle-btn.open .penalty-arrow { transform: rotate(180deg); }
-
-        .penalty-section {
-            margin-top: 8px;
-            border: 1px solid #FCD34D;
-            border-radius: var(--radius-sm);
-            background: #FFFBEB;
-            padding: 16px;
-        }
-        .penalty-desc {
-            font-size: 12px;
-            color: #92400E;
-            line-height: 1.6;
-            margin-bottom: 14px;
-        }
-        .penalty-inputs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-        .penalty-field { flex: 1; }
-        .penalty-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #92400E;
-            display: block;
-            margin-bottom: 5px;
-        }
-        .penalty-select, .penalty-date-input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #FCD34D;
-            border-radius: 6px;
-            background: #fff;
-            font-size: 13px;
-            color: var(--text);
-        }
-        .penalty-result-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .penalty-result-item {
-            background: #fff;
-            border-radius: 6px;
-            padding: 10px 12px;
-            text-align: center;
-            border: 1px solid #FDE68A;
-        }
-        .penalty-result-item.penalty-total-item {
-            background: #FEF2F2;
-            border-color: #FECACA;
-        }
-        .penalty-result-label {
-            font-size: 10px;
-            color: var(--muted);
-            margin-bottom: 4px;
-            font-weight: 600;
-            line-height: 1.4;
-        }
-        .penalty-result-val {
-            font-size: 14px;
-            font-weight: 700;
-            color: #DC2626;
-        }
-        .penalty-total-item .penalty-result-val { font-size: 16px; }
-        .penalty-info-row {
-            font-size: 11px;
-            color: #92400E;
-            background: #FEF3C7;
-            border-radius: 6px;
-            padding: 8px 12px;
-            line-height: 1.7;
-        }
-        .penalty-info-row strong { color: #78350F; }
-        .penalty-grand {
-            margin-top: 10px;
-            padding: 12px 14px;
-            background: #FEF2F2;
-            border-radius: var(--radius-sm);
-            border: 1px solid #FECACA;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .penalty-grand-label { font-size: 13px; font-weight: 600; color: #7F1D1D; }
-        .penalty-grand-val { font-size: 18px; font-weight: 800; color: #DC2626; }
+        .penalty-card { border-left: 3px solid #F59E0B; }
+        .penalty-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+        .penalty-toggle { margin-bottom: 12px; font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .penalty-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+        .penalty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .penalty-field label { font-size: 13px; font-weight: 600; color: var(--text); display: block; margin-bottom: 6px; }
+        .penalty-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        .penalty-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .penalty-result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .penalty-result-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+        .penalty-result-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+        .penalty-result-val { font-size: 20px; font-weight: 800; color: var(--text); }
+        .penalty-result-val.penalty-warn { color: #EF4444; }
+        .penalty-result-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .penalty-total { grid-column: 1 / -1; background: #FEF3C7; border-color: #F59E0B; }
+        .penalty-total .penalty-result-val { color: #D97706; font-size: 24px; }
+        .penalty-notice { background: #FFF7ED; border: 1px solid #FDBA74; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #9A3412; line-height: 1.6; margin-top: 16px; }
+        .penalty-breakdown { margin-top: 16px; }
+        .penalty-breakdown-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+        .penalty-breakdown-list { font-size: 12px; color: var(--muted); line-height: 2; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--bg); }
+        .penalty-breakdown-list strong { color: var(--text); }
         @media (max-width: 600px) {
-            .penalty-inputs { flex-direction: column; }
-            .penalty-result-grid { grid-template-columns: 1fr 1fr; }
+            .penalty-grid { grid-template-columns: 1fr; }
+            .penalty-result-grid { grid-template-columns: 1fr; }
+            .penalty-total { grid-column: auto; }
         }

@@ -89,6 +89,14 @@
                 "@type": "Answer",
                 "text": "해외주식 양도소득세 신고는 매년 5월 1일~5월 31일 사이에 홈택스(hometax.go.kr)에서 신고납부합니다."
               }
+            },
+            {
+              "@type": "Question",
+              "name": "기한 후 신고하면 가산세가 얼마나 나오나요?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "기한 후 신고 시 무신고 가산세(납부세액의 20%, 자진신고 시 최대 50% 감면)와 납부불성실 가산세(미납세액 × 경과일수 × 0.022%)가 부과됩니다. 예를 들어 세금 165만원을 3개월 늦게 신고하면 약 26만원의 가산세가 발생합니다."
+              }
             }
           ]
         }
@@ -396,6 +404,72 @@
                 </div>
             </div>
 
+            <!-- 가산세 계산 카드 (tax-split 아래, 거래내역 위) -->
+            <div class="card penalty-card hidden" id="penaltyCard" style="margin-top:16px;">
+                <div class="card-title">
+                    <div class="card-title-icon">⚠️</div>
+                    가산세 계산 (기한 후 신고)
+                </div>
+                <p class="penalty-desc">
+                    5월 31일 신고 기한을 넘겼나요? 아래에서 예상 가산세를 확인하세요.
+                </p>
+                <div class="penalty-toggle">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" id="penaltyToggle" onchange="togglePenaltyCalc()">
+                        기한 후 신고 가산세 계산하기
+                    </label>
+                </div>
+                <div class="penalty-inputs hidden" id="penaltyInputs">
+                    <div class="penalty-grid">
+                        <div class="penalty-field">
+                            <label for="penaltyDeadline">신고 기한일</label>
+                            <input type="date" id="penaltyDeadline" class="penalty-input">
+                            <div class="penalty-hint">기본값: 귀속 연도 다음 해 5월 31일</div>
+                        </div>
+                        <div class="penalty-field">
+                            <label for="penaltyFileDate">신고 예정일 (또는 오늘)</label>
+                            <input type="date" id="penaltyFileDate" class="penalty-input">
+                            <div class="penalty-hint">기본값: 오늘 날짜</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="calculatePenalty()" style="margin-top:16px; width:100%;">
+                        가산세 계산하기
+                    </button>
+                </div>
+                <div class="penalty-result hidden" id="penaltyResult">
+                    <div class="penalty-result-grid">
+                        <div class="penalty-result-item">
+                            <div class="penalty-result-label">원래 납부세액</div>
+                            <div class="penalty-result-val" id="penOriginalTax">0원</div>
+                        </div>
+                        <div class="penalty-result-item">
+                            <div class="penalty-result-label">무신고 가산세</div>
+                            <div class="penalty-result-val penalty-warn" id="penNonFiling">0원</div>
+                            <div class="penalty-result-sub" id="penNonFilingSub"></div>
+                        </div>
+                        <div class="penalty-result-item">
+                            <div class="penalty-result-label">납부불성실 가산세</div>
+                            <div class="penalty-result-val penalty-warn" id="penLatePay">0원</div>
+                            <div class="penalty-result-sub" id="penLatePaySub"></div>
+                        </div>
+                        <div class="penalty-result-item penalty-total">
+                            <div class="penalty-result-label">총 납부 예상액</div>
+                            <div class="penalty-result-val" id="penTotal">0원</div>
+                            <div class="penalty-result-sub">(원래 세금 + 무신고 가산세 + 납부불성실 가산세)</div>
+                        </div>
+                    </div>
+                    <div class="penalty-breakdown">
+                        <div class="penalty-breakdown-title">가산세 계산 상세</div>
+                        <div class="penalty-breakdown-list" id="penBreakdown"></div>
+                    </div>
+                    <div class="penalty-notice">
+                        ⚠️ 이 가산세 계산은 <strong>일반 무신고</strong> 기준 참고용입니다.
+                        부정무신고(40%), 감면 특례 등은 반영되지 않았습니다.
+                        정확한 가산세는 세무서 또는 세무사에게 확인하세요.
+                    </div>
+                </div>
+            </div>
+
             <!-- Trade Table (collapsible) -->
             <details style="margin-top:20px;">
                 <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--green); padding:10px 0; list-style:none; display:flex; align-items:center; gap:6px;">
@@ -425,29 +499,6 @@
                     <input type="file" id="addFileInput" multiple accept=".pdf,.xlsx,.xls,.csv">
                 </div>
             </div>
-        </div>
-
-        <!-- ── 기한후 신고 가산세 카드 ── -->
-        <div class="card" id="penaltyCard" style="border-top:3px solid #FCD34D;">
-            <div class="card-title">
-                <div class="card-title-icon">⚠️</div>
-                기한후 신고 가산세
-            </div>
-            <p style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">
-                신고 기한(매년 <strong style="color:var(--text);">5월 31일</strong>)을 넘긴 경우 가산세가 부과됩니다.
-                신고 예정일을 선택하면 <strong style="color:var(--text);">무신고 가산세 + 납부지연 가산세</strong>를 자동 계산합니다.
-            </p>
-            <div class="penalty-inputs">
-                <div class="penalty-field">
-                    <label class="penalty-label" for="penaltyYear">양도 연도</label>
-                    <select class="penalty-select" id="penaltyYear" onchange="calcPenalty()"></select>
-                </div>
-                <div class="penalty-field">
-                    <label class="penalty-label" for="penaltyDate">신고·납부 예정일</label>
-                    <input class="penalty-date-input" type="date" id="penaltyDate" onchange="calcPenalty()">
-                </div>
-            </div>
-            <div id="penaltyResult"></div>
         </div>
 
         <!-- ── STEP 3: Download ── -->
@@ -702,38 +753,6 @@
     </div>
 </section>
 
-<!-- ─── 가산세 계산기 (독립 섹션) ─── -->
-<section class="section-full" id="penalty-section" style="background:var(--bg);">
-    <div class="section-inner">
-        <div class="section-label">기한후 신고</div>
-        <div class="section-title">가산세 계산기</div>
-        <p class="section-sub">신고 기한(매년 5월 31일)을 넘긴 경우, 자진 신고일에 따라 가산세가 얼마인지 미리 계산해보세요.</p>
-        <div class="card sim-card">
-            <div class="sim-grid">
-                <div class="sim-field">
-                    <label class="sim-label" for="saGain">양도차익 (원)</label>
-                    <input type="number" id="saGain" class="sim-input" placeholder="예: 10000000" min="0" inputmode="numeric" oninput="calcStandalonePenalty()">
-                    <div class="sim-hint">파일 업로드 후 자동으로 채워집니다</div>
-                </div>
-                <div class="sim-field">
-                    <label class="sim-label" for="saYear">양도 연도</label>
-                    <select id="saYear" class="sim-input" style="height:44px;" onchange="calcStandalonePenalty()"></select>
-                </div>
-            </div>
-            <div class="sim-grid" style="margin-top:12px;">
-                <div class="sim-field">
-                    <label class="sim-label" for="saDate">신고·납부 예정일</label>
-                    <input type="date" id="saDate" class="sim-input" oninput="calcStandalonePenalty()">
-                </div>
-                <div class="sim-field" style="display:flex; align-items:flex-end;">
-                    <button class="btn btn-primary" onclick="calcStandalonePenalty()" style="width:100%; height:44px;">가산세 계산하기</button>
-                </div>
-            </div>
-            <div id="saResult" class="sim-result" style="display:none; margin-top:20px; padding:0; background:transparent; border:none;"></div>
-        </div>
-    </div>
-</section>
-
 <!-- ─── FAQ ─── -->
 <section class="section-full" id="faq-heading" style="background:var(--bg);">
     <div class="section-inner">
@@ -790,6 +809,13 @@
                         <span class="faq-arrow">▼</span>
                     </button>
                     <div class="faq-a">기한 후 신고를 하면 됩니다. 신고하지 않은 것보다 기한 후라도 신고하면 가산세를 크게 줄일 수 있습니다. 양도세이브로 세금을 계산한 후, 홈택스에서 기한 후 신고를 진행하세요.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
+                        기한 후 신고하면 가산세가 얼마나 나오나요?
+                        <span class="faq-arrow">▼</span>
+                    </button>
+                    <div class="faq-a">기한 후 신고 시 두 가지 가산세가 부과됩니다. ① <strong>무신고 가산세</strong>: 납부세액의 20% (1개월 이내 자진신고 시 50% 감면, 3개월 이내 30% 감면, 6개월 이내 20% 감면). ② <strong>납부불성실 가산세</strong>: 미납세액 × 경과일수 × 0.022% (1일당). 예: 세금 165만원을 3개월 늦게 신고하면 무신고 가산세 약 23.1만원 + 납부불성실 가산세 약 3.3만원 = 약 26.4만원의 추가 부담이 발생합니다. 양도세이브의 가산세 계산 기능으로 정확한 금액을 확인해보세요.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
