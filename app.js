@@ -870,15 +870,11 @@ function resetAll() {
     document.getElementById('fileList').innerHTML = '';
     document.getElementById('analyzeBtn').classList.add('hidden');
     document.getElementById('fileInput').value = '';
-    // 가산세 카드 초기화
-    const pc = document.getElementById('penaltyCard');
-    if (pc) pc.classList.add('hidden');
-    const pt = document.getElementById('penaltyToggle');
-    if (pt) pt.checked = false;
-    const pi = document.getElementById('penaltyInputs');
-    if (pi) pi.classList.add('hidden');
+    // 가산세 결과만 초기화 (카드는 항상 표시)
     const pr = document.getElementById('penaltyResult');
     if (pr) pr.classList.add('hidden');
+    const taxInputEl = document.getElementById('penaltyTaxInput');
+    if (taxInputEl) taxInputEl.value = '';
     goStep(1);
 }
 
@@ -1210,6 +1206,16 @@ async function submitComment() {
 document.addEventListener('DOMContentLoaded', () => {
     loadReactions();
     loadComments();
+    // 가산세 날짜 기본값 설정 (파일 업로드 없이도 사용 가능)
+    const deadlineEl = document.getElementById('penaltyDeadline');
+    const fileDateEl = document.getElementById('penaltyFileDate');
+    if (deadlineEl && !deadlineEl.value) {
+        const lastYear = new Date().getFullYear() - 1;
+        deadlineEl.value = `${lastYear + 1}-05-31`;
+    }
+    if (fileDateEl && !fileDateEl.value) {
+        fileDateEl.value = new Date().toISOString().substring(0, 10);
+    }
 });
 
 // ===================================================================
@@ -1217,15 +1223,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===================================================================
 
 function initPenaltyCard() {
-    const card = document.getElementById('penaltyCard');
     const deadlineEl = document.getElementById('penaltyDeadline');
     const fileDateEl = document.getElementById('penaltyFileDate');
-    const toggleEl  = document.getElementById('penaltyToggle');
-    const inputsEl  = document.getElementById('penaltyInputs');
-    if (!card || !deadlineEl || !fileDateEl) return;
-
-    // 카드 표시
-    card.classList.remove('hidden');
+    const taxInputEl = document.getElementById('penaltyTaxInput');
+    if (!deadlineEl || !fileDateEl) return;
 
     // 거래내역에서 양도 연도 자동 감지
     let tradeYear = new Date().getFullYear() - 1;
@@ -1244,47 +1245,35 @@ function initPenaltyCard() {
     const today = new Date().toISOString().substring(0, 10);
     fileDateEl.value = today;
 
-    // 오늘이 기한 이후이면 자동 체크 + 입력 표시 + 자동 계산 + 경고 배너
-    if (today > deadlineStr) {
-        if (toggleEl) { toggleEl.checked = true; toggleEl.setAttribute('aria-expanded', 'true'); }
-        if (inputsEl) inputsEl.classList.remove('hidden');
+    // 파일 업로드 세금 자동 채움
+    if (taxInputEl && state.tax && state.tax.tax_amount > 0) {
+        taxInputEl.value = state.tax.tax_amount;
+    }
 
-        // resultAlert에 경고 배너 추가
+    // 오늘이 기한 이후이면 결과 알림 배너 추가
+    if (today > deadlineStr) {
         const alertEl = document.getElementById('resultAlert');
         if (alertEl) {
             const deadlineFormatted = `${tradeYear + 1}.5.31`;
             const warningBanner = `<div class="result-alert" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FCD34D;margin-top:8px;">
                 <span aria-hidden="true">⚠️</span>
-                <span>이 거래의 신고 기한(${deadlineFormatted})이 지났습니다. 아래에서 예상 가산세를 확인하세요.</span>
+                <span>이 거래의 신고 기한(${deadlineFormatted})이 지났습니다. <a href="#penalty-section" style="color:#92400E;text-decoration:underline;">아래 가산세 계산</a>에서 확인하세요.</span>
             </div>`;
             alertEl.innerHTML += warningBanner;
         }
-
-        // 가산세 자동 계산
-        calculatePenalty();
     }
 }
 
-function togglePenaltyCalc() {
-    const toggleEl = document.getElementById('penaltyToggle');
-    const checked  = toggleEl?.checked;
-    const inputsEl = document.getElementById('penaltyInputs');
-    const resultEl = document.getElementById('penaltyResult');
-    if (!inputsEl) return;
-    if (checked) {
-        inputsEl.classList.remove('hidden');
-        if (toggleEl) toggleEl.setAttribute('aria-expanded', 'true');
-    } else {
-        inputsEl.classList.add('hidden');
-        if (toggleEl) toggleEl.setAttribute('aria-expanded', 'false');
-        if (resultEl) resultEl.classList.add('hidden');
-    }
-}
+function togglePenaltyCalc() {}
 
 function calculatePenalty() {
-    const originalTax = (state.tax && state.tax.tax_amount) ? state.tax.tax_amount : 0;
+    const taxInputEl = document.getElementById('penaltyTaxInput');
+    const inputVal = taxInputEl ? parseFloat(taxInputEl.value) : 0;
+    // 입력값 우선, 없으면 state에서
+    const originalTax = (inputVal > 0) ? inputVal
+        : ((state.tax && state.tax.tax_amount) ? state.tax.tax_amount : 0);
     if (originalTax <= 0) {
-        alert('납부할 세금이 없어 가산세가 발생하지 않습니다.');
+        alert('납부세액을 입력하거나 파일을 업로드하세요.');
         return;
     }
 

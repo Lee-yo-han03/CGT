@@ -404,75 +404,6 @@
                 </div>
             </div>
 
-            <!-- 가산세 계산 카드 (tax-split 아래, 거래내역 위) -->
-            <div class="card penalty-card hidden" id="penaltyCard" style="margin-top:16px;">
-                <div class="card-title">
-                    <div class="card-title-icon">⚠️</div>
-                    가산세 계산 (기한 후 신고)
-                </div>
-                <p class="penalty-desc">
-                    5월 31일 신고 기한을 넘겼나요? 아래에서 예상 가산세를 확인하세요.
-                </p>
-                <div class="penalty-toggle">
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                        <input type="checkbox" id="penaltyToggle" onchange="togglePenaltyCalc()"
-                               aria-controls="penaltyInputs" aria-expanded="false">
-                        기한 후 신고 가산세 계산하기
-                    </label>
-                </div>
-                <div class="penalty-inputs hidden" id="penaltyInputs">
-                    <div class="penalty-grid">
-                        <div class="penalty-field">
-                            <label for="penaltyDeadline">신고 기한일</label>
-                            <input type="date" id="penaltyDeadline" class="penalty-input"
-                                   aria-describedby="penaltyDeadlineHint">
-                            <div class="penalty-hint" id="penaltyDeadlineHint">기본값: 귀속 연도 다음 해 5월 31일</div>
-                        </div>
-                        <div class="penalty-field">
-                            <label for="penaltyFileDate">신고 예정일 (또는 오늘)</label>
-                            <input type="date" id="penaltyFileDate" class="penalty-input"
-                                   aria-describedby="penaltyFileDateHint">
-                            <div class="penalty-hint" id="penaltyFileDateHint">기본값: 오늘 날짜</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="calculatePenalty()" style="margin-top:16px; width:100%;">
-                        가산세 계산하기
-                    </button>
-                </div>
-                <div class="penalty-result hidden" id="penaltyResult">
-                    <div class="penalty-result-grid">
-                        <div class="penalty-result-item">
-                            <div class="penalty-result-label">원래 납부세액</div>
-                            <div class="penalty-result-val" id="penOriginalTax">0원</div>
-                        </div>
-                        <div class="penalty-result-item">
-                            <div class="penalty-result-label">무신고 가산세</div>
-                            <div class="penalty-result-val penalty-warn" id="penNonFiling">0원</div>
-                            <div class="penalty-result-sub" id="penNonFilingSub"></div>
-                        </div>
-                        <div class="penalty-result-item">
-                            <div class="penalty-result-label">납부불성실 가산세</div>
-                            <div class="penalty-result-val penalty-warn" id="penLatePay">0원</div>
-                            <div class="penalty-result-sub" id="penLatePaySub"></div>
-                        </div>
-                        <div class="penalty-result-item penalty-total">
-                            <div class="penalty-result-label">총 납부 예상액</div>
-                            <div class="penalty-result-val" id="penTotal">0원</div>
-                            <div class="penalty-result-sub">(원래 세금 + 무신고 가산세 + 납부불성실 가산세)</div>
-                        </div>
-                    </div>
-                    <div class="penalty-breakdown">
-                        <div class="penalty-breakdown-title">가산세 계산 상세</div>
-                        <div class="penalty-breakdown-list" id="penBreakdown"></div>
-                    </div>
-                    <div class="penalty-notice">
-                        ⚠️ 이 가산세 계산은 <strong>일반 무신고</strong> 기준 참고용입니다.
-                        부정무신고(40%), 감면 특례 등은 반영되지 않았습니다.
-                        정확한 가산세는 세무서 또는 세무사에게 확인하세요.
-                    </div>
-                </div>
-            </div>
-
             <!-- Trade Table (collapsible) -->
             <details style="margin-top:20px;">
                 <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--green); padding:10px 0; list-style:none; display:flex; align-items:center; gap:6px;">
@@ -756,6 +687,69 @@
             <p style="font-size:13px; color:var(--muted); margin-top:20px; padding:12px 16px; background:var(--bg); border-radius:8px; border-left:3px solid #F59E0B; line-height:1.6;">
                 📌 이미 신고 기한이 지났다면 위 세금 계산 결과에서 가산세도 함께 확인하세요.
             </p>
+        </div>
+    </div>
+</section>
+
+<!-- ─── PENALTY CALCULATOR ─── -->
+<section class="section-full" id="penalty-section" style="background:var(--bg-alt,#f9fafb);">
+    <div class="section-inner">
+        <div class="section-label">기한 후 신고</div>
+        <div class="section-title">가산세 계산</div>
+        <p class="section-sub">5월 31일 신고 기한을 넘겼다면 예상 가산세를 미리 계산해보세요. 파일 업로드 시 세금이 자동으로 채워집니다.</p>
+        <div class="card penalty-card" id="penaltyCard">
+            <div class="penalty-grid" style="margin-bottom:16px;">
+                <div class="penalty-field">
+                    <label for="penaltyTaxInput">납부세액 (원)</label>
+                    <input type="number" id="penaltyTaxInput" class="penalty-input" placeholder="예: 1650000" min="0" inputmode="numeric">
+                    <div class="penalty-hint">파일 업로드 후 자동으로 채워집니다</div>
+                </div>
+                <div class="penalty-field">
+                    <label for="penaltyDeadline">신고 기한일</label>
+                    <input type="date" id="penaltyDeadline" class="penalty-input" aria-describedby="penaltyDeadlineHint">
+                    <div class="penalty-hint" id="penaltyDeadlineHint">기본값: 전년도 귀속 다음 해 5월 31일</div>
+                </div>
+                <div class="penalty-field">
+                    <label for="penaltyFileDate">신고 예정일 (또는 오늘)</label>
+                    <input type="date" id="penaltyFileDate" class="penalty-input" aria-describedby="penaltyFileDateHint">
+                    <div class="penalty-hint" id="penaltyFileDateHint">기본값: 오늘 날짜</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="calculatePenalty()" style="width:100%;">
+                가산세 계산하기
+            </button>
+            <div class="penalty-result hidden" id="penaltyResult" style="margin-top:20px;">
+                <div class="penalty-result-grid">
+                    <div class="penalty-result-item">
+                        <div class="penalty-result-label">원래 납부세액</div>
+                        <div class="penalty-result-val" id="penOriginalTax">0원</div>
+                    </div>
+                    <div class="penalty-result-item">
+                        <div class="penalty-result-label">무신고 가산세</div>
+                        <div class="penalty-result-val penalty-warn" id="penNonFiling">0원</div>
+                        <div class="penalty-result-sub" id="penNonFilingSub"></div>
+                    </div>
+                    <div class="penalty-result-item">
+                        <div class="penalty-result-label">납부불성실 가산세</div>
+                        <div class="penalty-result-val penalty-warn" id="penLatePay">0원</div>
+                        <div class="penalty-result-sub" id="penLatePaySub"></div>
+                    </div>
+                    <div class="penalty-result-item penalty-total">
+                        <div class="penalty-result-label">총 납부 예상액</div>
+                        <div class="penalty-result-val" id="penTotal">0원</div>
+                        <div class="penalty-result-sub">(원래 세금 + 무신고 가산세 + 납부불성실 가산세)</div>
+                    </div>
+                </div>
+                <div class="penalty-breakdown">
+                    <div class="penalty-breakdown-title">가산세 계산 상세</div>
+                    <div class="penalty-breakdown-list" id="penBreakdown"></div>
+                </div>
+                <div class="penalty-notice">
+                    ⚠️ 이 가산세 계산은 <strong>일반 무신고</strong> 기준 참고용입니다.
+                    부정무신고(40%), 감면 특례 등은 반영되지 않았습니다.
+                    정확한 가산세는 세무서 또는 세무사에게 확인하세요.
+                </div>
+            </div>
         </div>
     </div>
 </section>
