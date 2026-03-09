@@ -794,6 +794,9 @@ function displayResults() {
         simGainEl.value = tax.gross_profit_loss;
     }
 
+    // 가산세 계산기 초기화
+    initPenaltyCalc();
+
     // 공유 버튼 표시
     const shareBtn = document.getElementById('shareBtn');
     if (shareBtn) shareBtn.style.display = 'inline-flex';
@@ -867,6 +870,13 @@ function resetAll() {
     document.getElementById('fileList').innerHTML = '';
     document.getElementById('analyzeBtn').classList.add('hidden');
     document.getElementById('fileInput').value = '';
+    // 가산세 섹션 초기화
+    const ps = document.getElementById('penaltySection');
+    const pb = document.getElementById('penaltyToggleBtn');
+    if (ps) ps.classList.add('hidden');
+    if (pb) pb.classList.remove('open');
+    const pr = document.getElementById('penaltyResult');
+    if (pr) pr.innerHTML = '';
     goStep(1);
 }
 
@@ -1097,10 +1107,8 @@ async function toggleReaction(btn) {
             });
             return;
         } catch(e) {
-            console.error('Firebase 리액션 저장 실패:', e.message);
-            // 롤백
-            updateReactionUI(key, currentCnt, isActive);
-            setVotedReaction(key, isActive);
+            console.warn('Firebase 리액션 저장 실패 — localStorage 폴백:', e.message);
+            // UI는 낙관적으로 유지, localStorage에 저장
         }
     }
     // localStorage 폴백: 카운트 저장
@@ -1139,13 +1147,19 @@ async function submitComment() {
     try {
         if (window.db && window._fs) {
             const fs = window._fs;
-            await fs.addDoc(fs.collection(window.db, 'comments'), {
-                name: name || '익명', text,
-                createdAt: fs.serverTimestamp(),
-            });
-            console.log('[Firebase] Firestore write success — comment saved');
+            try {
+                await fs.addDoc(fs.collection(window.db, 'comments'), {
+                    name: name || '익명', text,
+                    createdAt: fs.serverTimestamp(),
+                });
+                console.log('[Firebase] Firestore write success — comment saved');
+            } catch(e) {
+                console.warn('[Firebase] Firestore write error — localStorage 폴백:', e.message);
+                saveLocalComment(name, text);
+                showFeedbackLocalNote();
+            }
         } else {
-            console.warn('[Firebase] Firestore write error — db 없음, localStorage 폴백');
+            console.warn('[Firebase] db 없음 — localStorage 폴백');
             saveLocalComment(name, text);
             showFeedbackLocalNote();
         }
@@ -1156,7 +1170,6 @@ async function submitComment() {
         await loadComments();
     } catch(e) {
         console.error('댓글 저장 실패:', e.message);
-        alert('댓글 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '등록'; }
     }
@@ -1178,3 +1191,140 @@ document.addEventListener('DOMContentLoaded', () => {
     loadReactions();
     loadComments();
 });
+
+
+// ===================================================================
+// ===== 기한후 신고 가산세 계산기 =====================================
+// ===================================================================
+
+function togglePenaltyCalc() {
+    const section = document.getElementById('penaltySection');
+    const btn = document.getElementById('penaltyToggleBtn');
+    if (!section || !btn) return;
+    const isOpen = !section.classList.contains('hidden');
+    section.classList.toggle('hidden', isOpen);
+    btn.classList.toggle('open', !isOpen);
+}
+
+function initPenaltyCalc() {
+    // 연도 셀렉트 채우기 (현재연도-1 ~ 현재연도-5)
+    const yearEl = document.getElementById('penaltyYear');
+    const dateEl = document.getElementById('penaltyDate');
+    if (!yearEl || !dateEl) return;
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    // 거래내역에서 연도 자동 감지
+    let guessYear = currentYear - 1;
+    if (state.trades && state.trades.length > 0) {
+        const years = state.trades
+            .map(t => t.sell_date ? parseInt(t.sell_date.substring(0, 4)) : 0)
+            .filter(y => y > 2000);
+        if (years.length > 0) guessYear = Math.max(...years);
+    }
+
+    yearEl.innerHTML = '';
+    for (let y = currentYear - 1; y >= currentYear - 6; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = `${y}년 (신고기한: ${y + 1}-05-31)`;
+        if (y === guessYear) opt.selected = true;
+        yearEl.appendChild(opt);
+    }
+
+    // 오늘 날짜를 기본값으로
+    dateEl.value = now.toISOString().substring(0, 10);
+
+    calcPenalty();
+}
+
+function calcPenalty() {
+    const yearEl = document.getElementById('penaltyYear');
+    const dateEl = document.getElementById('penaltyDate');
+    const resultEl = document.getElementById('penaltyResult');
+    if (!yearEl || !dateEl || !resultEl) return;
+
+    const taxYear = parseInt(yearEl.value);
+    const filingDateStr = dateEl.value;
+    if (!filingDateStr) return;
+
+    // 신고기한: 다음해 5월 31일
+    const deadline = new Date(`${taxYear + 1}-05-31`);
+    const filingDate = new Date(filingDateStr);
+
+    // 기한 내 신고면 가산세 없음
+    if (filingDate <= deadline) {
+        resultEl.innerHTML = `<div class="penalty-info-row" style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
+            ✅ 신고기한(${taxYear + 1}-05-31) 이내입니다. 가산세가 없습니다.
+        </div>`;
+        return;
+    }
+
+    // 경과일수: 신고기한 다음날부터 납부일까지
+    const dayAfterDeadline = new Date(deadline);
+    dayAfterDeadline.setDate(dayAfterDeadline.getDate() + 1);
+    const overdueDays = Math.floor((filingDate - dayAfterDeadline) / (1000 * 60 * 60 * 24)) + 1;
+
+    // 무신고가산세 감면율 — 일수 기준 (월말 경계 오류 방지)
+    let reductionRate, reductionLabel;
+    if (overdueDays <= 30) {
+        reductionRate = 0.50; reductionLabel = '1개월(30일) 이내 — 50% 감면';
+    } else if (overdueDays <= 90) {
+        reductionRate = 0.30; reductionLabel = '3개월(90일) 이내 — 30% 감면';
+    } else if (overdueDays <= 180) {
+        reductionRate = 0.20; reductionLabel = '6개월(180일) 이내 — 20% 감면';
+    } else if (overdueDays <= 365) {
+        reductionRate = 0.10; reductionLabel = '1년(365일) 이내 — 10% 감면';
+    } else if (overdueDays <= 730) {
+        reductionRate = 0.05; reductionLabel = '2년(730일) 이내 — 5% 감면';
+    } else {
+        reductionRate = 0; reductionLabel = '2년(730일) 초과 — 감면 없음';
+    }
+
+    const taxAmount = (state.tax && state.tax.tax_amount) ? state.tax.tax_amount : 0;
+
+    if (taxAmount === 0) {
+        resultEl.innerHTML = `<div class="penalty-info-row" style="background:#FEF3C7;color:#92400E;">
+            ℹ️ 납부세액이 0원이므로 가산세도 0원입니다.<br>
+            단, 양도차익이 250만원 이하여도 <strong>무신고 자체에 대한 신고 의무</strong>는 있을 수 있습니다.
+        </div>`;
+        return;
+    }
+
+    // 무신고 가산세: 납부세액 × 20% × (1 - 감면율)
+    const noFilingPenalty = Math.round(taxAmount * 0.20 * (1 - reductionRate));
+
+    // 납부지연 가산세: 납부세액 × 경과일수 × 0.022%
+    const latePenalty = Math.round(taxAmount * overdueDays * 0.00022);
+
+    const totalPenalty = noFilingPenalty + latePenalty;
+    const grandTotal = taxAmount + totalPenalty;
+    const penaltyRatio = taxAmount > 0 ? ((totalPenalty / taxAmount) * 100).toFixed(1) : 0;
+
+    resultEl.innerHTML = `
+        <div class="penalty-result-grid">
+            <div class="penalty-result-item">
+                <div class="penalty-result-label">무신고 가산세<br>(감면 적용 후)</div>
+                <div class="penalty-result-val">${krw(noFilingPenalty)}</div>
+            </div>
+            <div class="penalty-result-item">
+                <div class="penalty-result-label">납부지연 가산세<br>(${overdueDays.toLocaleString()}일 경과)</div>
+                <div class="penalty-result-val">${krw(latePenalty)}</div>
+            </div>
+            <div class="penalty-result-item penalty-total-item">
+                <div class="penalty-result-label">가산세 합계<br>(원래 세액의 ${penaltyRatio}%)</div>
+                <div class="penalty-result-val">${krw(totalPenalty)}</div>
+            </div>
+        </div>
+        <div class="penalty-info-row">
+            <strong>신고기한 초과:</strong> ${overdueDays.toLocaleString()}일 / ${reductionLabel}<br>
+            <strong>무신고 가산세율:</strong> 20% × (1 − ${Math.round(reductionRate * 100)}%) = ${(20 * (1 - reductionRate)).toFixed(0)}% 적용<br>
+            <strong>납부지연 가산세율:</strong> 0.022%/일 × ${overdueDays.toLocaleString()}일 = ${(0.022 * overdueDays).toFixed(3)}% 적용
+        </div>
+        <div class="penalty-grand">
+            <span class="penalty-grand-label">원래 납부세액(${krw(taxAmount)}) + 가산세</span>
+            <span class="penalty-grand-val">${krw(grandTotal)}</span>
+        </div>
+    `;
+}

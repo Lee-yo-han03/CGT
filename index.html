@@ -276,10 +276,10 @@
                 <div class="brokers-label">지원 증권사</div>
                 <div class="brokers-list">
                     <div class="broker-chip" aria-label="한국투자증권 PDF·Excel 지원"><span class="broker-dot" aria-hidden="true"></span>한국투자증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></div>
-                    <div class="broker-chip" aria-label="키움증권 Excel 지원"><span class="broker-dot" aria-hidden="true"></span>키움증권<span class="broker-fmt">Excel</span></div>
-                    <div class="broker-chip" aria-label="미래에셋증권 Excel 지원"><span class="broker-dot" aria-hidden="true"></span>미래에셋증권<span class="broker-fmt">Excel</span></div>
-                    <div class="broker-chip" aria-label="삼성증권 Excel 지원"><span class="broker-dot" aria-hidden="true"></span>삼성증권<span class="broker-fmt">Excel</span></div>
-                    <div class="broker-chip" aria-label="NH투자증권 Excel 지원"><span class="broker-dot" aria-hidden="true"></span>NH투자증권<span class="broker-fmt">Excel</span></div>
+                    <div class="broker-chip" aria-label="키움증권 PDF·Excel 지원"><span class="broker-dot" aria-hidden="true"></span>키움증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></div>
+                    <div class="broker-chip" aria-label="미래에셋증권 PDF·Excel 지원"><span class="broker-dot" aria-hidden="true"></span>미래에셋증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></div>
+                    <div class="broker-chip" aria-label="삼성증권 PDF·Excel 지원"><span class="broker-dot" aria-hidden="true"></span>삼성증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></div>
+                    <div class="broker-chip" aria-label="NH투자증권 PDF·Excel 지원"><span class="broker-dot" aria-hidden="true"></span>NH투자증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></div>
                     <div class="broker-chip" aria-label="신한투자증권 Excel 지원"><span class="broker-dot" aria-hidden="true"></span>신한투자증권<span class="broker-fmt">Excel</span></div>
                     <div class="broker-chip" aria-label="기타 증권사 CSV 지원"><span class="broker-dot" aria-hidden="true"></span>기타 CSV<span class="broker-fmt">CSV</span></div>
                 </div>
@@ -394,6 +394,29 @@
                     <div class="tax-split-label">지방세 (지방소득세 2%)</div>
                     <div class="tax-split-val" id="taxL">0원</div>
                 </div>
+            </div>
+
+            <!-- 기한후 신고 가산세 계산기 -->
+            <button class="penalty-toggle-btn" id="penaltyToggleBtn" onclick="togglePenaltyCalc()">
+                ⚠️ 기한후 신고인 경우 가산세 계산하기
+                <span class="penalty-arrow">▼</span>
+            </button>
+            <div class="penalty-section hidden" id="penaltySection">
+                <p class="penalty-desc">
+                    신고 기한(매년 <strong>5월 31일</strong>)을 넘겨 기한후 신고 시 <strong>무신고 가산세</strong>와 <strong>납부지연 가산세</strong>가 부과됩니다.
+                    자진 기한후 신고 시 경과 기간에 따라 무신고 가산세를 감면받을 수 있습니다.
+                </p>
+                <div class="penalty-inputs">
+                    <div class="penalty-field">
+                        <label class="penalty-label" for="penaltyYear">양도 연도</label>
+                        <select class="penalty-select" id="penaltyYear" onchange="calcPenalty()"></select>
+                    </div>
+                    <div class="penalty-field">
+                        <label class="penalty-label" for="penaltyDate">신고·납부 예정일</label>
+                        <input class="penalty-date-input" type="date" id="penaltyDate" onchange="calcPenalty()">
+                    </div>
+                </div>
+                <div id="penaltyResult"></div>
             </div>
 
             <!-- Trade Table (collapsible) -->
@@ -624,10 +647,10 @@
                 <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;">다양한 증권사 파일을 지원합니다</h2>
                 <div class="broker-tag-list">
                     <span class="broker-tag">한국투자증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
-                    <span class="broker-tag">키움증권<span class="broker-fmt">Excel</span></span>
-                    <span class="broker-tag">미래에셋증권<span class="broker-fmt">Excel</span></span>
-                    <span class="broker-tag">삼성증권<span class="broker-fmt">Excel</span></span>
-                    <span class="broker-tag">NH투자증권<span class="broker-fmt">Excel</span></span>
+                    <span class="broker-tag">키움증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
+                    <span class="broker-tag">미래에셋증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
+                    <span class="broker-tag">삼성증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
+                    <span class="broker-tag">NH투자증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
                     <span class="broker-tag">신한투자증권<span class="broker-fmt">Excel</span></span>
                     <span class="broker-tag">기타 CSV<span class="broker-fmt">CSV</span></span>
                 </div>

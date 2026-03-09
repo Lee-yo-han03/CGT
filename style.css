@@ -1403,3 +1403,116 @@
             .sim-arrow { display: none; }
             .sim-result-val { font-size: 15px; }
         }
+
+        /* ─── 기한후 신고 가산세 계산기 ─── */
+        .penalty-toggle-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: #FFFBEB;
+            border: 1px solid #FCD34D;
+            border-radius: var(--radius-sm);
+            color: #92400E;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+        .penalty-toggle-btn:hover { background: #FEF3C7; }
+        .penalty-toggle-btn .penalty-arrow { margin-left: auto; font-size: 11px; transition: transform 0.2s; }
+        .penalty-toggle-btn.open .penalty-arrow { transform: rotate(180deg); }
+
+        .penalty-section {
+            margin-top: 8px;
+            border: 1px solid #FCD34D;
+            border-radius: var(--radius-sm);
+            background: #FFFBEB;
+            padding: 16px;
+        }
+        .penalty-desc {
+            font-size: 12px;
+            color: #92400E;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+        .penalty-inputs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .penalty-field { flex: 1; }
+        .penalty-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #92400E;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .penalty-select, .penalty-date-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #FCD34D;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 13px;
+            color: var(--text);
+        }
+        .penalty-result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .penalty-result-item {
+            background: #fff;
+            border-radius: 6px;
+            padding: 10px 12px;
+            text-align: center;
+            border: 1px solid #FDE68A;
+        }
+        .penalty-result-item.penalty-total-item {
+            background: #FEF2F2;
+            border-color: #FECACA;
+        }
+        .penalty-result-label {
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 4px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .penalty-result-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: #DC2626;
+        }
+        .penalty-total-item .penalty-result-val { font-size: 16px; }
+        .penalty-info-row {
+            font-size: 11px;
+            color: #92400E;
+            background: #FEF3C7;
+            border-radius: 6px;
+            padding: 8px 12px;
+            line-height: 1.7;
+        }
+        .penalty-info-row strong { color: #78350F; }
+        .penalty-grand {
+            margin-top: 10px;
+            padding: 12px 14px;
+            background: #FEF2F2;
+            border-radius: var(--radius-sm);
+            border: 1px solid #FECACA;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .penalty-grand-label { font-size: 13px; font-weight: 600; color: #7F1D1D; }
+        .penalty-grand-val { font-size: 18px; font-weight: 800; color: #DC2626; }
+        @media (max-width: 600px) {
+            .penalty-inputs { flex-direction: column; }
+            .penalty-result-grid { grid-template-columns: 1fr 1fr; }
+        }
