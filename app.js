@@ -1024,6 +1024,17 @@ function showFeedbackLocalNote() {
     sec.querySelector('.feedback-inner')?.appendChild(note);
 }
 
+// ── Firebase 상태 뱃지 ────────────────────────────────────────────
+function setFbStatus(connected) {
+    const el = document.getElementById('fbStatus');
+    if (!el) return;
+    if (connected) {
+        el.innerHTML = '<span style="color:#059669;">● Firebase 연결됨</span>';
+    } else {
+        el.innerHTML = '<span style="color:#F59E0B;">● 로컬 저장 중 (Firebase 미연결 — 이 기기에만 저장됩니다)</span>';
+    }
+}
+
 // ── 리액션 로드 ───────────────────────────────────────────────────
 async function loadReactions() {
     const voted = getVotedReactions();
@@ -1034,12 +1045,17 @@ async function loadReactions() {
                 const { key, count } = doc.data();
                 if (REACTION_KEYS.includes(key)) updateReactionUI(key, count || 0, !!voted[key]);
             });
+            setFbStatus(true);
             return;
-        } catch(e) { console.warn('Firebase 리액션 로드 실패:', e.message); }
+        } catch(e) {
+            console.warn('Firebase 리액션 로드 실패:', e.message);
+            setFbStatus(false);
+        }
     }
     // localStorage 폴백
     const counts = getLocalCounts();
     REACTION_KEYS.forEach(k => updateReactionUI(k, counts[k] || 0, !!voted[k]));
+    setFbStatus(false);
     showFeedbackLocalNote();
 }
 
