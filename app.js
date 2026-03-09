@@ -878,10 +878,6 @@ function resetAll() {
     document.getElementById('analyzeBtn').classList.add('hidden');
     document.getElementById('fileInput').value = '';
     // 가산세 섹션 초기화
-    const ps = document.getElementById('penaltySection');
-    const pb = document.getElementById('penaltyToggleBtn');
-    if (ps) ps.classList.add('hidden');
-    if (pb) pb.classList.remove('open');
     const pr = document.getElementById('penaltyResult');
     if (pr) pr.innerHTML = '';
     goStep(1);
@@ -1307,15 +1303,6 @@ function calcStandalonePenalty() {
 // ===================================================================
 // ===== 기한후 신고 가산세 계산기 =====================================
 // ===================================================================
-
-function togglePenaltyCalc() {
-    const section = document.getElementById('penaltySection');
-    const btn = document.getElementById('penaltyToggleBtn');
-    if (!section || !btn) return;
-    const isOpen = !section.classList.contains('hidden');
-    section.classList.toggle('hidden', isOpen);
-    btn.classList.toggle('open', !isOpen);
-}
 
 function initPenaltyCalc() {
     // 연도 셀렉트 채우기 (현재연도-1 ~ 현재연도-5)

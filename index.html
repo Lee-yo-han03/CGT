@@ -396,29 +396,6 @@
                 </div>
             </div>
 
-            <!-- 기한후 신고 가산세 계산기 -->
-            <button class="penalty-toggle-btn" id="penaltyToggleBtn" onclick="togglePenaltyCalc()">
-                ⚠️ 기한후 신고인 경우 가산세 계산하기
-                <span class="penalty-arrow">▼</span>
-            </button>
-            <div class="penalty-section hidden" id="penaltySection">
-                <p class="penalty-desc">
-                    신고 기한(매년 <strong>5월 31일</strong>)을 넘겨 기한후 신고 시 <strong>무신고 가산세</strong>와 <strong>납부지연 가산세</strong>가 부과됩니다.
-                    자진 기한후 신고 시 경과 기간에 따라 무신고 가산세를 감면받을 수 있습니다.
-                </p>
-                <div class="penalty-inputs">
-                    <div class="penalty-field">
-                        <label class="penalty-label" for="penaltyYear">양도 연도</label>
-                        <select class="penalty-select" id="penaltyYear" onchange="calcPenalty()"></select>
-                    </div>
-                    <div class="penalty-field">
-                        <label class="penalty-label" for="penaltyDate">신고·납부 예정일</label>
-                        <input class="penalty-date-input" type="date" id="penaltyDate" onchange="calcPenalty()">
-                    </div>
-                </div>
-                <div id="penaltyResult"></div>
-            </div>
-
             <!-- Trade Table (collapsible) -->
             <details style="margin-top:20px;">
                 <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--green); padding:10px 0; list-style:none; display:flex; align-items:center; gap:6px;">
@@ -448,6 +425,29 @@
                     <input type="file" id="addFileInput" multiple accept=".pdf,.xlsx,.xls,.csv">
                 </div>
             </div>
+        </div>
+
+        <!-- ── 기한후 신고 가산세 카드 ── -->
+        <div class="card" id="penaltyCard" style="border-top:3px solid #FCD34D;">
+            <div class="card-title">
+                <div class="card-title-icon">⚠️</div>
+                기한후 신고 가산세
+            </div>
+            <p style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">
+                신고 기한(매년 <strong style="color:var(--text);">5월 31일</strong>)을 넘긴 경우 가산세가 부과됩니다.
+                신고 예정일을 선택하면 <strong style="color:var(--text);">무신고 가산세 + 납부지연 가산세</strong>를 자동 계산합니다.
+            </p>
+            <div class="penalty-inputs">
+                <div class="penalty-field">
+                    <label class="penalty-label" for="penaltyYear">양도 연도</label>
+                    <select class="penalty-select" id="penaltyYear" onchange="calcPenalty()"></select>
+                </div>
+                <div class="penalty-field">
+                    <label class="penalty-label" for="penaltyDate">신고·납부 예정일</label>
+                    <input class="penalty-date-input" type="date" id="penaltyDate" onchange="calcPenalty()">
+                </div>
+            </div>
+            <div id="penaltyResult"></div>
         </div>
 
         <!-- ── STEP 3: Download ── -->
