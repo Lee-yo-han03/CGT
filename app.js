@@ -1038,12 +1038,18 @@ function setFbStatus(connected) {
 // ── 리액션 로드 ───────────────────────────────────────────────────
 async function loadReactions() {
     const voted = getVotedReactions();
+
+    // Firebase 모듈 스크립트가 완료될 때까지 대기 (최대 5초)
+    if (window._firebaseReady) {
+        await Promise.race([window._firebaseReady, new Promise(r => setTimeout(r, 5000))]);
+    }
+
     const fs = window._fs;
     if (window.db && fs) {
         try {
             console.log('[Firebase] loadReactions 시작...');
             const snap = await fs.getDocs(fs.collection(window.db, 'reactions'));
-            console.log('[Firebase] reactions 문서 수:', snap.size);
+            console.log('[Firebase] Firestore read success — reactions 문서 수:', snap.size);
             snap.forEach(d => {
                 const { key, count } = d.data();
                 if (REACTION_KEYS.includes(key)) updateReactionUI(key, count || 0, !!voted[key]);
@@ -1051,7 +1057,7 @@ async function loadReactions() {
             setFbStatus(true);
             return;
         } catch(e) {
-            console.error('[Firebase] ❌ 리액션 로드 실패:', e.code, e.message);
+            console.error('[Firebase] Firestore write error —', e.code, e.message);
             setFbStatus(false);
         }
     } else {
@@ -1137,7 +1143,9 @@ async function submitComment() {
                 name: name || '익명', text,
                 createdAt: fs.serverTimestamp(),
             });
+            console.log('[Firebase] Firestore write success — comment saved');
         } else {
+            console.warn('[Firebase] Firestore write error — db 없음, localStorage 폴백');
             saveLocalComment(name, text);
             showFeedbackLocalNote();
         }
