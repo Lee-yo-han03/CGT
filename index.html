@@ -822,23 +822,23 @@
 <!-- Firebase SDK (compat) — body 하단에서 로드하여 렌더링 차단 방지 -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
 <script>
-// ⚠️ Firebase Console → 프로젝트 설정 → 내 앱 → firebaseConfig 붙여넣기
 const FIREBASE_CONFIG = {
-    apiKey:            "YOUR_API_KEY",
-    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId:         "YOUR_PROJECT_ID",
-    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId:             "YOUR_APP_ID"
+    apiKey:            "AIzaSyAMXJZoCvlencDF_3t-gcTWJlI-DjnZB2I",
+    authDomain:        "yangdosave-feedback.firebaseapp.com",
+    projectId:         "yangdosave-feedback",
+    storageBucket:     "yangdosave-feedback.firebasestorage.app",
+    messagingSenderId: "505067932384",
+    appId:             "1:505067932384:web:493680bf397b79b9e39e85",
+    measurementId:     "G-YJ1ZR8MP8R"
 };
 
 let db = null;
 try {
-    if (FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') {
-        firebase.initializeApp(FIREBASE_CONFIG);
-        db = firebase.firestore();
-    }
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    firebase.analytics(); // Google Analytics 연동
 } catch(e) {
     console.warn('Firebase 초기화 실패:', e.message);
 }
