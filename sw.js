@@ -1,5 +1,5 @@
 'use strict';
-const CACHE = 'yangdosave-v3.1';
+const CACHE = 'yangdosave-v3.2'; // 버전 변경 → 구버전 캐시 전부 삭제
 const PRECACHE = ['/', '/index.html', '/style.css', '/app.js', '/template.js', '/logo.png'];
 
 self.addEventListener('install', e => {
@@ -16,7 +16,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
     if (e.request.method !== 'GET') return;
-    if (e.request.url.includes('firestore') || e.request.url.includes('googleapis')) return;
+    // Firebase / CDN 요청은 캐시 안 함
+    if (/firestore|googleapis|gstatic|firebase/.test(e.request.url)) return;
     e.respondWith(
         caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
             if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));

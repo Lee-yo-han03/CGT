@@ -817,30 +817,38 @@
     <div class="footer-copy">© 2025 양도세이브. All rights reserved.</div>
 </footer>
 
-<!-- Firebase SDK — defer 스크립트보다 먼저 로드하여 db 변수 보장 -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
-<script>
-var db = null; // var: 모든 스크립트에서 window.db로 공유
-(function() {
-    try {
-        firebase.initializeApp({
-            apiKey:            "AIzaSyAMXJZoCvlencDF_3t-gcTWJlI-DjnZB2I",
-            authDomain:        "yangdosave-feedback.firebaseapp.com",
-            projectId:         "yangdosave-feedback",
-            storageBucket:     "yangdosave-feedback.firebasestorage.app",
-            messagingSenderId: "505067932384",
-            appId:             "1:505067932384:web:493680bf397b79b9e39e85",
-            measurementId:     "G-YJ1ZR8MP8R"
-        });
-        db = firebase.firestore();
-        console.log('[Firebase] Firestore 초기화 성공');
-    } catch(e) {
-        console.error('[Firebase] 초기화 실패:', e.message);
-    }
-    try { firebase.analytics(); } catch(e) { /* Analytics 선택사항 */ }
-})();
+<!-- Firebase Modular SDK (v10) — type=module로 로드, app.js보다 먼저 실행됨 -->
+<script type="module">
+  import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import {
+    getFirestore, collection, getDocs, doc,
+    runTransaction, addDoc, query, orderBy, limit, serverTimestamp
+  } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js';
+
+  try {
+    const app = initializeApp({
+      apiKey:            "AIzaSyAMXJZoCvlencDF_3t-gcTWJlI-DjnZB2I",
+      authDomain:        "yangdosave-feedback.firebaseapp.com",
+      projectId:         "yangdosave-feedback",
+      storageBucket:     "yangdosave-feedback.firebasestorage.app",
+      messagingSenderId: "505067932384",
+      appId:             "1:505067932384:web:493680bf397b79b9e39e85",
+      measurementId:     "G-YJ1ZR8MP8R"
+    });
+
+    window.db = getFirestore(app);
+
+    // 모듈 함수를 전역으로 노출해 app.js(일반 스크립트)에서 사용
+    window._fs = { collection, getDocs, doc, runTransaction, addDoc, query, orderBy, limit, serverTimestamp };
+
+    console.log('[Firebase] ✅ initializeApp 성공');
+    console.log('[Firebase] ✅ getFirestore 성공, projectId:', app.options.projectId);
+
+    try { getAnalytics(app); } catch(_) {}
+  } catch(e) {
+    console.error('[Firebase] ❌ 초기화 실패:', e.message);
+  }
 </script>
 
 <script defer src="template.js"></script>

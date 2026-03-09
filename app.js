@@ -1038,19 +1038,24 @@ function setFbStatus(connected) {
 // ── 리액션 로드 ───────────────────────────────────────────────────
 async function loadReactions() {
     const voted = getVotedReactions();
-    if (db) {
+    const fs = window._fs;
+    if (window.db && fs) {
         try {
-            const snap = await db.collection('reactions').get();
-            snap.forEach(doc => {
-                const { key, count } = doc.data();
+            console.log('[Firebase] loadReactions 시작...');
+            const snap = await fs.getDocs(fs.collection(window.db, 'reactions'));
+            console.log('[Firebase] reactions 문서 수:', snap.size);
+            snap.forEach(d => {
+                const { key, count } = d.data();
                 if (REACTION_KEYS.includes(key)) updateReactionUI(key, count || 0, !!voted[key]);
             });
             setFbStatus(true);
             return;
         } catch(e) {
-            console.warn('Firebase 리액션 로드 실패:', e.message);
+            console.error('[Firebase] ❌ 리액션 로드 실패:', e.code, e.message);
             setFbStatus(false);
         }
+    } else {
+        console.warn('[Firebase] db 또는 _fs 없음 — localStorage 폴백');
     }
     // localStorage 폴백
     const counts = getLocalCounts();
@@ -1075,12 +1080,13 @@ async function toggleReaction(btn) {
     updateReactionUI(key, newCnt, !isActive);
     setVotedReaction(key, !isActive);
 
-    if (db) {
+    if (window.db && window._fs) {
+        const fs = window._fs;
         try {
-            const ref = db.collection('reactions').doc(key);
-            await db.runTransaction(async tx => {
-                const doc  = await tx.get(ref);
-                const prev = doc.exists ? (doc.data().count || 0) : 0;
+            const ref = fs.doc(window.db, 'reactions', key);
+            await fs.runTransaction(window.db, async tx => {
+                const snap = await tx.get(ref);
+                const prev = snap.exists() ? (snap.data().count || 0) : 0;
                 tx.set(ref, { key, count: Math.max(0, prev + delta) }, { merge: true });
             });
             return;
@@ -1098,10 +1104,11 @@ async function toggleReaction(btn) {
 
 // ── 댓글 로드 ─────────────────────────────────────────────────────
 async function loadComments() {
-    if (db) {
+    if (window.db && window._fs) {
+        const fs = window._fs;
         try {
-            const snap = await db.collection('comments')
-                .orderBy('createdAt', 'desc').limit(50).get();
+            const q = fs.query(fs.collection(window.db, 'comments'), fs.orderBy('createdAt', 'desc'), fs.limit(50));
+            const snap = await fs.getDocs(q);
             renderComments(snap.docs);
             return;
         } catch(e) { console.warn('Firebase 댓글 로드 실패:', e.message); }
@@ -1124,10 +1131,11 @@ async function submitComment() {
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '등록 중...'; }
 
     try {
-        if (db) {
-            await db.collection('comments').add({
+        if (window.db && window._fs) {
+            const fs = window._fs;
+            await fs.addDoc(fs.collection(window.db, 'comments'), {
                 name: name || '익명', text,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: fs.serverTimestamp(),
             });
         } else {
             saveLocalComment(name, text);
