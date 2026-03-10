@@ -11,6 +11,7 @@
             --muted:       #6B7280;
             --muted-2:     #9CA3AF;
             --bg:          #F9FAFB;
+            --bg-alt:      #f9fafb;
             --bg-2:        #F3F4F6;
             --card:        #FFFFFF;
             --border:      #E5E7EB;
@@ -828,10 +829,10 @@
             -webkit-overflow-scrolling: touch;
         }
         /* 모바일 테이블 스크롤 힌트 */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .table-wrap { position: relative; }
             .table-wrap::after {
-                content: '← 좌우로 스크롤';
+                content: '← 좌우로 스크롤하세요';
                 display: block;
                 text-align: center;
                 font-size: 11px;
@@ -1409,9 +1410,9 @@
         .penalty-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
         .penalty-toggle { margin-bottom: 12px; font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .penalty-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
-        .penalty-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .penalty-grid { display: -ms-grid; display: grid; -ms-grid-columns: 1fr 16px 1fr 16px 1fr; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         .penalty-field label { font-size: 13px; font-weight: 600; color: var(--text); display: block; margin-bottom: 6px; }
-        .penalty-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        .penalty-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; box-sizing: border-box; min-height: 44px; }
         .penalty-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
         .penalty-result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
         .penalty-result-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
@@ -1426,8 +1427,8 @@
         .penalty-breakdown-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
         .penalty-breakdown-list { font-size: 12px; color: var(--muted); line-height: 2; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--bg); }
         .penalty-breakdown-list strong { color: var(--text); }
-        @media (max-width: 700px) {
-            .penalty-grid { grid-template-columns: 1fr; }
+        @media (max-width: 768px) {
+            .penalty-grid { grid-template-columns: 1fr; -ms-grid-columns: 1fr; }
             .penalty-result-grid { grid-template-columns: 1fr; }
             .penalty-total { grid-column: auto; }
         }

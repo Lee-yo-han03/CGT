@@ -4,7 +4,7 @@ let state = { files: [], sessionId: null, trades: [], tax: null, parsedFiles: []
 
 // ===== XSS 방어 (최상단 정의) =====
 function escHtml(str) {
-    return String(str ?? '')
+    return String((str === null || str === undefined) ? '' : str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -38,18 +38,23 @@ function goStep(n) {
 }
 
 // ===== File Handling =====
-const uploadZone = document.getElementById('uploadZone');
-const fileInput = document.getElementById('fileInput');
+let uploadZone = null;
+let fileInput = null;
 
-uploadZone.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('hover'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('hover'));
-uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.classList.remove('hover');
-    addFiles(e.dataTransfer.files);
-});
-fileInput.addEventListener('change', e => { addFiles(e.target.files); fileInput.value = ''; });
+function initUploadZone() {
+    uploadZone = document.getElementById('uploadZone');
+    fileInput  = document.getElementById('fileInput');
+    if (!uploadZone || !fileInput) return;
+    uploadZone.addEventListener('click', function() { fileInput.click(); });
+    uploadZone.addEventListener('dragover', function(e) { e.preventDefault(); uploadZone.classList.add('hover'); });
+    uploadZone.addEventListener('dragleave', function() { uploadZone.classList.remove('hover'); });
+    uploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadZone.classList.remove('hover');
+        addFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', function(e) { addFiles(e.target.files); fileInput.value = ''; });
+}
 
 function addFiles(filesList) {
     for (const f of filesList) {
@@ -554,16 +559,24 @@ async function parsePDFClientSide(file) {
     const brokerId  = detectBrokerFromText(firstText);
     const brokerName = brokerId ? BROKER_NAMES[brokerId] : null;
 
-    // 한국투자증권만 PDF 파싱 지원
+    // 한국투자증권: 실측 레이아웃 파서
     if (brokerId === 'koreainvestment') {
         const trades = await parseKoreaInvestmentPDF(pdf);
-        return { trades, brokerName: '한국투자증권' };
+        return { trades: trades, brokerName: '한국투자증권' };
     }
 
-    // 그 외 모든 증권사: Excel/CSV 안내
+    // 그 외 증권사: 범용 헤더 기반 파서 시도 (키움·미래에셋·삼성·NH·신한)
+    const genericTrades = await parseGenericBrokerPDF(pdf);
+    if (genericTrades && genericTrades.length > 0) {
+        return { trades: genericTrades, brokerName: brokerName || '알 수 없는 증권사' };
+    }
+
+    // 파싱 실패 안내
+    var hint = brokerName ? brokerName + ' PDF' : 'PDF';
     throw new Error(
-        '현재 PDF 파싱은 한국투자증권만 지원됩니다. ' +
-        '다른 증권사는 Excel/CSV 파일로 업로드해주세요.'
+        hint + ' 파싱에 실패했습니다.\n' +
+        '지원 증권사 PDF: 한국투자증권·키움·미래에셋·삼성·NH·신한\n' +
+        '파싱이 안 될 경우 해당 증권사 HTS/MTS에서 Excel 또는 CSV 파일로 내려받아 업로드해주세요.'
     );
 }
 
@@ -590,6 +603,7 @@ async function parseFilesClientSide(files, onProgress) {
             continue;
         }
         try {
+            await loadSheetJS();
             const data = await file.arrayBuffer();
             const wb = XLSX.read(data);
             const sheet = wb.Sheets[wb.SheetNames[0]];
@@ -602,6 +616,37 @@ async function parseFilesClientSide(files, onProgress) {
         }
     }
     return { trades: allTrades, parsedFiles };
+}
+
+// ===== SheetJS 지연 로딩 =====
+function loadSheetJS() {
+    if (window.XLSX) return Promise.resolve();
+    return new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload = resolve;
+        s.onerror = function() { reject(new Error('SheetJS 로드 실패')); };
+        document.head.appendChild(s);
+    });
+}
+
+// ===== fetch 타임아웃 + 1회 재시도 =====
+async function fetchWithRetry(url, opts, timeout, retries) {
+    timeout = timeout || 3000;
+    retries = (retries === undefined) ? 1 : retries;
+    for (var attempt = 0; attempt <= retries; attempt++) {
+        var ctrl = new AbortController();
+        var tid = setTimeout(function() { ctrl.abort(); }, timeout);
+        try {
+            var fetchOpts = Object.assign({}, opts || {}, { signal: ctrl.signal });
+            var res = await fetch(url, fetchOpts);
+            clearTimeout(tid);
+            return res;
+        } catch(e) {
+            clearTimeout(tid);
+            if (attempt === retries) throw e;
+        }
+    }
 }
 
 // ===== Upload =====
@@ -717,7 +762,13 @@ function showAddMore() {
     document.getElementById('addFileInput').click();
 }
 
-document.getElementById('addFileInput').addEventListener('change', async function(e) {
+function initAddFileInput() {
+    const el = document.getElementById('addFileInput');
+    if (!el) return;
+    el.addEventListener('change', addFileInputHandler);
+}
+
+async function addFileInputHandler(e) {
     if (!e.target.files.length) return;
 
     document.getElementById('addMoreZone').classList.add('hidden');
@@ -749,7 +800,7 @@ document.getElementById('addFileInput').addEventListener('change', async functio
         displayResults();
     }
     e.target.value = '';
-});
+}
 
 // ===== Display =====
 function displayResults() {
@@ -860,8 +911,14 @@ async function downloadExcel() {
         alert('다운로드할 거래 데이터가 없습니다.');
         return;
     }
+    try {
+        await loadSheetJS();
+    } catch(e) {
+        alert('엑셀 라이브러리 로드에 실패했습니다. 인터넷 연결을 확인해주세요.');
+        return;
+    }
     const wb = generateHomeTaxExcelCS(state.trades, autoFill);
-    XLSX.writeFile(wb, `홈택스_양도소득세_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, '홈택스_양도소득세_' + new Date().toISOString().split('T')[0] + '.xlsx');
 }
 
 // ===== Reset =====
@@ -936,8 +993,8 @@ async function shareResult() {
     const penLatePay = document.getElementById('penLatePay');
     const penResultEl = document.getElementById('penaltyResult');
     if (penResultEl && !penResultEl.classList.contains('hidden') && penTotal) {
-        const nonFiling = penNonFiling?.textContent || '0원';
-        const latePay   = penLatePay?.textContent   || '0원';
+        const nonFiling = (penNonFiling ? penNonFiling.textContent : null) || '0원';
+        const latePay   = (penLatePay ? penLatePay.textContent : null) || '0원';
         const total     = penTotal.textContent       || '0원';
         penaltyLine = `\n무신고 가산세: ${nonFiling} / 납부불성실 가산세: ${latePay}\n예상 납부세액: ${krw(tax.tax_amount)} + 가산세 → 총 ${total}`;
     }
@@ -1024,7 +1081,7 @@ function renderComments(items) {
         const raw = d.data ? d.data() : d;
         const name = escHtml(raw.name || '익명');
         const text = escHtml(raw.text || '');
-        const ts   = raw.createdAt?.toDate ? raw.createdAt.toDate() : new Date(raw.createdAt || Date.now());
+        const ts   = (raw.createdAt && raw.createdAt.toDate) ? raw.createdAt.toDate() : new Date(raw.createdAt || Date.now());
         const date = ts.toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
         return `<div class="comment-item">
             <div class="comment-meta">
@@ -1043,7 +1100,8 @@ function showFeedbackLocalNote() {
     note.className = 'feedback-local-note';
     note.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;margin-top:8px;';
     note.textContent = '※ 현재 이 기기에만 저장됩니다 (Firebase 미연결)';
-    sec.querySelector('.feedback-inner')?.appendChild(note);
+    const fbInner = sec.querySelector('.feedback-inner');
+    if (fbInner) fbInner.appendChild(note);
 }
 
 // ── Firebase 상태 뱃지 ────────────────────────────────────────────
@@ -1101,7 +1159,7 @@ async function toggleReaction(btn) {
     const isActive   = !!voted[key];
     const delta      = isActive ? -1 : 1;
     const countEl    = document.getElementById(`rc-${key}`);
-    const currentCnt = parseInt(countEl?.textContent || '0', 10);
+    const currentCnt = parseInt((countEl ? countEl.textContent : null) || '0', 10);
     const newCnt     = Math.max(0, currentCnt + delta);
 
     // 낙관적 UI
@@ -1151,15 +1209,25 @@ async function loadComments() {
 async function submitComment() {
     const nameEl = document.getElementById('cmtName');
     const textEl = document.getElementById('cmtText');
-    const name   = (nameEl?.value || '').trim();
-    const text   = (textEl?.value || '').trim();
+    const name   = ((nameEl ? nameEl.value : null) || '').trim();
+    const text   = ((textEl ? textEl.value : null) || '').trim();
 
-    if (!text) { textEl?.focus(); return; }
+    if (!text) { if (textEl) textEl.focus(); return; }
     if (text.length > 500) { alert('댓글은 500자 이내로 작성해주세요.'); return; }
+
+    // 쿨다운 30초 체크
+    const lastCommentTime = parseInt(localStorage.getItem('yangdosave_last_comment') || '0', 10);
+    const nowMs = Date.now();
+    if (nowMs - lastCommentTime < 30000) {
+        const remaining = Math.ceil((30000 - (nowMs - lastCommentTime)) / 1000);
+        alert('댓글은 ' + remaining + '초 후에 다시 작성할 수 있습니다.');
+        return;
+    }
 
     const submitBtn = document.querySelector('.comment-submit');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '등록 중...'; }
 
+    let saveOk = false;
     try {
         if (window.db && window._fs) {
             const fs = window._fs;
@@ -1169,25 +1237,38 @@ async function submitComment() {
                     createdAt: fs.serverTimestamp(),
                 });
                 console.log('[Firebase] Firestore write success — comment saved');
+                saveOk = true;
             } catch(e) {
                 console.warn('[Firebase] Firestore write error — localStorage 폴백:', e.message);
                 saveLocalComment(name, text);
                 showFeedbackLocalNote();
+                saveOk = true;
             }
         } else {
             console.warn('[Firebase] db 없음 — localStorage 폴백');
             saveLocalComment(name, text);
             showFeedbackLocalNote();
+            saveOk = true;
         }
-        if (nameEl) nameEl.value = '';
-        if (textEl) textEl.value = '';
-        const charEl = document.getElementById('cmtChar');
-        if (charEl) charEl.textContent = '0 / 500';
-        await loadComments();
+
+        if (saveOk) {
+            localStorage.setItem('yangdosave_last_comment', String(nowMs));
+            if (nameEl) nameEl.value = '';
+            if (textEl) textEl.value = '';
+            const charEl = document.getElementById('cmtChar');
+            if (charEl) charEl.textContent = '0 / 500';
+            // 성공 피드백
+            if (submitBtn) {
+                submitBtn.textContent = '✔ 등록됨';
+                setTimeout(function() { if (submitBtn) submitBtn.textContent = '등록'; }, 2000);
+            }
+            await loadComments();
+        }
     } catch(e) {
         console.error('댓글 저장 실패:', e.message);
+        alert('댓글 등록에 실패했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '등록'; }
+        if (submitBtn) { submitBtn.disabled = false; if (submitBtn.textContent === '등록 중...') submitBtn.textContent = '등록'; }
     }
 }
 
@@ -1203,7 +1284,9 @@ async function submitComment() {
 })();
 
 // 페이지 로드 시 데이터 초기화
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
+    initUploadZone();
+    initAddFileInput();
     loadReactions();
     loadComments();
     // 가산세 날짜 기본값 설정 (파일 업로드 없이도 사용 가능)
@@ -1211,10 +1294,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileDateEl = document.getElementById('penaltyFileDate');
     if (deadlineEl && !deadlineEl.value) {
         const lastYear = new Date().getFullYear() - 1;
-        deadlineEl.value = `${lastYear + 1}-05-31`;
+        deadlineEl.value = (lastYear + 1) + '-05-31';
     }
     if (fileDateEl && !fileDateEl.value) {
         fileDateEl.value = new Date().toISOString().substring(0, 10);
+    }
+    // 모바일: 업로드존 안내 문구 변경
+    const uploadTitle = document.querySelector('.upload-zone-title');
+    if (uploadTitle && window.innerWidth <= 768) {
+        uploadTitle.textContent = '파일을 선택하세요';
     }
 });
 
