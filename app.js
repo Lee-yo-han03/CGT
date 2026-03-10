@@ -86,8 +86,8 @@ function renderFileList() {
                 <span class="file-info-name">${escHtml(f.name)}</span>
                 <span class="file-info-size">(${(f.size/1024).toFixed(1)}KB)</span>
             </div>
-            <span class="file-remove" onclick="removeFile(${i})" role="button" tabindex="0"
-                  aria-label="${escHtml(f.name)} 파일 삭제" onkeydown="if(event.key==='Enter'||event.key===' ')removeFile(${i})">✕</span>
+            <button class="file-remove" onclick="removeFile(${i})"
+                  aria-label="${escHtml(f.name)} 파일 삭제">✕</button>
         </div>
     `).join('');
 }
@@ -545,6 +545,7 @@ async function parseGenericBrokerPDF(pdf) {
 
 // ===== PDF 파싱 진입점 =====
 async function parsePDFClientSide(file) {
+    await loadPdfJS();
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -616,6 +617,18 @@ async function parseFilesClientSide(files, onProgress) {
         }
     }
     return { trades: allTrades, parsedFiles };
+}
+
+// ===== PDF.js 지연 로딩 =====
+function loadPdfJS() {
+    if (window['pdfjs-dist/build/pdf']) return Promise.resolve();
+    return new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        s.onload = resolve;
+        s.onerror = function() { reject(new Error('PDF.js 로드 실패')); };
+        document.head.appendChild(s);
+    });
 }
 
 // ===== SheetJS 지연 로딩 =====
@@ -1127,9 +1140,7 @@ async function loadReactions() {
     const fs = window._fs;
     if (window.db && fs) {
         try {
-            console.log('[Firebase] loadReactions 시작...');
             const snap = await fs.getDocs(fs.collection(window.db, 'reactions'));
-            console.log('[Firebase] Firestore read success — reactions 문서 수:', snap.size);
             snap.forEach(d => {
                 const { key, count } = d.data();
                 if (REACTION_KEYS.includes(key)) updateReactionUI(key, count || 0, !!voted[key]);
@@ -1137,11 +1148,8 @@ async function loadReactions() {
             setFbStatus(true);
             return;
         } catch(e) {
-            console.error('[Firebase] Firestore write error —', e.code, e.message);
             setFbStatus(false);
         }
-    } else {
-        console.warn('[Firebase] db 또는 _fs 없음 — localStorage 폴백');
     }
     // localStorage 폴백
     const counts = getLocalCounts();
@@ -1177,7 +1185,6 @@ async function toggleReaction(btn) {
             });
             return;
         } catch(e) {
-            console.warn('Firebase 리액션 저장 실패 — localStorage 폴백:', e.message);
             // UI는 낙관적으로 유지, localStorage에 저장
         }
     }
@@ -1199,7 +1206,7 @@ async function loadComments() {
             const snap = await fs.getDocs(q);
             renderComments(snap.docs);
             return;
-        } catch(e) { console.warn('Firebase 댓글 로드 실패:', e.message); }
+        } catch(e) { /* Firebase 댓글 로드 실패 → localStorage 폴백 */ }
     }
     // localStorage 폴백
     renderComments(getLocalComments());
@@ -1236,16 +1243,13 @@ async function submitComment() {
                     name: name || '익명', text,
                     createdAt: fs.serverTimestamp(),
                 });
-                console.log('[Firebase] Firestore write success — comment saved');
                 saveOk = true;
             } catch(e) {
-                console.warn('[Firebase] Firestore write error — localStorage 폴백:', e.message);
                 saveLocalComment(name, text);
                 showFeedbackLocalNote();
                 saveOk = true;
             }
         } else {
-            console.warn('[Firebase] db 없음 — localStorage 폴백');
             saveLocalComment(name, text);
             showFeedbackLocalNote();
             saveOk = true;
@@ -1265,7 +1269,6 @@ async function submitComment() {
             await loadComments();
         }
     } catch(e) {
-        console.error('댓글 저장 실패:', e.message);
         alert('댓글 등록에 실패했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
         if (submitBtn) { submitBtn.disabled = false; if (submitBtn.textContent === '등록 중...') submitBtn.textContent = '등록'; }
