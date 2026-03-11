@@ -142,6 +142,60 @@
             transition: color 0.15s;
         }
         .nav-insta:hover { color: #C13584; }
+        .lang-switch {
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            border: 1px solid var(--border-2);
+            border-radius: 20px;
+            padding: 2px 5px;
+            background: var(--bg-2);
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--muted);
+            padding: 2px 7px;
+            border-radius: 16px;
+            transition: all 0.15s;
+            letter-spacing: 0.4px;
+            line-height: 1.6;
+        }
+        .lang-btn.active {
+            color: var(--green-dark);
+            background: var(--green-light);
+        }
+        .lang-btn:hover:not(.active) { color: var(--text); }
+        .lang-divider {
+            font-size: 9px;
+            color: var(--border-2);
+            user-select: none;
+        }
+        .lang-switch-mobile {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0 4px;
+        }
+        .lang-btn-mobile {
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            padding: 5px 14px;
+            border-radius: 20px;
+            transition: all 0.15s;
+        }
+        .lang-btn-mobile.active {
+            color: var(--green-dark);
+            background: var(--green-light);
+            border-color: var(--green-mid);
+        }
+        .lang-btn-mobile:hover:not(.active) { color: var(--text); }
 
         /* ─── HERO ─── */
         .hero {

@@ -144,8 +144,8 @@
             <span></span><span></span><span></span>
         </button>
         <div class="nav-right">
-            <a href="index.html" class="nav-link">홈</a>
-            <a href="privacy.html" class="nav-link">개인정보처리방침</a>
+            <a href="index.html" class="nav-link" data-i18n="nav.home">홈</a>
+            <a href="privacy.html" class="nav-link" data-i18n="nav.privacy">개인정보처리방침</a>
             <a href="https://www.instagram.com/0do.save?igsh=YXZqM2FxMXA1OG52&utm_source=qr" target="_blank" rel="noopener noreferrer" class="nav-insta" title="인스타그램으로 문의">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <defs>
@@ -160,17 +160,26 @@
                     <circle cx="12" cy="12" r="3.3" stroke="white" stroke-width="1.6" fill="none"/>
                     <circle cx="16.8" cy="7.2" r="1.1" fill="white"/>
                 </svg>
-                <span class="nav-link">문의</span>
+                <span class="nav-link" data-i18n="nav.contact">문의</span>
             </a>
             <span class="nav-badge">v3.1</span>
+            <div class="lang-switch" id="langSwitch" role="group" aria-label="언어 선택">
+                <button class="lang-btn active" id="langKO" onclick="setLang('ko')" aria-label="한국어로 변경">KO</button>
+                <span class="lang-divider" aria-hidden="true">|</span>
+                <button class="lang-btn" id="langEN" onclick="setLang('en')" aria-label="Switch to English">EN</button>
+            </div>
         </div>
     </div>
     <!-- 모바일 메뉴 -->
     <nav class="nav-mobile-menu" id="navMobileMenu" aria-label="모바일 메뉴">
-        <a href="index.html" aria-current="page">홈</a>
-        <a href="privacy.html">개인정보처리방침</a>
-        <a href="terms.html">이용약관</a>
-        <a href="https://www.instagram.com/0do.save?igsh=YXZqM2FxMXA1OG52&utm_source=qr" target="_blank" rel="noopener noreferrer">인스타그램 문의</a>
+        <a href="index.html" aria-current="page" data-i18n="nav.home">홈</a>
+        <a href="privacy.html" data-i18n="nav.privacy">개인정보처리방침</a>
+        <a href="terms.html" data-i18n="nav.terms">이용약관</a>
+        <a href="https://www.instagram.com/0do.save?igsh=YXZqM2FxMXA1OG52&utm_source=qr" target="_blank" rel="noopener noreferrer" data-i18n="nav.contact.insta">인스타그램 문의</a>
+        <div class="lang-switch-mobile">
+            <button class="lang-btn-mobile active" id="langKO_m" onclick="setLang('ko')" aria-label="한국어로 변경">KO 한국어</button>
+            <button class="lang-btn-mobile" id="langEN_m" onclick="setLang('en')" aria-label="Switch to English">EN English</button>
+        </div>
     </nav>
 </header>
 
@@ -183,10 +192,10 @@
         </div>
         <div class="hero-chip">
             <svg width="7" height="7" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#34D399"/></svg>
-            무료 · 설치 불필요
+            <span data-i18n="hero.chip">무료 · 설치 불필요</span>
         </div>
-        <h1>해외주식 양도소득세<br><em>자동 계산</em></h1>
-        <p class="hero-sub">
+        <h1 data-i18n-html="hero.title">해외주식 양도소득세<br><em>자동 계산</em></h1>
+        <p class="hero-sub" data-i18n-html="hero.sub">
             증권사 PDF를 업로드하면 <strong>양도차익과 예상 세금을 자동으로 계산</strong>합니다.<br>
             홈택스 신고용 엑셀 파일도 즉시 생성됩니다.
         </p>
@@ -194,21 +203,21 @@
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M9 3L13 7H10.5V13H7.5V7H5L9 3Z" fill="white"/>
             </svg>
-            PDF 업로드 시작하기
+            <span data-i18n="hero.cta">PDF 업로드 시작하기</span>
         </button>
-        <p class="hero-free">완전 무료 · 파일은 계산 후 즉시 삭제됩니다</p>
+        <p class="hero-free" data-i18n="hero.free">완전 무료 · 파일은 계산 후 즉시 삭제됩니다</p>
         <div class="hero-stats">
             <div class="hero-stat-item">
-                <span class="hero-stat-num">3분</span>
-                <div class="hero-stat-label">평균 처리 시간</div>
+                <span class="hero-stat-num" data-i18n="hero.stat1.num">3분</span>
+                <div class="hero-stat-label" data-i18n="hero.stat1.label">평균 처리 시간</div>
             </div>
             <div class="hero-stat-item">
-                <span class="hero-stat-num">22%</span>
-                <div class="hero-stat-label">세율 자동 적용</div>
+                <span class="hero-stat-num" data-i18n="hero.stat2.num">22%</span>
+                <div class="hero-stat-label" data-i18n="hero.stat2.label">세율 자동 적용</div>
             </div>
             <div class="hero-stat-item">
-                <span class="hero-stat-num">250만원</span>
-                <div class="hero-stat-label">기본공제 자동 차감</div>
+                <span class="hero-stat-num" data-i18n="hero.stat3.num">250만원</span>
+                <div class="hero-stat-label" data-i18n="hero.stat3.label">기본공제 자동 차감</div>
             </div>
         </div>
     </div>
@@ -242,17 +251,17 @@
     <nav class="steps-nav" id="stepsNav" aria-label="진행 단계" role="tablist">
         <div class="step-item active" data-s="1" role="tab" aria-selected="true" aria-label="1단계: 파일 업로드">
             <span class="step-num" aria-hidden="true">1</span>
-            파일 업로드
+            <span data-i18n="step.1">파일 업로드</span>
         </div>
         <div class="step-connector" aria-hidden="true"></div>
         <div class="step-item" data-s="2" role="tab" aria-selected="false" aria-label="2단계: 세금 확인">
             <span class="step-num" aria-hidden="true">2</span>
-            세금 확인
+            <span data-i18n="step.2">세금 확인</span>
         </div>
         <div class="step-connector" aria-hidden="true"></div>
         <div class="step-item" data-s="3" role="tab" aria-selected="false" aria-label="3단계: 엑셀 다운로드">
             <span class="step-num" aria-hidden="true">3</span>
-            엑셀 다운로드
+            <span data-i18n="step.3">엑셀 다운로드</span>
         </div>
     </nav>
 
@@ -261,9 +270,9 @@
         <div class="card">
             <div class="card-title">
                 <div class="card-title-icon">📤</div>
-                거래내역 파일 업로드
+                <span data-i18n="step1.card.title">거래내역 파일 업로드</span>
             </div>
-            <p class="upload-label">
+            <p class="upload-label" data-i18n-html="step1.label">
                 증권사에서 발급받은 <strong>해외주식 양도소득 계산내역 PDF</strong>를 업로드하세요.<br>
                 여러 파일을 한 번에 올릴 수 있습니다.
             </p>
@@ -272,12 +281,12 @@
                  role="button" tabindex="0" aria-label="파일 업로드 영역. 클릭하거나 파일을 드래그하세요"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('fileInput').click();}">
                 <span class="upload-zone-icon" aria-hidden="true">📂</span>
-                <div class="upload-zone-title">파일을 드래그하거나 클릭하여 업로드</div>
+                <div class="upload-zone-title" data-i18n="step1.zone.title">파일을 드래그하거나 클릭하여 업로드</div>
                 <div class="upload-zone-sub">
                     <span>PDF</span>
                     <span>Excel</span>
                     <span>CSV</span>
-                    파일 지원 · 여러 파일 동시 업로드 가능
+                    <span data-i18n="step1.zone.sub">파일 지원 · 여러 파일 동시 업로드 가능</span>
                 </div>
                 <input type="file" id="fileInput" multiple accept=".pdf,.xlsx,.xls,.csv"
                        style="display:none;" aria-hidden="true">
@@ -289,7 +298,7 @@
                 <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                     <path d="M8.5 2L12.5 6H10.25V12H6.75V6H4.5L8.5 2Z" fill="white"/>
                 </svg>
-                파일 분석 및 세금 계산
+                <span data-i18n="step1.analyze">파일 분석 및 세금 계산</span>
             </button>
         </div>
     </div>
@@ -298,8 +307,8 @@
     <div class="card hidden" id="processingCard">
         <div class="processing">
             <div class="spinner" id="processingSpinner"></div>
-            <div class="processing-title" id="processingTitle">파일 분석 중...</div>
-            <div class="processing-sub" id="processingMsg">거래내역을 파싱하고 세금을 계산하고 있습니다</div>
+            <div class="processing-title" id="processingTitle" data-i18n="processing.title">파일 분석 중...</div>
+            <div class="processing-sub" id="processingMsg" data-i18n="processing.sub">거래내역을 파싱하고 세금을 계산하고 있습니다</div>
             <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             <div class="processing-file-list" id="processingFileList"></div>
         </div>
@@ -311,7 +320,7 @@
         <div class="card">
             <div class="card-title">
                 <div class="card-title-icon">✅</div>
-                세금 계산 결과
+                <span data-i18n="step2.card.title">세금 계산 결과</span>
             </div>
 
             <div id="resultAlert"></div>
@@ -320,64 +329,64 @@
             <!-- 4 Metric Cards -->
             <div class="metric-grid">
                 <div class="metric-card">
-                    <div class="metric-label">총 양도차익</div>
+                    <div class="metric-label" data-i18n="metric.pl">총 양도차익</div>
                     <div class="metric-value" id="dPL">0원</div>
-                    <div class="metric-sub">매도 − 매수 − 수수료</div>
+                    <div class="metric-sub" data-i18n="metric.pl.sub">매도 − 매수 − 수수료</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">기본공제</div>
+                    <div class="metric-label" data-i18n="metric.ded">기본공제</div>
                     <div class="metric-value" style="color:var(--muted);" id="dDed">−2,500,000원</div>
-                    <div class="metric-sub">연간 일괄 공제</div>
+                    <div class="metric-sub" data-i18n="metric.ded.sub">연간 일괄 공제</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">과세표준</div>
+                    <div class="metric-label" data-i18n="metric.taxable">과세표준</div>
                     <div class="metric-value" id="dTaxable">0원</div>
-                    <div class="metric-sub">양도차익 − 기본공제</div>
+                    <div class="metric-sub" data-i18n="metric.taxable.sub">양도차익 − 기본공제</div>
                 </div>
                 <div class="metric-card highlight">
-                    <div class="metric-label">예상 세금 (22%)</div>
+                    <div class="metric-label" data-i18n="metric.tax">예상 세금 (22%)</div>
                     <div class="metric-value" id="taxAmount">0원</div>
-                    <div class="metric-sub" id="taxSub">국세 20% + 지방세 2%</div>
+                    <div class="metric-sub" id="taxSub" data-i18n="metric.tax.sub">국세 20% + 지방세 2%</div>
                 </div>
             </div>
 
             <!-- Trade Summary -->
             <div class="trade-summary">
                 <div class="trade-stat">
-                    <div class="trade-stat-label">총 거래건수</div>
+                    <div class="trade-stat-label" data-i18n="trade.count">총 거래건수</div>
                     <div class="trade-stat-value" id="sumCount">0건</div>
                 </div>
                 <div class="trade-stat">
-                    <div class="trade-stat-label">이익 거래</div>
+                    <div class="trade-stat-label" data-i18n="trade.profit">이익 거래</div>
                     <div class="trade-stat-value" style="color:var(--red);" id="sumProfit">0건</div>
                 </div>
                 <div class="trade-stat">
-                    <div class="trade-stat-label">손실 거래</div>
+                    <div class="trade-stat-label" data-i18n="trade.loss">손실 거래</div>
                     <div class="trade-stat-value" style="color:var(--blue);" id="sumLoss">0건</div>
                 </div>
             </div>
 
             <!-- Breakdown -->
-            <div class="breakdown-title">계산 상세</div>
+            <div class="breakdown-title" data-i18n="breakdown.title">계산 상세</div>
             <div class="breakdown-list">
                 <div class="breakdown-row">
-                    <span class="breakdown-key">총 양도가액 (매도금액)</span>
+                    <span class="breakdown-key" data-i18n="breakdown.sell">총 양도가액 (매도금액)</span>
                     <span class="breakdown-val" id="dSell">0</span>
                 </div>
                 <div class="breakdown-row">
-                    <span class="breakdown-key">총 취득가액 (매수금액)</span>
+                    <span class="breakdown-key" data-i18n="breakdown.buy">총 취득가액 (매수금액)</span>
                     <span class="breakdown-val" id="dBuy">0</span>
                 </div>
                 <div class="breakdown-row">
-                    <span class="breakdown-key">필요경비 (수수료)</span>
+                    <span class="breakdown-key" data-i18n="breakdown.exp">필요경비 (수수료)</span>
                     <span class="breakdown-val" id="dExp">0</span>
                 </div>
                 <div class="breakdown-row deduct">
-                    <span class="breakdown-key">기본공제 차감</span>
+                    <span class="breakdown-key" data-i18n="breakdown.ded">기본공제 차감</span>
                     <span class="breakdown-val">−2,500,000원</span>
                 </div>
                 <div class="breakdown-row total">
-                    <span class="breakdown-key">최종 납부세액</span>
+                    <span class="breakdown-key" data-i18n="breakdown.total">최종 납부세액</span>
                     <span class="breakdown-val" id="taxAmount2">0원</span>
                 </div>
             </div>
@@ -385,11 +394,11 @@
             <!-- Tax Split -->
             <div class="tax-split">
                 <div class="tax-split-item">
-                    <div class="tax-split-label">국세 (소득세 20%)</div>
+                    <div class="tax-split-label" data-i18n="taxsplit.national">국세 (소득세 20%)</div>
                     <div class="tax-split-val" id="taxN">0원</div>
                 </div>
                 <div class="tax-split-item">
-                    <div class="tax-split-label">지방세 (지방소득세 2%)</div>
+                    <div class="tax-split-label" data-i18n="taxsplit.local">지방세 (지방소득세 2%)</div>
                     <div class="tax-split-val" id="taxL">0원</div>
                 </div>
             </div>
@@ -397,19 +406,19 @@
             <!-- Trade Table (collapsible) -->
             <details style="margin-top:20px;">
                 <summary style="cursor:pointer; font-size:13px; font-weight:600; color:var(--green); padding:10px 0; list-style:none; display:flex; align-items:center; gap:6px;">
-                    ▸ 거래내역 상세 보기 (<span id="tradeCountLabel">0</span>건)
+                    ▸ <span data-i18n="trades.details">거래내역 상세 보기</span> (<span id="tradeCountLabel">0</span>건)
                 </summary>
                 <div class="table-wrap" style="margin-top:12px;">
                     <table>
                         <caption class="sr-only">해외주식 양도소득세 거래내역 상세</caption>
                         <thead><tr>
-                            <th style="text-align:left;">종목명</th>
-                            <th>수량</th>
-                            <th>양도일</th>
-                            <th>양도가액</th>
-                            <th>취득가액</th>
-                            <th>경비</th>
-                            <th>손익</th>
+                            <th style="text-align:left;" data-i18n="th.name">종목명</th>
+                            <th data-i18n="th.qty">수량</th>
+                            <th data-i18n="th.date">양도일</th>
+                            <th data-i18n="th.sell">양도가액</th>
+                            <th data-i18n="th.buy">취득가액</th>
+                            <th data-i18n="th.exp">경비</th>
+                            <th data-i18n="th.pnl">손익</th>
                         </tr></thead>
                         <tbody id="tradesBody"></tbody>
                     </table>
@@ -418,7 +427,7 @@
 
             <!-- Add more -->
             <div class="add-more-wrap">
-                <button class="btn btn-outline" onclick="showAddMore()">+ 파일 추가 업로드</button>
+                <button class="btn btn-outline" onclick="showAddMore()" data-i18n="btn.addmore">+ 파일 추가 업로드</button>
                 <div class="hidden" id="addMoreZone" style="margin-top:12px;">
                     <input type="file" id="addFileInput" multiple accept=".pdf,.xlsx,.xls,.csv">
                 </div>
@@ -429,18 +438,18 @@
         <div class="card download-card" id="step3">
             <div class="card-title">
                 <div class="card-title-icon">📥</div>
-                홈택스 신고용 엑셀 다운로드
+                <span data-i18n="step3.card.title">홈택스 신고용 엑셀 다운로드</span>
             </div>
 
-            <div class="download-explain">
+            <div class="download-explain" data-i18n-html="step3.explain">
                 📋 아래 버튼으로 다운로드한 엑셀 파일을 홈택스에서 <strong>직접 업로드</strong>하면 거래내역이 자동으로 입력됩니다.
             </div>
 
             <div class="toggle-row">
                 <input type="checkbox" id="autoFillCheck" checked>
                 <div>
-                    <div class="toggle-label">취득일자 자동 채움</div>
-                    <div class="toggle-desc">
+                    <div class="toggle-label" data-i18n="step3.toggle.label">취득일자 자동 채움</div>
+                    <div class="toggle-desc" data-i18n-html="step3.toggle.desc">
                         체크 시: 양도일 연도 1월 1일을 취득일자로 자동 입력합니다 (예: 양도일 2024-12-31 → 취득일 2024-01-01)<br>
                         <strong style="color:var(--text);">해제 시:</strong> 취득일자를 비워두어 다운로드 후 직접 입력할 수 있습니다.
                     </div>
@@ -451,7 +460,7 @@
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                     <path d="M9 14L5 10H7.5V5H10.5V10H13L9 14Z" fill="white"/>
                 </svg>
-                홈택스 신고용 Excel 다운로드
+                <span data-i18n="step3.download">홈택스 신고용 Excel 다운로드</span>
             </button>
 
             <div style="text-align:center; margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
@@ -459,9 +468,9 @@
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                         <path d="M9 1.5C4.86 1.5 1.5 4.13 1.5 7.35c0 2.04 1.33 3.83 3.34 4.87L3.9 15l3.74-2.43C8.2 12.68 8.6 12.72 9 12.72c4.14 0 7.5-2.63 7.5-5.87S13.14 1.5 9 1.5z" fill="#191919"/>
                     </svg>
-                    결과 공유하기
+                    <span data-i18n="step3.share">결과 공유하기</span>
                 </button>
-                <button class="btn btn-outline" onclick="resetAll()">새 파일로 다시 계산하기</button>
+                <button class="btn btn-outline" onclick="resetAll()" data-i18n="step3.reset">새 파일로 다시 계산하기</button>
             </div>
         </div>
 
@@ -469,42 +478,42 @@
         <div class="card">
             <div class="card-title">
                 <div class="card-title-icon">📋</div>
-                홈택스 신고 방법 (4단계)
+                <span data-i18n="guide.card.title">홈택스 신고 방법 (4단계)</span>
             </div>
             <div class="guide-steps">
                 <div class="guide-step">
                     <div class="guide-num">1</div>
                     <div class="guide-content">
-                        <div class="guide-title">홈택스 접속 및 로그인</div>
-                        <div class="guide-desc"><a href="https://www.hometax.go.kr" target="_blank" rel="noopener noreferrer">hometax.go.kr</a> 접속 → 공동·금융인증서로 로그인 → <strong>세금신고 → 양도소득세 → 확정신고</strong></div>
+                        <div class="guide-title" data-i18n="guide.1.title">홈택스 접속 및 로그인</div>
+                        <div class="guide-desc" data-i18n-html="guide.1.desc"><a href="https://www.hometax.go.kr" target="_blank" rel="noopener noreferrer">hometax.go.kr</a> 접속 → 공동·금융인증서로 로그인 → <strong>세금신고 → 양도소득세 → 확정신고</strong></div>
                     </div>
                 </div>
                 <div class="guide-step">
                     <div class="guide-num">2</div>
                     <div class="guide-content">
-                        <div class="guide-title">양도소득세 신고 선택</div>
-                        <div class="guide-desc">신고서 작성 화면에서 <strong>"주식 등"</strong> 탭 선택 → 양도소득금액 계산 영역 이동</div>
+                        <div class="guide-title" data-i18n="guide.2.title">양도소득세 신고 선택</div>
+                        <div class="guide-desc" data-i18n-html="guide.2.desc">신고서 작성 화면에서 <strong>"주식 등"</strong> 탭 선택 → 양도소득금액 계산 영역 이동</div>
                     </div>
                 </div>
                 <div class="guide-step">
                     <div class="guide-num">3</div>
                     <div class="guide-content">
-                        <div class="guide-title">생성된 엑셀 파일 업로드</div>
-                        <div class="guide-desc"><strong>"엑셀 업로드"</strong> 버튼 클릭 → 다운로드한 Excel 파일 선택 → 거래내역 자동 입력됨</div>
+                        <div class="guide-title" data-i18n="guide.3.title">생성된 엑셀 파일 업로드</div>
+                        <div class="guide-desc" data-i18n-html="guide.3.desc"><strong>"엑셀 업로드"</strong> 버튼 클릭 → 다운로드한 Excel 파일 선택 → 거래내역 자동 입력됨</div>
                     </div>
                 </div>
                 <div class="guide-step">
                     <div class="guide-num">4</div>
                     <div class="guide-content">
-                        <div class="guide-title">내용 확인 후 신고서 제출</div>
-                        <div class="guide-desc">업로드된 내용, 특히 <strong>취득일자</strong>를 반드시 확인 → 확인 후 신고서 제출 → 국세·지방세 별도 납부</div>
+                        <div class="guide-title" data-i18n="guide.4.title">내용 확인 후 신고서 제출</div>
+                        <div class="guide-desc" data-i18n-html="guide.4.desc">업로드된 내용, 특히 <strong>취득일자</strong>를 반드시 확인 → 확인 후 신고서 제출 → 국세·지방세 별도 납부</div>
                     </div>
                 </div>
             </div>
-            <div class="guide-tip">
+            <div class="guide-tip" data-i18n-html="guide.tip">
                 💡 <strong>신고 기한:</strong> 매년 <strong>5월 1일 ~ 5월 31일</strong> (전년도 거래분). 기한 미신고 시 가산세 부과.<br>
                 💡 <strong>기본공제:</strong> 양도차익 250만원 이하는 납부세액 없음. 단, 신고는 해야 합니다.<br>
-                ⚠️ <strong>기한 후 신고의 경우,</strong> 홈택스에서 <strong>'기한후신고'</strong> 메뉴를 선택하세요. (신고/납부세액 → 양도소득세 → 기한후신고)
+                ⚠️ <strong>기한 후 신고의 경우,</strong> 홈택스에서 <strong>'기한후신고'</strong> 메뉴를 선택하세요.
             </div>
         </div>
     </div>
@@ -517,57 +526,57 @@
 <!-- ─── PENALTY CALCULATOR ─── -->
 <section class="section-full" id="penalty-section" style="background:#f9fafb;">
     <div class="section-inner">
-        <div class="section-label">기한 후 신고</div>
-        <div class="section-title">가산세 계산</div>
-        <p class="section-sub">5월 31일 신고 기한을 넘겼다면 예상 가산세를 미리 계산해보세요. 파일 업로드 시 세금이 자동으로 채워집니다.</p>
+        <div class="section-label" data-i18n="penalty.label">기한 후 신고</div>
+        <div class="section-title" data-i18n="penalty.title">가산세 계산</div>
+        <p class="section-sub" data-i18n="penalty.sub">5월 31일 신고 기한을 넘겼다면 예상 가산세를 미리 계산해보세요. 파일 업로드 시 세금이 자동으로 채워집니다.</p>
         <div class="card penalty-card" id="penaltyCard">
             <div class="penalty-grid" style="margin-bottom:16px;">
                 <div class="penalty-field">
-                    <label for="penaltyTaxInput">납부세액 (원)</label>
-                    <input type="number" id="penaltyTaxInput" class="penalty-input" placeholder="예: 1650000" min="0" inputmode="numeric">
-                    <div class="penalty-hint">파일 업로드 후 자동으로 채워집니다</div>
+                    <label for="penaltyTaxInput" data-i18n="penalty.tax.label">납부세액 (원)</label>
+                    <input type="number" id="penaltyTaxInput" class="penalty-input" placeholder="예: 1650000" min="0" inputmode="numeric" data-i18n-placeholder="penalty.tax.placeholder">
+                    <div class="penalty-hint" data-i18n="penalty.tax.hint">파일 업로드 후 자동으로 채워집니다</div>
                 </div>
                 <div class="penalty-field">
-                    <label for="penaltyDeadline">신고 기한일</label>
+                    <label for="penaltyDeadline" data-i18n="penalty.deadline.label">신고 기한일</label>
                     <input type="date" id="penaltyDeadline" class="penalty-input" aria-describedby="penaltyDeadlineHint">
-                    <div class="penalty-hint" id="penaltyDeadlineHint">기본값: 전년도 귀속 다음 해 5월 31일</div>
+                    <div class="penalty-hint" id="penaltyDeadlineHint" data-i18n="penalty.deadline.hint">기본값: 전년도 귀속 다음 해 5월 31일</div>
                 </div>
                 <div class="penalty-field">
-                    <label for="penaltyFileDate">신고 예정일 (또는 오늘)</label>
+                    <label for="penaltyFileDate" data-i18n="penalty.filedate.label">신고 예정일 (또는 오늘)</label>
                     <input type="date" id="penaltyFileDate" class="penalty-input" aria-describedby="penaltyFileDateHint">
-                    <div class="penalty-hint" id="penaltyFileDateHint">기본값: 오늘 날짜</div>
+                    <div class="penalty-hint" id="penaltyFileDateHint" data-i18n="penalty.filedate.hint">기본값: 오늘 날짜</div>
                 </div>
             </div>
-            <button class="btn btn-primary" onclick="calculatePenalty()" style="width:100%;">
+            <button class="btn btn-primary" onclick="calculatePenalty()" style="width:100%;" data-i18n="penalty.btn">
                 가산세 계산하기
             </button>
             <div class="penalty-result hidden" id="penaltyResult" style="margin-top:20px;">
                 <div class="penalty-result-grid">
                     <div class="penalty-result-item">
-                        <div class="penalty-result-label">원래 납부세액</div>
+                        <div class="penalty-result-label" data-i18n="penalty.original">원래 납부세액</div>
                         <div class="penalty-result-val" id="penOriginalTax">0원</div>
                     </div>
                     <div class="penalty-result-item">
-                        <div class="penalty-result-label">무신고 가산세</div>
+                        <div class="penalty-result-label" data-i18n="penalty.nonfiling">무신고 가산세</div>
                         <div class="penalty-result-val penalty-warn" id="penNonFiling">0원</div>
                         <div class="penalty-result-sub" id="penNonFilingSub"></div>
                     </div>
                     <div class="penalty-result-item">
-                        <div class="penalty-result-label">납부불성실 가산세</div>
+                        <div class="penalty-result-label" data-i18n="penalty.latepay">납부불성실 가산세</div>
                         <div class="penalty-result-val penalty-warn" id="penLatePay">0원</div>
                         <div class="penalty-result-sub" id="penLatePaySub"></div>
                     </div>
                     <div class="penalty-result-item penalty-total">
-                        <div class="penalty-result-label">총 납부 예상액</div>
+                        <div class="penalty-result-label" data-i18n="penalty.total">총 납부 예상액</div>
                         <div class="penalty-result-val" id="penTotal">0원</div>
-                        <div class="penalty-result-sub">(원래 세금 + 무신고 가산세 + 납부불성실 가산세)</div>
+                        <div class="penalty-result-sub" data-i18n="penalty.total.sub">(원래 세금 + 무신고 가산세 + 납부불성실 가산세)</div>
                     </div>
                 </div>
                 <div class="penalty-breakdown">
-                    <div class="penalty-breakdown-title">가산세 계산 상세</div>
+                    <div class="penalty-breakdown-title" data-i18n="penalty.breakdown.title">가산세 계산 상세</div>
                     <div class="penalty-breakdown-list" id="penBreakdown"></div>
                 </div>
-                <div class="penalty-notice">
+                <div class="penalty-notice" data-i18n-html="penalty.notice">
                     ⚠️ 이 가산세 계산은 <strong>일반 무신고</strong> 기준 참고용입니다.
                     부정무신고(40%), 감면 특례 등은 반영되지 않았습니다.
                     정확한 가산세는 세무서 또는 세무사에게 확인하세요.
@@ -580,42 +589,42 @@
 <!-- ─── TAX SIMULATOR ─── -->
 <section class="section-full" id="sim-section">
     <div class="section-inner">
-        <div class="section-label">절세 전략</div>
-        <div class="section-title">절세 시뮬레이션</div>
-        <p class="section-sub">12월 31일 전에 손실 종목을 매도하면 세금이 얼마나 줄어드는지 계산해보세요.</p>
+        <div class="section-label" data-i18n="sim.label">절세 전략</div>
+        <div class="section-title" data-i18n="sim.title">절세 시뮬레이션</div>
+        <p class="section-sub" data-i18n="sim.sub">12월 31일 전에 손실 종목을 매도하면 세금이 얼마나 줄어드는지 계산해보세요.</p>
         <div class="card sim-card">
             <div class="sim-grid">
                 <div class="sim-field">
-                    <label class="sim-label" for="simGain">올해 실현 양도차익 (원)</label>
-                    <input type="number" id="simGain" class="sim-input" placeholder="예: 10000000" min="0" inputmode="numeric">
-                    <div class="sim-hint">파일 업로드 후 자동으로 채워집니다</div>
+                    <label class="sim-label" for="simGain" data-i18n="sim.gain.label">올해 실현 양도차익 (원)</label>
+                    <input type="number" id="simGain" class="sim-input" placeholder="예: 10000000" min="0" inputmode="numeric" data-i18n-placeholder="sim.gain.placeholder">
+                    <div class="sim-hint" data-i18n="sim.gain.hint">파일 업로드 후 자동으로 채워집니다</div>
                 </div>
                 <div class="sim-field">
-                    <label class="sim-label" for="simLoss">매도 예정 손실액 (원)</label>
-                    <input type="number" id="simLoss" class="sim-input" placeholder="예: 3000000" min="0" inputmode="numeric">
-                    <div class="sim-hint">보유 중인 손실 종목의 예상 손실 금액</div>
+                    <label class="sim-label" for="simLoss" data-i18n="sim.loss.label">매도 예정 손실액 (원)</label>
+                    <input type="number" id="simLoss" class="sim-input" placeholder="예: 3000000" min="0" inputmode="numeric" data-i18n-placeholder="sim.loss.placeholder">
+                    <div class="sim-hint" data-i18n="sim.loss.hint">보유 중인 손실 종목의 예상 손실 금액</div>
                 </div>
             </div>
-            <button class="btn btn-primary" onclick="simulateTaxSaving()" style="margin-top:20px; width:100%;">절세액 계산하기</button>
+            <button class="btn btn-primary" onclick="simulateTaxSaving()" style="margin-top:20px; width:100%;" data-i18n="sim.btn">절세액 계산하기</button>
             <div class="sim-result hidden" id="simResult">
                 <div class="sim-result-grid">
                     <div class="sim-result-item">
-                        <div class="sim-result-label">현재 예상 세금</div>
+                        <div class="sim-result-label" data-i18n="sim.before">현재 예상 세금</div>
                         <div class="sim-result-val" id="simTaxBefore">0원</div>
                     </div>
                     <div class="sim-arrow" aria-hidden="true">→</div>
                     <div class="sim-result-item">
-                        <div class="sim-result-label">매도 후 예상 세금</div>
+                        <div class="sim-result-label" data-i18n="sim.after">매도 후 예상 세금</div>
                         <div class="sim-result-val" id="simTaxAfter">0원</div>
                     </div>
                     <div class="sim-result-item sim-highlight">
-                        <div class="sim-result-label">절세 효과</div>
+                        <div class="sim-result-label" data-i18n="sim.saving">절세 효과</div>
                         <div class="sim-result-val sim-save" id="simSaving">0원</div>
                     </div>
                 </div>
                 <div class="sim-desc" id="simDesc"></div>
             </div>
-            <p style="font-size:13px; color:var(--muted); margin-top:20px; padding:12px 16px; background:var(--bg); border-radius:8px; border-left:3px solid #F59E0B; line-height:1.6;">
+            <p style="font-size:13px; color:var(--muted); margin-top:20px; padding:12px 16px; background:var(--bg); border-radius:8px; border-left:3px solid #F59E0B; line-height:1.6;" data-i18n="sim.note">
                 📌 이미 신고 기한이 지났다면 위 세금 계산 결과에서 가산세도 함께 확인하세요.
             </p>
         </div>
@@ -625,22 +634,22 @@
 <!-- ─── TRUST SECTION ─── -->
 <section class="trust-section">
     <div class="trust-inner">
-        <div class="trust-title">개인정보 보호 · 안전한 서비스</div>
+        <div class="trust-title" data-i18n="trust.title">개인정보 보호 · 안전한 서비스</div>
         <div class="trust-grid">
             <div class="trust-item">
                 <span class="trust-icon">🔒</span>
-                <div class="trust-item-title">서버에 저장되지 않습니다</div>
-                <div class="trust-item-desc">업로드된 파일은 세금 계산에만 사용되며, 세션 종료 시 즉시 삭제됩니다.</div>
+                <div class="trust-item-title" data-i18n="trust.1.title">서버에 저장되지 않습니다</div>
+                <div class="trust-item-desc" data-i18n="trust.1.desc">업로드된 파일은 세금 계산에만 사용되며, 세션 종료 시 즉시 삭제됩니다.</div>
             </div>
             <div class="trust-item">
                 <span class="trust-icon">🙈</span>
-                <div class="trust-item-title">개인정보를 수집하지 않습니다</div>
-                <div class="trust-item-desc">회원가입, 이메일, 이름 등 어떤 개인정보도 요구하지 않습니다.</div>
+                <div class="trust-item-title" data-i18n="trust.2.title">개인정보를 수집하지 않습니다</div>
+                <div class="trust-item-desc" data-i18n="trust.2.desc">회원가입, 이메일, 이름 등 어떤 개인정보도 요구하지 않습니다.</div>
             </div>
             <div class="trust-item">
                 <span class="trust-icon">⚡</span>
-                <div class="trust-item-title">계산 후 즉시 삭제</div>
-                <div class="trust-item-desc">업로드된 파일은 세금 계산 목적으로만 사용되며, 처리 완료 후 서버에서 즉시 삭제됩니다.</div>
+                <div class="trust-item-title" data-i18n="trust.3.title">계산 후 즉시 삭제</div>
+                <div class="trust-item-desc" data-i18n="trust.3.desc">업로드된 파일은 세금 계산 목적으로만 사용되며, 처리 완료 후 서버에서 즉시 삭제됩니다.</div>
             </div>
         </div>
     </div>
@@ -649,27 +658,27 @@
 <!-- ─── WHO SECTION ─── -->
 <section class="section-full">
     <div class="section-inner">
-        <div class="section-label">이런 분들을 위해</div>
-        <div class="section-title">혹시 이런 상황이신가요?</div>
-        <p class="section-sub">해외주식 세금 신고, 생각보다 어렵지 않아요. 양도세이브가 도와드립니다.</p>
+        <div class="section-label" data-i18n="who.label">이런 분들을 위해</div>
+        <div class="section-title" data-i18n="who.title">혹시 이런 상황이신가요?</div>
+        <p class="section-sub" data-i18n="who.sub">해외주식 세금 신고, 생각보다 어렵지 않아요. 양도세이브가 도와드립니다.</p>
         <div class="who-grid">
             <div class="who-card">
                 <span class="who-emoji">😰</span>
-                <div class="who-card-title">5월 양도소득세 신고를 놓쳤어요</div>
-                <div class="who-card-desc">매년 5월이 양도소득세 신고 기간인데 깜빡하거나 바빠서 놓치셨나요? <strong>기한 후 신고</strong>로 지금이라도 신고하면 가산세를 크게 줄일 수 있습니다.</div>
-                <span class="who-tag">기한 후 신고 가능</span>
+                <div class="who-card-title" data-i18n="who.1.title">5월 양도소득세 신고를 놓쳤어요</div>
+                <div class="who-card-desc" data-i18n-html="who.1.desc">매년 5월이 양도소득세 신고 기간인데 깜빡하거나 바빠서 놓치셨나요? <strong>기한 후 신고</strong>로 지금이라도 신고하면 가산세를 크게 줄일 수 있습니다.</div>
+                <span class="who-tag" data-i18n="who.1.tag">기한 후 신고 가능</span>
             </div>
             <div class="who-card">
                 <span class="who-emoji">🏦</span>
-                <div class="who-card-title">증권사 대행 신청 기간을 놓쳤어요</div>
-                <div class="who-card-desc">증권사는 보통 1~2월에 양도소득세 대행 신청을 받습니다. 놓쳤다면 직접 셀프 신고를 해야 하는데, 양도세이브가 <strong>홈택스 업로드용 엑셀을 자동으로</strong> 만들어 드립니다.</div>
-                <span class="who-tag">셀프 신고 지원</span>
+                <div class="who-card-title" data-i18n="who.2.title">증권사 대행 신청 기간을 놓쳤어요</div>
+                <div class="who-card-desc" data-i18n-html="who.2.desc">증권사는 보통 1~2월에 양도소득세 대행 신청을 받습니다. 놓쳤다면 직접 셀프 신고를 해야 하는데, 양도세이브가 <strong>홈택스 업로드용 엑셀을 자동으로</strong> 만들어 드립니다.</div>
+                <span class="who-tag" data-i18n="who.2.tag">셀프 신고 지원</span>
             </div>
             <div class="who-card">
                 <span class="who-emoji">📊</span>
-                <div class="who-card-title">거래가 많아 직접 계산이 어려워요</div>
-                <div class="who-card-desc">수십~수백 건의 거래를 일일이 계산하는 건 거의 불가능합니다. 증권사 파일을 업로드하면 <strong>모든 거래를 자동으로 합산</strong>해 정확한 세금을 계산합니다.</div>
-                <span class="who-tag">자동 합산 계산</span>
+                <div class="who-card-title" data-i18n="who.3.title">거래가 많아 직접 계산이 어려워요</div>
+                <div class="who-card-desc" data-i18n-html="who.3.desc">수십~수백 건의 거래를 일일이 계산하는 건 거의 불가능합니다. 증권사 파일을 업로드하면 <strong>모든 거래를 자동으로 합산</strong>해 정확한 세금을 계산합니다.</div>
+                <span class="who-tag" data-i18n="who.3.tag">자동 합산 계산</span>
             </div>
         </div>
     </div>
@@ -681,29 +690,29 @@
 <!-- ─── HOW IT WORKS ─── -->
 <section class="section-full" style="background:var(--bg);">
     <div class="section-inner">
-        <div class="section-label">사용 방법</div>
-        <div class="section-title">4단계로 끝나는 세금 계산</div>
-        <p class="section-sub">복잡한 세금 계산을 파일 업로드 하나로 해결하세요.</p>
+        <div class="section-label" data-i18n="how.label">사용 방법</div>
+        <div class="section-title" data-i18n="how.title">4단계로 끝나는 세금 계산</div>
+        <p class="section-sub" data-i18n="how.sub">복잡한 세금 계산을 파일 업로드 하나로 해결하세요.</p>
         <div class="how-grid">
             <div class="how-step">
                 <div class="how-step-num">1</div>
-                <div class="how-step-title">거래내역 다운로드</div>
-                <div class="how-step-desc">증권사 앱·HTS에서 해외주식 거래내역을 PDF, Excel, CSV로 내려받습니다.</div>
+                <div class="how-step-title" data-i18n="how.1.title">거래내역 다운로드</div>
+                <div class="how-step-desc" data-i18n="how.1.desc">증권사 앱·HTS에서 해외주식 거래내역을 PDF, Excel, CSV로 내려받습니다.</div>
             </div>
             <div class="how-step">
                 <div class="how-step-num">2</div>
-                <div class="how-step-title">파일 업로드</div>
-                <div class="how-step-desc">양도세이브에 파일을 드래그&드롭하거나 클릭해서 업로드합니다.</div>
+                <div class="how-step-title" data-i18n="how.2.title">파일 업로드</div>
+                <div class="how-step-desc" data-i18n="how.2.desc">양도세이브에 파일을 드래그&드롭하거나 클릭해서 업로드합니다.</div>
             </div>
             <div class="how-step">
                 <div class="how-step-num">3</div>
-                <div class="how-step-title">세금 자동 계산</div>
-                <div class="how-step-desc">기본공제 250만원 차감 후 22% 세율로 납부세액을 자동 계산합니다.</div>
+                <div class="how-step-title" data-i18n="how.3.title">세금 자동 계산</div>
+                <div class="how-step-desc" data-i18n="how.3.desc">기본공제 250만원 차감 후 22% 세율로 납부세액을 자동 계산합니다.</div>
             </div>
             <div class="how-step">
                 <div class="how-step-num">4</div>
-                <div class="how-step-title">홈택스 엑셀 다운로드</div>
-                <div class="how-step-desc">홈택스 업로드 규격에 맞는 엑셀 파일을 생성해 바로 신고에 사용합니다.</div>
+                <div class="how-step-title" data-i18n="how.4.title">홈택스 엑셀 다운로드</div>
+                <div class="how-step-desc" data-i18n="how.4.desc">홈택스 업로드 규격에 맞는 엑셀 파일을 생성해 바로 신고에 사용합니다.</div>
             </div>
         </div>
     </div>
@@ -714,11 +723,11 @@
     <div class="section-inner">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;" class="formula-two-col">
             <div>
-                <div class="section-label">세금 계산 공식</div>
-                <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;">해외주식 양도소득세 계산법</h2>
+                <div class="section-label" data-i18n="formula.label">세금 계산 공식</div>
+                <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;" data-i18n="formula.title">해외주식 양도소득세 계산법</h2>
                 <div class="formula-box">
-                    <div class="formula-text">납부세액 = (양도차익 − 250만원) × 22%</div>
-                    <div class="formula-detail">
+                    <div class="formula-text" data-i18n="formula.text">납부세액 = (양도차익 − 250만원) × 22%</div>
+                    <div class="formula-detail" data-i18n-html="formula.detail">
                         · 양도차익 = 매도금액 − 취득금액 − 필요경비<br>
                         · 국세 20% + 지방소득세 2% = 합산 22%<br><br>
                         <strong>예시:</strong> 양도차익 1,000만원<br>
@@ -727,8 +736,8 @@
                 </div>
             </div>
             <div>
-                <div class="section-label">지원 증권사</div>
-                <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;">다양한 증권사 파일을 지원합니다</h2>
+                <div class="section-label" data-i18n="broker.label">지원 증권사</div>
+                <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;" data-i18n="broker.title">다양한 증권사 파일을 지원합니다</h2>
                 <div class="broker-tag-list">
                     <span class="broker-tag">한국투자증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
                     <span class="broker-tag">키움증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
@@ -738,7 +747,7 @@
                     <span class="broker-tag">신한투자증권<span class="broker-fmt">Excel</span></span>
                     <span class="broker-tag">기타 CSV<span class="broker-fmt">CSV</span></span>
                 </div>
-                <p style="font-size:13px; color:var(--muted); margin-top:14px; line-height:1.6;">신고 기간: 매년 <strong style="color:var(--text);">5월 1일 ~ 5월 31일</strong><br>전년도 거래분 합산 신고</p>
+                <p style="font-size:13px; color:var(--muted); margin-top:14px; line-height:1.6;" data-i18n-html="broker.note">신고 기간: 매년 <strong style="color:var(--text);">5월 1일 ~ 5월 31일</strong><br>전년도 거래분 합산 신고</p>
             </div>
         </div>
     </div>
@@ -747,73 +756,73 @@
 <!-- ─── FAQ ─── -->
 <section class="section-full" id="faq-heading" style="background:var(--bg);">
     <div class="section-inner">
-        <div class="section-label" style="text-align:center;">FAQ</div>
-        <div class="section-title" style="text-align:center;">자주 묻는 질문</div>
-        <p class="section-sub" style="text-align:center;">궁금한 점이 있으면 확인해보세요.</p>
+        <div class="section-label" style="text-align:center;" data-i18n="faq.label">FAQ</div>
+        <div class="section-title" style="text-align:center;" data-i18n="faq.title">자주 묻는 질문</div>
+        <p class="section-sub" style="text-align:center;" data-i18n="faq.sub">궁금한 점이 있으면 확인해보세요.</p>
         <div class="faq-wrap">
             <div class="faq-list">
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-1">
-                        해외주식 양도소득세란 무엇인가요?
+                        <span data-i18n="faq.q1">해외주식 양도소득세란 무엇인가요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-1">해외주식 양도소득세는 해외 주식을 매도하여 발생한 양도차익(매도금액 − 취득금액 − 필요경비)에 부과되는 세금입니다. 연간 양도차익에서 기본공제 250만원을 차감한 과세표준에 22%(국세 20% + 지방세 2%)를 적용합니다. 매년 5월 양도소득세 신고 기간에 홈택스에서 신고납부해야 합니다.</div>
+                    <div class="faq-a" id="faq-a-1" data-i18n-html="faq.a1">해외주식 양도소득세는 해외 주식을 매도하여 발생한 양도차익(매도금액 − 취득금액 − 필요경비)에 부과되는 세금입니다. 연간 양도차익에서 기본공제 250만원을 차감한 과세표준에 22%(국세 20% + 지방세 2%)를 적용합니다. 매년 5월 양도소득세 신고 기간에 홈택스에서 신고납부해야 합니다.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-2">
-                        해외주식 세금을 얼마나 내나요?
+                        <span data-i18n="faq.q2">해외주식 세금을 얼마나 내나요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-2">양도차익이 250만원 이하면 세금이 없습니다. 250만원을 초과하는 금액의 22%가 납부세액입니다. 예시: 양도차익 500만원 → (500만 − 250만) × 22% = 55만원. 양도차익 1,000만원 → (1,000만 − 250만) × 22% = 165만원.</div>
+                    <div class="faq-a" id="faq-a-2" data-i18n="faq.a2">양도차익이 250만원 이하면 세금이 없습니다. 250만원을 초과하는 금액의 22%가 납부세액입니다. 예시: 양도차익 500만원 → (500만 − 250만) × 22% = 55만원. 양도차익 1,000만원 → (1,000만 − 250만) × 22% = 165만원.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-3">
-                        해외주식 세금 신고는 언제 하나요?
+                        <span data-i18n="faq.q3">해외주식 세금 신고는 언제 하나요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-3">해외주식 양도소득세 신고는 매년 5월 1일~31일에 <a href="https://www.hometax.go.kr" target="_blank" rel="noopener noreferrer">홈택스(hometax.go.kr)</a>에서 진행합니다. 전년도 1월 1일~12월 31일 거래를 합산하여 신고합니다. 신고·납부를 놓치면 가산세가 부과될 수 있습니다.</div>
+                    <div class="faq-a" id="faq-a-3" data-i18n-html="faq.a3">해외주식 양도소득세 신고는 매년 5월 1일~31일에 <a href="https://www.hometax.go.kr" target="_blank" rel="noopener noreferrer">홈택스(hometax.go.kr)</a>에서 진행합니다. 전년도 1월 1일~12월 31일 거래를 합산하여 신고합니다. 신고·납부를 놓치면 가산세가 부과될 수 있습니다.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-4">
-                        미국주식·ETF도 세금 계산이 되나요?
+                        <span data-i18n="faq.q4">미국주식·ETF도 세금 계산이 되나요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-4">네, 미국주식, 미국 ETF를 포함한 모든 해외주식의 양도소득세를 계산할 수 있습니다. 국가 코드(US 등)가 홈택스 신고용 엑셀에 자동 입력됩니다.</div>
+                    <div class="faq-a" id="faq-a-4" data-i18n="faq.a4">네, 미국주식, 미국 ETF를 포함한 모든 해외주식의 양도소득세를 계산할 수 있습니다. 국가 코드(US 등)가 홈택스 신고용 엑셀에 자동 입력됩니다.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-5">
-                        손실이 나도 신고해야 하나요?
+                        <span data-i18n="faq.q5">손실이 나도 신고해야 하나요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-5">연간 양도차익이 250만원 이하이거나 손실인 경우 신고 의무는 없습니다. 단, 여러 종목 간 손익을 통산할 수 있으므로 이익 종목과 손실 종목이 섞여 있다면 반드시 합산하여 계산해야 합니다.</div>
+                    <div class="faq-a" id="faq-a-5" data-i18n="faq.a5">연간 양도차익이 250만원 이하이거나 손실인 경우 신고 의무는 없습니다. 단, 여러 종목 간 손익을 통산할 수 있으므로 이익 종목과 손실 종목이 섞여 있다면 반드시 합산하여 계산해야 합니다.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-6">
-                        업로드한 파일이 외부에 저장되나요?
+                        <span data-i18n="faq.q6">업로드한 파일이 외부에 저장되나요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-6">업로드한 파일은 세금 계산 목적으로만 처리되며, 계산 완료 후 세션 만료 시 서버에서 삭제됩니다. 개인 거래 정보를 외부에 저장하거나 제3자에게 제공하지 않습니다.</div>
+                    <div class="faq-a" id="faq-a-6" data-i18n="faq.a6">업로드한 파일은 세금 계산 목적으로만 처리되며, 계산 완료 후 세션 만료 시 서버에서 삭제됩니다. 개인 거래 정보를 외부에 저장하거나 제3자에게 제공하지 않습니다.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-7">
-                        5월 신고 기한을 놓쳤으면 어떻게 하나요?
+                        <span data-i18n="faq.q7">5월 신고 기한을 놓쳤으면 어떻게 하나요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-7">기한 후 신고를 하면 됩니다. 신고하지 않은 것보다 기한 후라도 신고하면 가산세를 크게 줄일 수 있습니다. 양도세이브로 세금을 계산한 후, 홈택스에서 기한 후 신고를 진행하세요.</div>
+                    <div class="faq-a" id="faq-a-7" data-i18n="faq.a7">기한 후 신고를 하면 됩니다. 신고하지 않은 것보다 기한 후라도 신고하면 가산세를 크게 줄일 수 있습니다. 양도세이브로 세금을 계산한 후, 홈택스에서 기한 후 신고를 진행하세요.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-8">
-                        기한 후 신고하면 가산세가 얼마나 나오나요?
+                        <span data-i18n="faq.q8">기한 후 신고하면 가산세가 얼마나 나오나요?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-8">기한 후 신고 시 두 가지 가산세가 부과됩니다. ① <strong>무신고 가산세</strong>: 납부세액의 20% (1개월 이내 자진신고 시 50% 감면, 3개월 이내 30% 감면, 6개월 이내 20% 감면). ② <strong>납부불성실 가산세</strong>: 미납세액 × 경과일수 × 0.022% (1일당). 예: 세금 165만원을 3개월 늦게 신고하면 무신고 가산세 약 23.1만원 + 납부불성실 가산세 약 3.3만원 = 약 26.4만원의 추가 부담이 발생합니다. 양도세이브의 가산세 계산 기능으로 정확한 금액을 확인해보세요.</div>
+                    <div class="faq-a" id="faq-a-8" data-i18n-html="faq.a8">기한 후 신고 시 두 가지 가산세가 부과됩니다. ① <strong>무신고 가산세</strong>: 납부세액의 20% (1개월 이내 자진신고 시 50% 감면, 3개월 이내 30% 감면, 6개월 이내 20% 감면). ② <strong>납부불성실 가산세</strong>: 미납세액 × 경과일수 × 0.022% (1일당). 예: 세금 165만원을 3개월 늦게 신고하면 무신고 가산세 약 23.1만원 + 납부불성실 가산세 약 3.3만원 = 약 26.4만원의 추가 부담이 발생합니다.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-9">
-                        증권사 양도소득세 대행을 놓쳤으면?
+                        <span data-i18n="faq.q9">증권사 양도소득세 대행을 놓쳤으면?</span>
                         <span class="faq-arrow">▼</span>
                     </button>
-                    <div class="faq-a" id="faq-a-9">증권사 대행 신청 기간(보통 1~2월)을 놓쳤다면 홈택스에서 직접 셀프 신고를 해야 합니다. 양도세이브에서 거래내역을 업로드하면 홈택스 업로드용 엑셀을 자동으로 생성해 드리니, 어렵지 않게 셀프 신고를 완료할 수 있습니다.</div>
+                    <div class="faq-a" id="faq-a-9" data-i18n="faq.a9">증권사 대행 신청 기간(보통 1~2월)을 놓쳤다면 홈택스에서 직접 셀프 신고를 해야 합니다. 양도세이브에서 거래내역을 업로드하면 홈택스 업로드용 엑셀을 자동으로 생성해 드리니, 어렵지 않게 셀프 신고를 완료할 수 있습니다.</div>
                 </div>
             </div>
         </div>
@@ -826,46 +835,46 @@
 <!-- ─── FEEDBACK ─── -->
 <div class="feedback-section" id="feedbackSection">
     <div class="feedback-inner">
-        <div class="feedback-title">피드백 및 댓글</div>
-        <p class="feedback-sub">양도세이브를 이용해보셨나요? 솔직한 소감을 남겨주세요.</p>
+        <div class="feedback-title" data-i18n="feedback.title">피드백 및 댓글</div>
+        <p class="feedback-sub" data-i18n="feedback.sub">양도세이브를 이용해보셨나요? 솔직한 소감을 남겨주세요.</p>
         <div id="fbStatus" style="font-size:11px;text-align:center;margin-bottom:8px;color:var(--muted);"></div>
 
-        <div class="reaction-label">이 서비스가 어땠나요?</div>
+        <div class="reaction-label" data-i18n="reaction.label">이 서비스가 어땠나요?</div>
         <div class="reaction-list">
             <button class="reaction-btn" data-key="fast" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">⚡</span>
-                <span>빠르고 편해요</span>
+                <span data-i18n="reaction.fast">빠르고 편해요</span>
                 <span class="r-count" id="rc-fast">0</span>
             </button>
             <button class="reaction-btn" data-key="accurate" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">✅</span>
-                <span>계산이 정확해요</span>
+                <span data-i18n="reaction.accurate">계산이 정확해요</span>
                 <span class="r-count" id="rc-accurate">0</span>
             </button>
             <button class="reaction-btn" data-key="helpful" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">💡</span>
-                <span>도움이 됐어요</span>
+                <span data-i18n="reaction.helpful">도움이 됐어요</span>
                 <span class="r-count" id="rc-helpful">0</span>
             </button>
             <button class="reaction-btn" data-key="easy" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">👌</span>
-                <span>쓰기 쉬워요</span>
+                <span data-i18n="reaction.easy">쓰기 쉬워요</span>
                 <span class="r-count" id="rc-easy">0</span>
             </button>
             <button class="reaction-btn" data-key="improve" onclick="toggleReaction(this)" aria-pressed="false">
                 <span class="r-icon">🔧</span>
-                <span>개선이 필요해요</span>
+                <span data-i18n="reaction.improve">개선이 필요해요</span>
                 <span class="r-count" id="rc-improve">0</span>
             </button>
         </div>
 
         <div class="comment-form-wrap">
             <div class="comment-form-row">
-                <label for="cmtName" class="sr-only">닉네임 (선택)</label>
-                <input class="comment-input" id="cmtName" type="text" placeholder="닉네임 (선택)" maxlength="20">
-                <button class="btn btn-primary comment-submit" onclick="submitComment()">등록</button>
+                <label for="cmtName" class="sr-only" data-i18n="comment.name.placeholder">닉네임 (선택)</label>
+                <input class="comment-input" id="cmtName" type="text" placeholder="닉네임 (선택)" maxlength="20" data-i18n-placeholder="comment.name.placeholder">
+                <button class="btn btn-primary comment-submit" onclick="submitComment()" data-i18n="comment.submit">등록</button>
             </div>
-            <textarea class="comment-textarea" id="cmtText" placeholder="서비스 사용 소감, 궁금한 점, 개선 의견을 자유롭게 남겨주세요." rows="3" maxlength="500" aria-describedby="cmtChar"></textarea>
+            <textarea class="comment-textarea" id="cmtText" placeholder="서비스 사용 소감, 궁금한 점, 개선 의견을 자유롭게 남겨주세요." rows="3" maxlength="500" aria-describedby="cmtChar" data-i18n-placeholder="comment.text.placeholder"></textarea>
             <div class="comment-char" id="cmtChar" aria-live="polite">0 / 500</div>
         </div>
 
@@ -879,14 +888,14 @@
         <img src="logo.png" alt="양도세이브 로고" width="28" height="28" loading="lazy">
         <span class="footer-logo-text">양도<span>세이브</span></span>
     </div>
-    <p class="footer-disclaimer">
+    <p class="footer-disclaimer" data-i18n-html="footer.disclaimer">
         이 서비스는 참고용이며, 최종 신고는 홈택스에서 직접 확인하시기 바랍니다.<br>
         세금 계산 결과는 법적 효력이 없으며, 정확한 세금은 세무사와 상담하세요.
     </p>
     <div class="footer-links">
-        <a href="index.html">홈</a>
-        <a href="privacy.html">개인정보처리방침</a>
-        <a href="terms.html">이용약관</a>
+        <a href="index.html" data-i18n="footer.home">홈</a>
+        <a href="privacy.html" data-i18n="footer.privacy">개인정보처리방침</a>
+        <a href="terms.html" data-i18n="footer.terms">이용약관</a>
     </div>
     <div class="footer-copy">© <span id="footerYear">2026</span> 양도세이브. All rights reserved.</div>
 </footer>
@@ -927,6 +936,7 @@
   }
 </script>
 
+<script src="lang.js"></script>
 <script defer src="template.js"></script>
 <script defer src="app.js"></script>
 
@@ -936,18 +946,7 @@
     var y = document.getElementById('footerYear');
     if (y) y.textContent = new Date().getFullYear();
 
-    // 날짜 기반 배너 메시지
-    var m = new Date().getMonth() + 1; // 1~12
-    var t1 = document.getElementById('bannerText1');
-    if (t1) {
-        if (m >= 1 && m <= 4) {
-            t1.innerHTML = '<strong>5월 양도소득세 신고 기한이 다가옵니다!</strong><span> — 지금 미리 세금을 계산해두세요</span>';
-        } else if (m === 5) {
-            t1.innerHTML = '<strong>⏰ 신고 기한 마감! 5월 31일까지입니다.</strong><span> — 지금 바로 신고하세요</span>';
-        } else {
-            t1.innerHTML = '<strong>5월 양도소득세 신고를 놓치셨나요?</strong><span> — 기한 후 신고로 지금도 가산세를 줄일 수 있습니다</span>';
-        }
-    }
+    // 날짜 기반 배너 메시지 — lang.js의 applyLang()이 DOMContentLoaded 시 처리
 })();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
