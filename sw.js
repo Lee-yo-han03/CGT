@@ -1,5 +1,5 @@
 'use strict';
-const CACHE = 'yangdosave-v3.5'; // 버전 변경 → 구버전 캐시 전부 삭제
+const CACHE = 'yangdosave-v3.6'; // 버전 변경 → 구버전 캐시 전부 삭제
 const PRECACHE = ['/', '/index.html', '/style.css', '/app.js', '/template.js', '/logo.png'];
 
 self.addEventListener('install', e => {
