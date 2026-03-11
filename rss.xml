@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>양도세이브 - 해외주식 양도소득세 계산기</title>
+    <link>https://yangdosave.kr/</link>
+    <description>해외주식 양도소득세 계산기. 증권사 거래내역 파일 업로드 한 번으로 세금을 자동 계산하고 홈택스 신고용 엑셀을 즉시 생성합니다.</description>
+    <language>ko</language>
+    <lastBuildDate>Tue, 11 Mar 2026 00:00:00 +0900</lastBuildDate>
+    <atom:link href="https://yangdosave.kr/rss.xml" rel="self" type="application/rss+xml"/>
+
+    <item>
+      <title>키움증권 해외주식 양도소득세 신고 가이드</title>
+      <link>https://yangdosave.kr/guide-kiwoom.html</link>
+      <description>키움증권 해외주식 거래내역 파일 다운로드부터 양도세이브 업로드, 홈택스 신고까지 단계별로 안내합니다.</description>
+      <pubDate>Tue, 11 Mar 2026 00:00:00 +0900</pubDate>
+      <guid isPermaLink="true">https://yangdosave.kr/guide-kiwoom.html</guid>
+    </item>
+
+    <item>
+      <title>해외주식 양도소득세 자동 계산기 | 양도세이브</title>
+      <link>https://yangdosave.kr/</link>
+      <description>증권사 거래내역(PDF·Excel·CSV) 업로드 한 번으로 해외주식 양도소득세를 자동 계산하고 홈택스 신고용 엑셀을 즉시 생성합니다. 키움·미래에셋·삼성·NH·신한 지원. 무료.</description>
+      <pubDate>Sun, 08 Mar 2026 00:00:00 +0900</pubDate>
+      <guid isPermaLink="true">https://yangdosave.kr/</guid>
+    </item>
+
+  </channel>
+</rss>
