@@ -63,13 +63,6 @@
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
           "inLanguage": "ko",
           "isAccessibleForFree": true,
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "reviewCount": "127",
-            "bestRating": "5",
-            "worstRating": "1"
-          }
         },
         {
           "@type": "FAQPage",
@@ -210,10 +203,10 @@
             </svg>
             PDF 업로드 시작하기
         </button>
-        <p class="hero-free">완전 무료 · 파일은 서버에 저장되지 않습니다</p>
+        <p class="hero-free">완전 무료 · 파일은 계산 후 즉시 삭제됩니다</p>
         <div class="hero-stats">
             <div class="hero-stat-item">
-                <span class="hero-stat-num">5분</span>
+                <span class="hero-stat-num">1분</span>
                 <div class="hero-stat-label">평균 처리 시간</div>
             </div>
             <div class="hero-stat-item">
@@ -231,12 +224,9 @@
 <!-- ─── TARGET BANNER ─── -->
 <div class="target-section">
     <div class="target-inner">
-        <div class="target-item">
-            <div class="target-icon-wrap">⚠️</div>
-            <div class="target-text">
-                <strong>5월 양도소득세 신고를 놓치셨나요?</strong>
-                <span> — 기한 후 신고로 지금도 가산세를 줄일 수 있습니다</span>
-            </div>
+        <div class="target-item" id="bannerMsg1">
+            <div class="target-icon-wrap" id="bannerIcon1">⚠️</div>
+            <div class="target-text" id="bannerText1"></div>
         </div>
         <div class="target-divider"></div>
         <div class="target-item">
@@ -548,8 +538,8 @@
             </div>
             <div class="trust-item">
                 <span class="trust-icon">⚡</span>
-                <div class="trust-item-title">브라우저에서 직접 처리</div>
-                <div class="trust-item-desc">대부분의 계산은 서버 전송 없이 사용자 브라우저에서 직접 처리됩니다.</div>
+                <div class="trust-item-title">계산 후 즉시 삭제</div>
+                <div class="trust-item-desc">업로드된 파일은 세금 계산 목적으로만 사용되며, 처리 완료 후 서버에서 즉시 삭제됩니다.</div>
             </div>
         </div>
     </div>
@@ -761,57 +751,6 @@
     </div>
 </section>
 
-<!-- ─── 이용 후기 ─── -->
-<section class="section-full testimonial-section" id="testimonials" aria-label="사용자 후기">
-    <div class="section-inner">
-        <div class="section-label" style="text-align:center;">이용 후기</div>
-        <div class="section-title" style="text-align:center;">실제 사용자 후기</div>
-        <p class="section-sub" style="text-align:center;">양도세이브로 해외주식 세금을 해결한 실제 투자자들의 이야기입니다.</p>
-        <div class="testimonial-grid">
-            <div class="testimonial-card">
-                <div class="testimonial-stars" aria-label="별점 5점">★★★★★</div>
-                <blockquote class="testimonial-text">"키움증권 PDF 올렸더니 5분 만에 세금 계산이 끝났어요. 세무사 맡길 뻔했는데 혼자 해결했습니다."</blockquote>
-                <div class="testimonial-meta">
-                    <span class="testimonial-name">직장인 김○○</span>
-                    <span class="testimonial-broker">키움증권</span>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-stars" aria-label="별점 5점">★★★★★</div>
-                <blockquote class="testimonial-text">"홈택스 업로드용 엑셀까지 자동으로 만들어줘서 신고까지 원스톱으로 끝냈어요. 완전 추천!"</blockquote>
-                <div class="testimonial-meta">
-                    <span class="testimonial-name">주부 이○○</span>
-                    <span class="testimonial-broker">미래에셋증권</span>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-stars" aria-label="별점 5점">★★★★★</div>
-                <blockquote class="testimonial-text">"가산세 계산기 덕분에 늦은 신고도 미리 대비할 수 있었어요. 무료인데 이 정도면 최고입니다."</blockquote>
-                <div class="testimonial-meta">
-                    <span class="testimonial-name">프리랜서 박○○</span>
-                    <span class="testimonial-broker">삼성증권</span>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-stars" aria-label="별점 4점">★★★★☆</div>
-                <blockquote class="testimonial-text">"복잡한 양도소득세 계산을 무료로 해결할 수 있어서 너무 좋아요. NH 거래내역도 바로 인식되네요."</blockquote>
-                <div class="testimonial-meta">
-                    <span class="testimonial-name">직장인 최○○</span>
-                    <span class="testimonial-broker">NH투자증권</span>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-stars" aria-label="별점 5점">★★★★★</div>
-                <blockquote class="testimonial-text">"파일 업로드하고 다운로드 버튼 누르면 끝이에요. 세금 신고가 이렇게 쉬울 줄 몰랐습니다."</blockquote>
-                <div class="testimonial-meta">
-                    <span class="testimonial-name">대학원생 정○○</span>
-                    <span class="testimonial-broker">신한투자증권</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- ─── FAQ ─── -->
 <section class="section-full" id="faq-heading" style="background:var(--bg);">
     <div class="section-inner">
@@ -1007,6 +946,19 @@
 (function() {
     var y = document.getElementById('footerYear');
     if (y) y.textContent = new Date().getFullYear();
+
+    // 날짜 기반 배너 메시지
+    var m = new Date().getMonth() + 1; // 1~12
+    var t1 = document.getElementById('bannerText1');
+    if (t1) {
+        if (m >= 1 && m <= 4) {
+            t1.innerHTML = '<strong>5월 양도소득세 신고 기한이 다가옵니다!</strong><span> — 지금 미리 세금을 계산해두세요</span>';
+        } else if (m === 5) {
+            t1.innerHTML = '<strong>⏰ 신고 기한 마감! 5월 31일까지입니다.</strong><span> — 지금 바로 신고하세요</span>';
+        } else {
+            t1.innerHTML = '<strong>5월 양도소득세 신고를 놓치셨나요?</strong><span> — 기한 후 신고로 지금도 가산세를 줄일 수 있습니다</span>';
+        }
+    }
 })();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
