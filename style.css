@@ -1223,111 +1223,6 @@
             color: var(--text-2);
         }
 
-        /* ─── FEEDBACK ─── */
-        .feedback-section {
-            background: var(--bg-2);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding: 56px 0;
-        }
-        .feedback-inner { max-width: 680px; margin: 0 auto; padding: 0 24px; }
-        .feedback-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--text);
-            letter-spacing: -0.4px;
-            margin-bottom: 6px;
-            text-align: center;
-        }
-        .feedback-sub { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 28px; }
-        .reaction-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        .reaction-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
-        .reaction-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 9px 16px;
-            background: var(--card);
-            border: 1.5px solid var(--border);
-            border-radius: 100px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--muted);
-            transition: all 0.15s;
-        }
-        .reaction-btn:hover { border-color: var(--green); color: var(--text); background: var(--green-light); }
-        .reaction-btn.active { background: var(--green-light); border-color: var(--green); color: var(--green-dark); font-weight: 600; }
-        .r-icon { font-size: 15px; }
-        .r-count {
-            font-size: 11px;
-            font-weight: 700;
-            background: var(--bg-2);
-            padding: 1px 7px;
-            border-radius: 20px;
-            color: var(--muted);
-        }
-        .reaction-btn.active .r-count { background: rgba(5,150,105,0.15); color: var(--green-dark); }
-        .comment-form-wrap {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .comment-form-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .comment-input {
-            flex: 1;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
-            font-size: 13px;
-            color: var(--text);
-            outline: none;
-            font-family: inherit;
-            transition: border-color 0.15s;
-        }
-        .comment-input:focus { border-color: var(--green); }
-        .comment-textarea {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
-            font-size: 13px;
-            color: var(--text);
-            outline: none;
-            resize: vertical;
-            font-family: inherit;
-            line-height: 1.6;
-            transition: border-color 0.15s;
-        }
-        .comment-textarea:focus { border-color: var(--green); }
-        .comment-textarea::placeholder, .comment-input::placeholder { color: var(--muted-2); }
-        .comment-char { text-align: right; font-size: 11px; color: var(--muted); margin-top: 6px; }
-        .comment-submit { padding: 10px 20px; font-size: 13px; }
-        .comment-list { display: flex; flex-direction: column; gap: 10px; }
-        .comment-item {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 16px 18px;
-        }
-        .comment-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .comment-name { font-size: 13px; font-weight: 700; color: var(--text); }
-        .comment-date { font-size: 11px; color: var(--muted); }
-        .comment-body { font-size: 13px; color: var(--muted); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
-        .comment-empty { text-align: center; padding: 24px; font-size: 13px; color: var(--muted-2); }
-
         /* ─── FOOTER ─── */
         .footer {
             background: var(--navy);
@@ -1606,11 +1501,5 @@
             .metric-value { font-size: 19px; }
             .trade-summary { gap: 8px; }
             .trade-stat { padding: 12px; }
-            .feedback-inner { padding-left: 16px; padding-right: 16px; }
-            .reaction-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-            .reaction-btn { min-height: 44px; }
-            .reaction-btn:last-child { grid-column: 1 / -1; }
-            .comment-form-row { gap: 8px; }
-            .comment-submit { min-width: 72px; }
             .table-wrap { overscroll-behavior-x: contain; }
         }

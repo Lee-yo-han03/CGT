@@ -142,7 +142,7 @@ const I18N = {
     'trust.2.title': '원본 파일과 계산 데이터',
     'trust.2.desc': '서버 처리 시 원본 파일은 파싱 후 삭제됩니다. Excel 생성용 거래 데이터는 서버 메모리에 최대 1시간 보관된 뒤 자동 정리됩니다.',
     'trust.3.title': '외부 서비스와 개인정보',
-    'trust.3.desc': '세금 계산에 회원가입은 필요하지 않습니다. 광고·댓글 서비스는 별도 제공자와 쿠키를 사용할 수 있습니다. 자세한 내용은 <a href="privacy.html">개인정보처리방침</a>에서 확인하세요.',
+    'trust.3.desc': '세금 계산에 회원가입은 필요하지 않습니다. 광고와 방문 통계는 각 제공자의 정책에 따라 처리될 수 있습니다. 자세한 내용은 <a href="privacy.html">개인정보처리방침</a>에서 확인하세요.',
 
     // Who
     'who.label': '이런 분들을 위해',
@@ -205,26 +205,13 @@ const I18N = {
     'faq.q5': '손실이 나도 신고해야 하나요?',
     'faq.a5': '연간 양도차익이 250만원 이하이거나 손실인 경우 신고 의무는 없습니다. 단, 여러 종목 간 손익을 통산할 수 있으므로 이익 종목과 손실 종목이 섞여 있다면 반드시 합산하여 계산해야 합니다.',
     'faq.q6': '업로드한 파일이 외부에 저장되나요?',
-    'faq.a6': '서버 처리 시 원본 파일은 파싱 후 삭제되며, 계산용 거래 데이터는 Excel 생성을 위해 서버 메모리에 최대 1시간 보관된 뒤 자동 정리됩니다. 서버를 사용할 수 없어 브라우저 처리로 전환되면 파일 내용은 계산 서버로 전송되지 않습니다. 광고·댓글 등 제3자 서비스 정보는 개인정보처리방침을 확인하세요.',
+    'faq.a6': '서버 처리 시 원본 파일은 파싱 후 삭제되며, 계산용 거래 데이터는 Excel 생성을 위해 서버 메모리에 최대 1시간 보관된 뒤 자동 정리됩니다. 서버를 사용할 수 없어 브라우저 처리로 전환되면 파일 내용은 계산 서버로 전송되지 않습니다. 광고·방문 통계 등 제3자 서비스 정보는 개인정보처리방침을 확인하세요.',
     'faq.q7': '5월 신고 기한을 놓쳤으면 어떻게 하나요?',
     'faq.a7': '기한 후 신고를 하면 됩니다. 신고하지 않은 것보다 기한 후라도 신고하면 가산세를 크게 줄일 수 있습니다. 양도세이브로 세금을 계산한 후, 홈택스에서 기한 후 신고를 진행하세요.',
     'faq.q8': '기한 후 신고하면 가산세가 얼마나 나오나요?',
     'faq.a8': '기한 후 신고 시 두 가지 가산세가 부과됩니다. ① <strong>무신고 가산세</strong>: 납부세액의 20% (1개월 이내 자진신고 시 50% 감면, 3개월 이내 30% 감면, 6개월 이내 20% 감면). ② <strong>납부불성실 가산세</strong>: 미납세액 × 경과일수 × 0.022% (1일당). 예: 세금 165만원을 3개월 늦게 신고하면 무신고 가산세 약 23.1만원 + 납부불성실 가산세 약 3.3만원 = 약 26.4만원의 추가 부담이 발생합니다.',
     'faq.q9': '증권사 양도소득세 대행을 놓쳤으면?',
     'faq.a9': '증권사 대행 신청 기간(보통 1~2월)을 놓쳤다면 홈택스에서 직접 셀프 신고를 해야 합니다. 양도세이브에서 거래내역을 업로드하면 홈택스 업로드용 엑셀을 자동으로 생성해 드리니, 어렵지 않게 셀프 신고를 완료할 수 있습니다.',
-
-    // Feedback
-    'feedback.title': '피드백 및 댓글',
-    'feedback.sub': '양도세이브를 이용해보셨나요? 솔직한 소감을 남겨주세요.',
-    'reaction.label': '이 서비스가 어땠나요?',
-    'reaction.fast': '빠르고 편해요',
-    'reaction.accurate': '계산이 정확해요',
-    'reaction.helpful': '도움이 됐어요',
-    'reaction.easy': '쓰기 쉬워요',
-    'reaction.improve': '개선이 필요해요',
-    'comment.name.placeholder': '닉네임 (선택)',
-    'comment.submit': '등록',
-    'comment.text.placeholder': '서비스 사용 소감, 궁금한 점, 개선 의견을 자유롭게 남겨주세요.',
 
     // Footer
     'footer.disclaimer': '이 서비스는 참고용이며, 최종 신고는 홈택스에서 직접 확인하시기 바랍니다.<br>세금 계산 결과는 법적 효력이 없으며, 정확한 세금은 세무사와 상담하세요.',
@@ -373,7 +360,7 @@ const I18N = {
     'trust.2.title': 'Original files and calculation data',
     'trust.2.desc': 'In server mode, the original file is deleted after parsing. Trade data for Excel generation stays in server memory for up to one hour, then is cleared automatically.',
     'trust.3.title': 'Third-party services and privacy',
-    'trust.3.desc': 'Tax calculation does not require an account. Advertising and comments may use cookies from their providers. See the <a href="privacy.html">Privacy Policy</a>.',
+    'trust.3.desc': 'Tax calculation does not require an account. Advertising and visit analytics may be processed under each provider’s policies. See the <a href="privacy.html">Privacy Policy</a>.',
 
     // Who
     'who.label': 'Who It\'s For',
@@ -436,26 +423,13 @@ const I18N = {
     'faq.q5': 'Do I need to file if I have a net loss?',
     'faq.a5': 'Filing is not mandatory if your annual gains are ₩2.5M or less, or if you have a net loss. However, if you have a mix of gains and losses across stocks, you must aggregate them all.',
     'faq.q6': 'Are my uploaded files stored externally?',
-    'faq.a6': 'In server mode, the original file is deleted after parsing and calculation data stays in server memory for up to one hour for Excel generation, then is cleared automatically. If processing falls back to your browser, file contents are not sent to the calculation server. See the Privacy Policy for advertising and comment services.',
+    'faq.a6': 'In server mode, the original file is deleted after parsing and calculation data stays in server memory for up to one hour for Excel generation, then is cleared automatically. If processing falls back to your browser, file contents are not sent to the calculation server. See the Privacy Policy for advertising and visit analytics.',
     'faq.q7': 'What if I missed the May deadline?',
     'faq.a7': 'You can still file a late return. Filing late is far better than not filing at all — it significantly reduces your penalties. Calculate your tax with YangdoSave, then file a late return on Hometax.',
     'faq.q8': 'How much are late filing penalties?',
     'faq.a8': 'Two penalties apply: ① <strong>Non-filing penalty:</strong> 20% of tax due (reduced by 50% if filed within 1 month, 30% within 3 months, 20% within 6 months). ② <strong>Late payment penalty:</strong> Unpaid tax × days elapsed × 0.022%/day. Example: ₩1.65M tax filed 3 months late → ~₩231K non-filing + ~₩33K late payment = ~₩264K extra.',
     'faq.q9': 'What if I missed broker-assisted filing?',
     'faq.a9': 'Brokers typically accept delegated filing in Jan–Feb. If you missed it, you must self-file on Hometax. Upload your trade history to YangdoSave and we\'ll generate the Hometax-ready Excel — making self-filing straightforward.',
-
-    // Feedback
-    'feedback.title': 'Feedback & Comments',
-    'feedback.sub': 'Have you tried YangdoSave? Leave us your honest thoughts.',
-    'reaction.label': 'How was your experience?',
-    'reaction.fast': 'Fast & convenient',
-    'reaction.accurate': 'Accurate calculation',
-    'reaction.helpful': 'Very helpful',
-    'reaction.easy': 'Easy to use',
-    'reaction.improve': 'Needs improvement',
-    'comment.name.placeholder': 'Nickname (optional)',
-    'comment.submit': 'Post',
-    'comment.text.placeholder': 'Share your experience, questions, or suggestions.',
 
     // Footer
     'footer.disclaimer': 'This service is for reference only. Always verify your final filing directly on Hometax.<br>Tax results have no legal effect. Consult a tax professional for accurate figures.',

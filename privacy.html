@@ -144,7 +144,7 @@
         <ul>
             <li><strong>업로드 파일 및 거래 데이터:</strong> 서버 처리 시 PDF·Excel·CSV 원본 파일은 거래 추출 후 서버 임시 파일에서 삭제됩니다. 추출된 거래 데이터는 Excel 생성과 추가 파일 계산을 위해 서버 메모리에 최대 1시간 보관된 뒤 자동 정리됩니다. 서버 처리에 실패해 브라우저 처리로 전환되면 파일 내용은 계산 서버로 전송되지 않습니다.</li>
             <li><strong>자동 수집 정보:</strong> 서비스 이용 시 IP 주소, 브라우저 종류, 접속 시간 등의 기술적 정보가 서버 로그에 자동으로 기록될 수 있습니다.</li>
-            <li><strong>외부 서비스:</strong> Google AdSense 광고, Firebase 댓글·반응 및 Firebase Analytics를 사용합니다. 브라우저 처리 모드에서는 PDF.js·SheetJS 라이브러리도 외부 CDN에서 불러옵니다. 각 제공자는 자체 정책에 따라 접속 정보나 쿠키를 처리할 수 있습니다. 브라우저 처리 모드에서 거래 파일 내용은 계산 서버로 전송되지 않습니다.</li>
+            <li><strong>외부 서비스:</strong> Google AdSense 광고, Google Analytics 및 Microsoft Clarity 방문 통계를 사용합니다. 브라우저 처리 모드에서는 PDF.js·SheetJS 라이브러리도 외부 CDN에서 불러옵니다. 각 제공자는 자체 정책에 따라 접속 정보나 쿠키를 처리할 수 있습니다. 브라우저 처리 모드에서 거래 파일 내용은 계산 서버로 전송되지 않습니다.</li>
         </ul>
     </div>
 
@@ -168,8 +168,6 @@
             <li>광고 맞춤 설정은 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" style="color:var(--primary);">Google 광고 설정</a>에서 변경할 수 있습니다.</li>
         </ul>
 
-        <p style="margin-top:14px;"><strong>Firebase 피드백·분석</strong></p>
-        <p>댓글과 반응은 Firebase Firestore에 저장될 수 있으며, Firebase Analytics가 이용 통계를 처리할 수 있습니다. 서버 연결이 되지 않아 피드백 서비스에 연결할 수 없을 때는 댓글과 반응이 이용자의 브라우저에 저장됩니다. 자세한 사항은 <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener noreferrer" style="color:var(--primary);">Firebase 개인정보 안내</a>를 참고하시기 바랍니다.</p>
     </div>
 
     <div class="section">
@@ -178,6 +176,7 @@
             <li><strong>업로드 원본 파일:</strong> 서버에서 거래 추출을 마친 뒤 임시 파일을 삭제합니다.</li>
             <li><strong>계산용 거래 데이터:</strong> Excel 생성과 세션 내 추가 업로드를 위해 서버 메모리에 최대 1시간 보관된 뒤 자동 정리됩니다.</li>
             <li><strong>서버 로그:</strong> 서비스 운영 및 보안을 위해 최대 30일간 보관 후 자동 삭제됩니다.</li>
+            <li><strong>종료된 댓글·반응 기능:</strong> 신규 저장과 서비스 내 조회를 중단했습니다. 종료 전에 Firebase Firestore에 저장된 기록이 있을 수 있으며, 이번 기능 제거 과정에서 해당 기록은 삭제하지 않았습니다. 기록 삭제 요청은 아래 문의처로 접수해 주세요.</li>
         </ul>
         <div class="warning-box">
             업로드하신 거래내역 파일에는 민감한 금융 정보가 포함될 수 있습니다. 본 서비스는 해당 파일을 세금 계산 목적으로만 사용하며, 제3자에게 제공하거나 마케팅 목적으로 활용하지 않습니다.
@@ -215,7 +214,7 @@
         <p>개인정보처리방침에 관한 문의사항은 아래 방법으로 연락해 주시기 바랍니다.</p>
         <ul>
             <li><strong>서비스명:</strong> 양도세이브</li>
-            <li><strong>문의 방법:</strong> 사이트 하단 피드백·댓글 또는 연결된 문의 채널을 이용해 주세요.</li>
+            <li><strong>문의 방법:</strong> 사이트 상단의 Instagram 문의 링크를 이용해 주세요.</li>
         </ul>
     </div>
 
