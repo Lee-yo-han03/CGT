@@ -92,7 +92,7 @@ function renderFileList() {
     list.innerHTML = state.files.map((f, i) => `
         <div class="file-item">
             <div class="file-info">
-                <span aria-hidden="true"><svg class="ui-icon"><use href="#icon-file"/></svg></span>
+                <span aria-hidden="true">📄</span>
                 <span class="file-info-name">${escHtml(f.name)}</span>
                 <span class="file-info-size">(${(f.size/1024).toFixed(1)}KB)</span>
             </div>
@@ -965,7 +965,7 @@ function displayResults() {
         fr.innerHTML = parsedFiles.map(f => `
             <div class="file-item" style="margin-bottom:8px;">
                 <div class="file-info">
-                    <span aria-hidden="true"><svg class="ui-icon"><use href="#icon-file"/></svg></span>
+                    <span aria-hidden="true">📄</span>
                     <span class="file-info-name">${escHtml(f.filename)}</span>
                     <span class="file-broker">${escHtml(f.broker)}</span>
                     <span class="file-info-size">${f.trade_count}건</span>
@@ -1024,11 +1024,11 @@ function displayResults() {
     if (errorFiles.length > 0) {
         const errNames = errorFiles.map(f => escHtml(f.filename)).join(', ');
         document.getElementById('resultAlert').innerHTML =
-            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true"><svg class="ui-icon"><use href="#icon-check"/></svg></span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건 처리${escHtml(mode)}</span></div>` +
-            `<div class="result-alert result-alert-warn" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;"><span aria-hidden="true"><svg class="ui-icon"><use href="#icon-alert"/></svg></span><span>파싱 실패 파일: ${errNames}</span></div>`;
+            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true">✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건 처리${escHtml(mode)}</span></div>` +
+            `<div class="result-alert result-alert-warn" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;"><span aria-hidden="true">⚠️</span><span>파싱 실패 파일: ${errNames}</span></div>`;
     } else {
         document.getElementById('resultAlert').innerHTML =
-            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true"><svg class="ui-icon"><use href="#icon-check"/></svg></span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다${escHtml(mode)}</span></div>`;
+            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true">✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다${escHtml(mode)}</span></div>`;
     }
 }
 
@@ -1488,7 +1488,7 @@ function initPenaltyCard() {
         if (alertEl) {
             const deadlineFormatted = `${tradeYear + 1}.5.31`;
             const warningBanner = `<div class="result-alert" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FCD34D;margin-top:8px;">
-                <span aria-hidden="true"><svg class="ui-icon"><use href="#icon-alert"/></svg></span>
+                <span aria-hidden="true">⚠️</span>
                 <span>이 거래의 신고 기한(${deadlineFormatted})이 지났습니다. <a href="#penalty-section" style="color:#92400E;text-decoration:underline;">아래 가산세 계산</a>에서 확인하세요.</span>
             </div>`;
             alertEl.innerHTML += warningBanner;

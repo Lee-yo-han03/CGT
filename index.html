@@ -136,20 +136,6 @@
 </head>
 <body>
 
-<svg class="icon-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M12 3 22 20H2L12 3Z"/><path d="M12 9v5m0 3h.01"/></symbol>
-    <symbol id="icon-bank" viewBox="0 0 24 24"><path d="m3 9 9-6 9 6H3Zm2 2v7m5-7v7m4-7v7m5-7v7M3 21h18M2 18h20"/></symbol>
-    <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></symbol>
-    <symbol id="icon-file" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v6h5M9 14h7m-7 4h7"/></symbol>
-    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
-    <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M4 19h16"/></symbol>
-    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
-    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20V4m0 16h17M8 15l4-4 3 2 5-6"/></symbol>
-    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 3 1.7 6.3L20 11l-6.3 1.7L12 19l-1.7-6.3L4 11l6.3-1.7L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></symbol>
-    <symbol id="icon-tool" viewBox="0 0 24 24"><path d="M14 6a5 5 0 0 0-6 6L3 17l4 4 5-5a5 5 0 0 0 6-6l-3 3-4-4 3-3Z"/></symbol>
-</svg>
-
 <!-- ─── NAV ─── -->
 <header class="nav">
     <div class="nav-inner">
@@ -244,12 +230,12 @@
 <div class="target-section">
     <div class="target-inner">
         <div class="target-item" id="bannerMsg1">
-            <div class="target-icon-wrap" id="bannerIcon1"><svg class="ui-icon"><use href="#icon-alert"/></svg></div>
+            <div class="target-icon-wrap" id="bannerIcon1">⚠️</div>
             <div class="target-text" id="bannerText1"></div>
         </div>
         <div class="target-divider"></div>
         <div class="target-item">
-            <div class="target-icon-wrap"><svg class="ui-icon"><use href="#icon-bank"/></svg></div>
+            <div class="target-icon-wrap">🏦</div>
             <div class="target-text">
                 <strong>증권사 대행 신청 기간을 놓치셨나요?</strong>
                 <span> — 양도세이브로 셀프 신고 엑셀을 직접 만드세요</span>
@@ -286,7 +272,7 @@
     <div id="step1">
         <div class="card">
             <div class="card-title">
-                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-upload"/></svg></div>
+                <div class="card-title-icon">📤</div>
                 <span data-i18n="step1.card.title">거래내역 파일 업로드</span>
             </div>
             <p class="upload-label" data-i18n-html="step1.label">
@@ -298,7 +284,7 @@
             <div class="upload-zone" id="uploadZone"
                  role="button" tabindex="0" aria-label="파일 업로드 영역. 클릭하거나 파일을 드래그하세요"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('fileInput').click();}">
-                <span class="upload-zone-icon" aria-hidden="true"><svg class="ui-icon"><use href="#icon-file"/></svg></span>
+                <span class="upload-zone-icon" aria-hidden="true">📂</span>
                 <div class="upload-zone-title" data-i18n="step1.zone.title">파일을 드래그하거나 클릭하여 업로드</div>
                 <div class="upload-zone-sub">
                     <span>PDF</span>
@@ -337,7 +323,7 @@
 
         <div class="card">
             <div class="card-title">
-                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-check"/></svg></div>
+                <div class="card-title-icon">✅</div>
                 <span id="resultHeading" tabindex="-1" data-i18n="step2.card.title">세금 계산 결과</span>
             </div>
 
@@ -458,7 +444,7 @@
         <!-- ── STEP 3: Download ── -->
         <div class="card download-card" id="step3">
             <div class="card-title">
-                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-download"/></svg></div>
+                <div class="card-title-icon">📥</div>
                 <span data-i18n="step3.card.title">홈택스 신고용 엑셀 다운로드</span>
             </div>
 
@@ -501,7 +487,7 @@
         <!-- ── Filing Guide ── -->
         <div class="card">
             <div class="card-title">
-                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-file"/></svg></div>
+                <div class="card-title-icon">📋</div>
                 <span data-i18n="guide.card.title">홈택스 신고 방법 (4단계)</span>
             </div>
             <div class="guide-steps">
@@ -671,17 +657,17 @@
         <div class="trust-title" data-i18n="trust.title">개인정보 보호 · 안전한 서비스</div>
         <div class="trust-grid">
             <div class="trust-item">
-                <span class="trust-icon"><svg class="ui-icon"><use href="#icon-shield"/></svg></span>
+                <span class="trust-icon">🔒</span>
                 <div class="trust-item-title" data-i18n="trust.1.title">처리 위치를 안내합니다</div>
                 <div class="trust-item-desc" data-i18n="trust.1.desc">서버 연결 시 파일은 계산 서버로 전송되어 처리됩니다. 서버를 사용할 수 없으면 브라우저에서 처리합니다.</div>
             </div>
             <div class="trust-item">
-                <span class="trust-icon"><svg class="ui-icon"><use href="#icon-clock"/></svg></span>
+                <span class="trust-icon">⏱️</span>
                 <div class="trust-item-title" data-i18n="trust.2.title">원본 파일과 계산 데이터</div>
                 <div class="trust-item-desc" data-i18n="trust.2.desc">서버 처리 시 원본 파일은 파싱 후 삭제됩니다. Excel 생성용 거래 데이터는 서버 메모리에 최대 1시간 보관된 뒤 자동 정리됩니다.</div>
             </div>
             <div class="trust-item">
-                <span class="trust-icon">ⓘ</span>
+                <span class="trust-icon">ℹ️</span>
                 <div class="trust-item-title" data-i18n="trust.3.title">외부 서비스와 개인정보</div>
                 <div class="trust-item-desc" data-i18n-html="trust.3.desc">세금 계산에 회원가입은 필요하지 않습니다. 광고·댓글 서비스는 별도 제공자와 쿠키를 사용할 수 있습니다. 자세한 내용은 <a href="privacy.html">개인정보처리방침</a>에서 확인하세요.</div>
             </div>
@@ -697,19 +683,19 @@
         <p class="section-sub" data-i18n="who.sub">해외주식 세금 신고, 생각보다 어렵지 않아요. 양도세이브가 도와드립니다.</p>
         <div class="who-grid">
             <div class="who-card">
-                <span class="who-emoji"><svg class="ui-icon"><use href="#icon-alert"/></svg></span>
+                <span class="who-emoji">😰</span>
                 <div class="who-card-title" data-i18n="who.1.title">5월 양도소득세 신고를 놓쳤어요</div>
                 <div class="who-card-desc" data-i18n-html="who.1.desc">매년 5월이 양도소득세 신고 기간인데 깜빡하거나 바빠서 놓치셨나요? <strong>기한 후 신고</strong>로 지금이라도 신고하면 가산세를 크게 줄일 수 있습니다.</div>
                 <span class="who-tag" data-i18n="who.1.tag">기한 후 신고 가능</span>
             </div>
             <div class="who-card">
-                <span class="who-emoji"><svg class="ui-icon"><use href="#icon-bank"/></svg></span>
+                <span class="who-emoji">🏦</span>
                 <div class="who-card-title" data-i18n="who.2.title">증권사 대행 신청 기간을 놓쳤어요</div>
                 <div class="who-card-desc" data-i18n-html="who.2.desc">증권사는 보통 1~2월에 양도소득세 대행 신청을 받습니다. 놓쳤다면 직접 셀프 신고를 해야 하는데, 양도세이브가 <strong>홈택스 업로드용 엑셀을 자동으로</strong> 만들어 드립니다.</div>
                 <span class="who-tag" data-i18n="who.2.tag">셀프 신고 지원</span>
             </div>
             <div class="who-card">
-                <span class="who-emoji"><svg class="ui-icon"><use href="#icon-chart"/></svg></span>
+                <span class="who-emoji">📊</span>
                 <div class="who-card-title" data-i18n="who.3.title">거래가 많아 직접 계산이 어려워요</div>
                 <div class="who-card-desc" data-i18n-html="who.3.desc">수십~수백 건의 거래를 일일이 계산하는 건 거의 불가능합니다. 증권사 파일을 업로드하면 <strong>모든 거래를 자동으로 합산</strong>해 정확한 세금을 계산합니다.</div>
                 <span class="who-tag" data-i18n="who.3.tag">자동 합산 계산</span>
@@ -910,27 +896,27 @@
         <div class="reaction-label" data-i18n="reaction.label">이 서비스가 어땠나요?</div>
         <div class="reaction-list">
             <button class="reaction-btn" data-key="fast" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon"><svg class="ui-icon"><use href="#icon-spark"/></svg></span>
+                <span class="r-icon">⚡</span>
                 <span data-i18n="reaction.fast">빠르고 편해요</span>
                 <span class="r-count" id="rc-fast" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="accurate" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon"><svg class="ui-icon"><use href="#icon-check"/></svg></span>
+                <span class="r-icon">✅</span>
                 <span data-i18n="reaction.accurate">계산이 정확해요</span>
                 <span class="r-count" id="rc-accurate" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="helpful" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon"><svg class="ui-icon"><use href="#icon-spark"/></svg></span>
+                <span class="r-icon">💡</span>
                 <span data-i18n="reaction.helpful">도움이 됐어요</span>
                 <span class="r-count" id="rc-helpful" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="easy" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon"><svg class="ui-icon"><use href="#icon-check"/></svg></span>
+                <span class="r-icon">👍</span>
                 <span data-i18n="reaction.easy">쓰기 쉬워요</span>
                 <span class="r-count" id="rc-easy" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="improve" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon"><svg class="ui-icon"><use href="#icon-tool"/></svg></span>
+                <span class="r-icon">🔧</span>
                 <span data-i18n="reaction.improve">개선이 필요해요</span>
                 <span class="r-count" id="rc-improve" aria-hidden="true">0</span>
             </button>
