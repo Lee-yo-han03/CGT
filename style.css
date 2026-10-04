@@ -36,6 +36,7 @@
             -webkit-font-smoothing: antialiased;
         }
         .hidden { display: none !important; }
+        #resultHeading { scroll-margin-top: 24px; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
         /* ─── NAV ─── */
@@ -294,6 +295,7 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 28px rgba(5,150,105,0.45);
         }
+        .hero-cta:focus-visible { outline: 3px solid #A7F3D0; outline-offset: 4px; }
         .hero-free {
             margin-top: 16px;
             font-size: 12px;
@@ -729,6 +731,10 @@
             color: #92400E;
             border: 1px solid #FDE68A;
         }
+        .calculation-caveat, .download-caveat { border: 1px solid #FDE68A; border-left: 4px solid #D97706; border-radius: var(--radius-sm); background: #FFFBEB; color: #78350F; padding: 12px 14px; font-size: 12px; line-height: 1.7; }
+        .calculation-caveat { margin: 0 0 20px; }
+        .download-caveat { margin: -4px 0 16px; }
+        .trust-item-desc a { color: #A7F3D0; text-underline-offset: 3px; }
 
         /* ─── RESULT: Metric Cards ─── */
         .metric-grid {
@@ -1059,7 +1065,7 @@
             color: #E2E8F0;
             margin-bottom: 6px;
         }
-        .trust-item-desc { font-size: 12px; color: #64748B; line-height: 1.6; }
+        .trust-item-desc { font-size: 12px; color: #CBD5E1; line-height: 1.7; }
 
         /* ─── WHO SECTION ─── */
         .who-grid {
@@ -1347,6 +1353,20 @@
         /* ─── AD WRAP ─── */
         .ad-wrap { max-width: 1100px; margin: 0 auto; padding: 8px 24px; }
 
+        /* ─── BROKER DOWNLOAD GUIDE ─── */
+        .broker-download-guide { margin-top: 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+        .upload-format-link { display: inline-block; margin-top: 8px; color: var(--green-dark); font-size: 13px; font-weight: 600; text-underline-offset: 3px; }
+        .upload-format-link:focus-visible, .broker-download-guide summary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+        .broker-download-guide summary { padding: 14px 16px; color: var(--green-dark); font-size: 14px; font-weight: 700; cursor: pointer; }
+        .broker-download-guide[open] summary { border-bottom: 1px solid var(--border); }
+        .broker-guide-intro { padding: 12px 16px 0; color: var(--muted); font-size: 12px; }
+        .broker-format-note { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid var(--green-mid); background: var(--bg); color: var(--text-2); font-size: 12px; line-height: 1.65; }
+        .broker-guide-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px 16px 16px; }
+        .broker-guide-item { min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+        .broker-guide-item h3 { margin-bottom: 6px; color: var(--text); font-size: 13px; }
+        .broker-guide-item p { color: var(--text-2); font-size: 12px; line-height: 1.65; }
+        .broker-guide-item a { display: inline-block; margin-top: 8px; color: var(--green-dark); font-size: 12px; font-weight: 600; text-underline-offset: 3px; }
+
         /* ─── MOBILE ─── */
         @media (max-width: 768px) {
             .nav-right { display: none; }
@@ -1370,9 +1390,28 @@
             .trade-summary { flex-direction: column; }
             .tax-split { flex-direction: column; }
             .section-title { font-size: 20px; }
+            .broker-guide-list { grid-template-columns: 1fr; }
         }
-        .formula-two-col { grid-template-columns: 1fr !important; }
-        @media (max-width: 768px) { .formula-two-col { grid-template-columns: 1fr !important; } }
+        .formula-two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; align-items: start; }
+        .tool-accordion { margin: 0 auto; max-width: 1100px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+        .tool-accordion + .tool-accordion { margin-top: 16px; }
+        .tool-accordion-summary { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center; padding: 20px 22px; cursor: pointer; list-style: none; }
+        .tool-accordion-summary::-webkit-details-marker { display: none; }
+        .tool-accordion-summary::after { content: '+'; grid-column: 2; grid-row: 1 / span 3; color: var(--green-dark); font-size: 24px; font-weight: 400; }
+        .tool-accordion[open] .tool-accordion-summary::after { content: '−'; }
+        .tool-accordion-summary:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: var(--radius); }
+        .tool-accordion-label { color: var(--green-dark); font-size: 12px; font-weight: 700; }
+        .tool-accordion-summary strong { color: var(--text); font-size: 19px; }
+        .tool-accordion-copy { color: var(--muted); font-size: 13px; line-height: 1.6; }
+        .tool-accordion-body { padding: 0 22px 22px; }
+        .tool-accordion-body > .card { margin: 0; }
+        .r-count { display: none !important; }
+        @media (max-width: 768px) {
+            .formula-two-col { grid-template-columns: 1fr; gap: 28px; }
+            .tool-accordion-summary { padding: 16px; }
+            .tool-accordion-body { padding: 0 12px 12px; }
+            .tool-accordion-summary strong { font-size: 17px; }
+        }
         @media (max-width: 480px) {
             .hero h1 { font-size: 24px; }
             .hero-logo-name { font-size: 22px; }
@@ -1555,4 +1594,28 @@
                 scroll-snap-align: start;
                 flex-shrink: 0;
             }
+        }
+
+        /* ─── SHARED LINE ICONS & MOBILE FINISH ─── */
+        .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+        .ui-icon { display: inline-block; width: 1.25em; height: 1.25em; flex: 0 0 auto; vertical-align: -0.22em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .card-title-icon .ui-icon { width: 22px; height: 22px; }
+        .upload-zone-icon .ui-icon { width: 32px; height: 32px; }
+        .target-icon-wrap .ui-icon, .trust-icon .ui-icon, .who-emoji .ui-icon, .r-icon .ui-icon { width: 24px; height: 24px; }
+        .result-alert > span:first-child { display: inline-flex; align-items: center; }
+        .guide-tip > strong { display: inline-block; margin-top: 5px; }
+        .guide-tip > strong:first-child { margin-top: 0; }
+        @media (max-width: 560px) {
+            .metric-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .metric-card { padding: 14px 10px; }
+            .metric-value { font-size: 19px; }
+            .trade-summary { gap: 8px; }
+            .trade-stat { padding: 12px; }
+            .feedback-inner { padding-left: 16px; padding-right: 16px; }
+            .reaction-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+            .reaction-btn { min-height: 44px; }
+            .reaction-btn:last-child { grid-column: 1 / -1; }
+            .comment-form-row { gap: 8px; }
+            .comment-submit { min-width: 72px; }
+            .table-wrap { overscroll-behavior-x: contain; }
         }

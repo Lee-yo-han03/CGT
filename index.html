@@ -136,6 +136,20 @@
 </head>
 <body>
 
+<svg class="icon-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M12 3 22 20H2L12 3Z"/><path d="M12 9v5m0 3h.01"/></symbol>
+    <symbol id="icon-bank" viewBox="0 0 24 24"><path d="m3 9 9-6 9 6H3Zm2 2v7m5-7v7m4-7v7m5-7v7M3 21h18M2 18h20"/></symbol>
+    <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></symbol>
+    <symbol id="icon-file" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v6h5M9 14h7m-7 4h7"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M4 19h16"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20V4m0 16h17M8 15l4-4 3 2 5-6"/></symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 3 1.7 6.3L20 11l-6.3 1.7L12 19l-1.7-6.3L4 11l6.3-1.7L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></symbol>
+    <symbol id="icon-tool" viewBox="0 0 24 24"><path d="M14 6a5 5 0 0 0-6 6L3 17l4 4 5-5a5 5 0 0 0 6-6l-3 3-4-4 3-3Z"/></symbol>
+</svg>
+
 <!-- ─── NAV ─── -->
 <header class="nav">
     <div class="nav-inner">
@@ -199,16 +213,16 @@
         </div>
         <h1 data-i18n-html="hero.title">해외주식 양도소득세<br><em>자동 계산</em></h1>
         <p class="hero-sub" data-i18n-html="hero.sub">
-            증권사 PDF를 업로드하면 <strong>양도차익과 예상 세금을 자동으로 계산</strong>합니다.<br>
+            지원되는 증권사 거래내역 파일을 올리면 <strong>양도차익과 예상 세금을 계산</strong>합니다.<br>
             홈택스 신고용 엑셀 파일도 즉시 생성됩니다.
         </p>
-        <button class="hero-cta" onclick="document.getElementById('upload-anchor').scrollIntoView({behavior:'smooth'})">
+        <button class="hero-cta" onclick="document.getElementById('upload-anchor').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M9 3L13 7H10.5V13H7.5V7H5L9 3Z" fill="white"/>
             </svg>
-            <span data-i18n="hero.cta">PDF 업로드 시작하기</span>
+            <span data-i18n="hero.cta">거래내역 파일 올리기</span>
         </button>
-        <p class="hero-free" data-i18n="hero.free">완전 무료 · 파일은 계산 후 즉시 삭제됩니다</p>
+        <p class="hero-free" data-i18n="hero.free">원본 파일은 처리 후 삭제 · 계산 데이터는 최대 1시간 임시 보관</p>
         <div class="hero-stats">
             <div class="hero-stat-item">
                 <span class="hero-stat-num" data-i18n="hero.stat1.num">3분</span>
@@ -230,12 +244,12 @@
 <div class="target-section">
     <div class="target-inner">
         <div class="target-item" id="bannerMsg1">
-            <div class="target-icon-wrap" id="bannerIcon1">⚠️</div>
+            <div class="target-icon-wrap" id="bannerIcon1"><svg class="ui-icon"><use href="#icon-alert"/></svg></div>
             <div class="target-text" id="bannerText1"></div>
         </div>
         <div class="target-divider"></div>
         <div class="target-item">
-            <div class="target-icon-wrap">🏦</div>
+            <div class="target-icon-wrap"><svg class="ui-icon"><use href="#icon-bank"/></svg></div>
             <div class="target-text">
                 <strong>증권사 대행 신청 기간을 놓치셨나요?</strong>
                 <span> — 양도세이브로 셀프 신고 엑셀을 직접 만드세요</span>
@@ -272,18 +286,19 @@
     <div id="step1">
         <div class="card">
             <div class="card-title">
-                <div class="card-title-icon">📤</div>
+                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-upload"/></svg></div>
                 <span data-i18n="step1.card.title">거래내역 파일 업로드</span>
             </div>
             <p class="upload-label" data-i18n-html="step1.label">
-                증권사에서 발급받은 <strong>해외주식 양도소득 계산내역 PDF</strong>를 업로드하세요.<br>
-                여러 파일을 한 번에 올릴 수 있습니다.
+                증권사에서 발급받은 해외주식 양도소득 자료를 업로드하세요.<br>
+                여러 파일을 함께 올릴 수 있습니다.
             </p>
+            <a class="upload-format-link" href="#brokerGuide" data-i18n="step1.formats">증권사별 지원 형식·발급 방법 보기</a>
 
             <div class="upload-zone" id="uploadZone"
                  role="button" tabindex="0" aria-label="파일 업로드 영역. 클릭하거나 파일을 드래그하세요"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('fileInput').click();}">
-                <span class="upload-zone-icon" aria-hidden="true">📂</span>
+                <span class="upload-zone-icon" aria-hidden="true"><svg class="ui-icon"><use href="#icon-file"/></svg></span>
                 <div class="upload-zone-title" data-i18n="step1.zone.title">파일을 드래그하거나 클릭하여 업로드</div>
                 <div class="upload-zone-sub">
                     <span>PDF</span>
@@ -322,12 +337,15 @@
 
         <div class="card">
             <div class="card-title">
-                <div class="card-title-icon">✅</div>
-                <span data-i18n="step2.card.title">세금 계산 결과</span>
+                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-check"/></svg></div>
+                <span id="resultHeading" tabindex="-1" data-i18n="step2.card.title">세금 계산 결과</span>
             </div>
 
             <div id="resultAlert"></div>
             <div id="fileResults"></div>
+            <div class="calculation-caveat" role="note" data-i18n-html="result.caveat">
+                <strong>신고 전 확인</strong> 계산은 업로드 자료에 기록된 원화 금액과 비용을 사용합니다. 종목별 양도·취득 금액, 수수료와 환율 환산액이 원본 내역과 일치하는지 확인하세요. 누락된 거래나 환율을 자동으로 복원하지 않습니다. 결과는 참고용이며 홈택스 신고 내용과 대조해야 합니다.
+            </div>
 
             <!-- 4 Metric Cards -->
             <div class="metric-grid">
@@ -440,12 +458,12 @@
         <!-- ── STEP 3: Download ── -->
         <div class="card download-card" id="step3">
             <div class="card-title">
-                <div class="card-title-icon">📥</div>
+                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-download"/></svg></div>
                 <span data-i18n="step3.card.title">홈택스 신고용 엑셀 다운로드</span>
             </div>
 
             <div class="download-explain" data-i18n-html="step3.explain">
-                📋 아래 버튼으로 다운로드한 엑셀 파일을 홈택스에서 <strong>직접 업로드</strong>하면 거래내역이 자동으로 입력됩니다.
+                아래 버튼으로 다운로드한 엑셀 파일을 홈택스에서 <strong>직접 업로드</strong>하면 거래내역이 자동으로 입력됩니다.
             </div>
 
             <div class="toggle-row">
@@ -453,10 +471,13 @@
                 <div>
                     <div class="toggle-label" data-i18n="step3.toggle.label">취득일자 자동 채움</div>
                     <div class="toggle-desc" data-i18n-html="step3.toggle.desc">
-                        체크 시: 양도일 연도 1월 1일을 취득일자로 자동 입력합니다 (예: 양도일 2024-12-31 → 취득일 2024-01-01)<br>
-                        <strong style="color:var(--text);">해제 시:</strong> 취득일자를 비워두어 다운로드 후 직접 입력할 수 있습니다.
+                        체크 시: 양도일 연도 1월 1일을 임시 취득일자로 입력합니다. 실제 매수일이 아닐 수 있으므로 신고 전에 반드시 확인하고 수정하세요.<br>
+                        <strong style="color:var(--text);">해제 시:</strong> 취득일자가 비어 있으므로 엑셀에서 직접 입력해야 합니다.
                     </div>
                 </div>
+            </div>
+            <div class="download-caveat" role="note" data-i18n-html="step3.caveat">
+                <strong>취득일자 자동 채움은 실제 매수일이 아닙니다.</strong> 기본값은 양도 연도의 1월 1일을 임시 입력합니다. 실제 취득일을 확인해 엑셀에서 수정하세요. 체크를 해제하면 날짜가 비어 있으므로 직접 입력해야 합니다.
             </div>
 
             <button class="btn btn-primary btn-lg btn-block" onclick="downloadExcel()">
@@ -480,7 +501,7 @@
         <!-- ── Filing Guide ── -->
         <div class="card">
             <div class="card-title">
-                <div class="card-title-icon">📋</div>
+                <div class="card-title-icon"><svg class="ui-icon"><use href="#icon-file"/></svg></div>
                 <span data-i18n="guide.card.title">홈택스 신고 방법 (4단계)</span>
             </div>
             <div class="guide-steps">
@@ -514,9 +535,9 @@
                 </div>
             </div>
             <div class="guide-tip" data-i18n-html="guide.tip">
-                💡 <strong>신고 기한:</strong> 매년 <strong>5월 1일 ~ 5월 31일</strong> (전년도 거래분). 기한 미신고 시 가산세 부과.<br>
-                💡 <strong>기본공제:</strong> 양도차익 250만원 이하는 납부세액 없음. 단, 신고는 해야 합니다.<br>
-                ⚠️ <strong>기한 후 신고의 경우,</strong> 홈택스에서 <strong>'기한후신고'</strong> 메뉴를 선택하세요.
+                <strong>신고 기한:</strong> 매년 <strong>5월 1일 ~ 5월 31일</strong> (전년도 거래분). 기한 미신고 시 가산세 부과.<br>
+                <strong>기본공제:</strong> 양도차익 250만원 이하는 납부세액 없음. 단, 신고는 해야 합니다.<br>
+                <strong>기한 후 신고의 경우,</strong> 홈택스에서 <strong>'기한후신고'</strong> 메뉴를 선택하세요.
             </div>
         </div>
     </div>
@@ -529,9 +550,13 @@
 <!-- ─── PENALTY CALCULATOR ─── -->
 <section class="section-full" id="penalty-section" style="background:#f9fafb;">
     <div class="section-inner">
-        <div class="section-label" data-i18n="penalty.label">기한 후 신고</div>
-        <div class="section-title" data-i18n="penalty.title">가산세 계산</div>
-        <p class="section-sub" data-i18n="penalty.sub">5월 31일 신고 기한을 넘겼다면 예상 가산세를 미리 계산해보세요. 파일 업로드 시 세금이 자동으로 채워집니다.</p>
+        <details class="tool-accordion">
+            <summary class="tool-accordion-summary">
+                <span class="tool-accordion-label" data-i18n="penalty.label">기한 후 신고</span>
+                <strong data-i18n="penalty.title">가산세 계산</strong>
+                <span class="tool-accordion-copy" data-i18n="penalty.sub">5월 31일 신고 기한을 넘겼다면 예상 가산세를 미리 계산해보세요. 파일 업로드 시 세금이 자동으로 채워집니다.</span>
+            </summary>
+            <div class="tool-accordion-body">
         <div class="card penalty-card" id="penaltyCard">
             <div class="penalty-grid" style="margin-bottom:16px;">
                 <div class="penalty-field">
@@ -580,21 +605,26 @@
                     <div class="penalty-breakdown-list" id="penBreakdown"></div>
                 </div>
                 <div class="penalty-notice" data-i18n-html="penalty.notice">
-                    ⚠️ 이 가산세 계산은 <strong>일반 무신고</strong> 기준 참고용입니다.
+                    이 가산세 계산은 <strong>일반 무신고</strong> 기준 참고용입니다.
                     부정무신고(40%), 감면 특례 등은 반영되지 않았습니다.
                     정확한 가산세는 세무서 또는 세무사에게 확인하세요.
                 </div>
             </div>
-        </div>
+            </div>
+        </details>
     </div>
 </section>
 
 <!-- ─── TAX SIMULATOR ─── -->
 <section class="section-full" id="sim-section">
     <div class="section-inner">
-        <div class="section-label" data-i18n="sim.label">절세 전략</div>
-        <div class="section-title" data-i18n="sim.title">절세 시뮬레이션</div>
-        <p class="section-sub" data-i18n="sim.sub">12월 31일 전에 손실 종목을 매도하면 세금이 얼마나 줄어드는지 계산해보세요.</p>
+        <details class="tool-accordion">
+            <summary class="tool-accordion-summary">
+                <span class="tool-accordion-label" data-i18n="sim.label">절세 전략</span>
+                <strong data-i18n="sim.title">절세 시뮬레이션</strong>
+                <span class="tool-accordion-copy" data-i18n="sim.sub">12월 31일 전에 손실 종목을 매도하면 세금이 얼마나 줄어드는지 계산해보세요.</span>
+            </summary>
+            <div class="tool-accordion-body">
         <div class="card sim-card">
             <div class="sim-grid">
                 <div class="sim-field">
@@ -628,9 +658,10 @@
                 <div class="sim-desc" id="simDesc"></div>
             </div>
             <p style="font-size:13px; color:var(--muted); margin-top:20px; padding:12px 16px; background:var(--bg); border-radius:8px; border-left:3px solid #F59E0B; line-height:1.6;" data-i18n="sim.note">
-                📌 이미 신고 기한이 지났다면 위 세금 계산 결과에서 가산세도 함께 확인하세요.
+                이미 신고 기한이 지났다면 위 세금 계산 결과에서 가산세도 함께 확인하세요.
             </p>
-        </div>
+            </div>
+        </details>
     </div>
 </section>
 
@@ -640,19 +671,19 @@
         <div class="trust-title" data-i18n="trust.title">개인정보 보호 · 안전한 서비스</div>
         <div class="trust-grid">
             <div class="trust-item">
-                <span class="trust-icon">🔒</span>
-                <div class="trust-item-title" data-i18n="trust.1.title">서버에 저장되지 않습니다</div>
-                <div class="trust-item-desc" data-i18n="trust.1.desc">업로드된 파일은 세금 계산에만 사용되며, 세션 종료 시 즉시 삭제됩니다.</div>
+                <span class="trust-icon"><svg class="ui-icon"><use href="#icon-shield"/></svg></span>
+                <div class="trust-item-title" data-i18n="trust.1.title">처리 위치를 안내합니다</div>
+                <div class="trust-item-desc" data-i18n="trust.1.desc">서버 연결 시 파일은 계산 서버로 전송되어 처리됩니다. 서버를 사용할 수 없으면 브라우저에서 처리합니다.</div>
             </div>
             <div class="trust-item">
-                <span class="trust-icon">🙈</span>
-                <div class="trust-item-title" data-i18n="trust.2.title">개인정보를 수집하지 않습니다</div>
-                <div class="trust-item-desc" data-i18n="trust.2.desc">회원가입, 이메일, 이름 등 어떤 개인정보도 요구하지 않습니다.</div>
+                <span class="trust-icon"><svg class="ui-icon"><use href="#icon-clock"/></svg></span>
+                <div class="trust-item-title" data-i18n="trust.2.title">원본 파일과 계산 데이터</div>
+                <div class="trust-item-desc" data-i18n="trust.2.desc">서버 처리 시 원본 파일은 파싱 후 삭제됩니다. Excel 생성용 거래 데이터는 서버 메모리에 최대 1시간 보관된 뒤 자동 정리됩니다.</div>
             </div>
             <div class="trust-item">
-                <span class="trust-icon">⚡</span>
-                <div class="trust-item-title" data-i18n="trust.3.title">계산 후 즉시 삭제</div>
-                <div class="trust-item-desc" data-i18n="trust.3.desc">업로드된 파일은 세금 계산 목적으로만 사용되며, 처리 완료 후 서버에서 즉시 삭제됩니다.</div>
+                <span class="trust-icon">ⓘ</span>
+                <div class="trust-item-title" data-i18n="trust.3.title">외부 서비스와 개인정보</div>
+                <div class="trust-item-desc" data-i18n-html="trust.3.desc">세금 계산에 회원가입은 필요하지 않습니다. 광고·댓글 서비스는 별도 제공자와 쿠키를 사용할 수 있습니다. 자세한 내용은 <a href="privacy.html">개인정보처리방침</a>에서 확인하세요.</div>
             </div>
         </div>
     </div>
@@ -666,19 +697,19 @@
         <p class="section-sub" data-i18n="who.sub">해외주식 세금 신고, 생각보다 어렵지 않아요. 양도세이브가 도와드립니다.</p>
         <div class="who-grid">
             <div class="who-card">
-                <span class="who-emoji">😰</span>
+                <span class="who-emoji"><svg class="ui-icon"><use href="#icon-alert"/></svg></span>
                 <div class="who-card-title" data-i18n="who.1.title">5월 양도소득세 신고를 놓쳤어요</div>
                 <div class="who-card-desc" data-i18n-html="who.1.desc">매년 5월이 양도소득세 신고 기간인데 깜빡하거나 바빠서 놓치셨나요? <strong>기한 후 신고</strong>로 지금이라도 신고하면 가산세를 크게 줄일 수 있습니다.</div>
                 <span class="who-tag" data-i18n="who.1.tag">기한 후 신고 가능</span>
             </div>
             <div class="who-card">
-                <span class="who-emoji">🏦</span>
+                <span class="who-emoji"><svg class="ui-icon"><use href="#icon-bank"/></svg></span>
                 <div class="who-card-title" data-i18n="who.2.title">증권사 대행 신청 기간을 놓쳤어요</div>
                 <div class="who-card-desc" data-i18n-html="who.2.desc">증권사는 보통 1~2월에 양도소득세 대행 신청을 받습니다. 놓쳤다면 직접 셀프 신고를 해야 하는데, 양도세이브가 <strong>홈택스 업로드용 엑셀을 자동으로</strong> 만들어 드립니다.</div>
                 <span class="who-tag" data-i18n="who.2.tag">셀프 신고 지원</span>
             </div>
             <div class="who-card">
-                <span class="who-emoji">📊</span>
+                <span class="who-emoji"><svg class="ui-icon"><use href="#icon-chart"/></svg></span>
                 <div class="who-card-title" data-i18n="who.3.title">거래가 많아 직접 계산이 어려워요</div>
                 <div class="who-card-desc" data-i18n-html="who.3.desc">수십~수백 건의 거래를 일일이 계산하는 건 거의 불가능합니다. 증권사 파일을 업로드하면 <strong>모든 거래를 자동으로 합산</strong>해 정확한 세금을 계산합니다.</div>
                 <span class="who-tag" data-i18n="who.3.tag">자동 합산 계산</span>
@@ -724,7 +755,7 @@
 <!-- ─── FORMULA + BROKERS ─── -->
 <section class="section-full">
     <div class="section-inner">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;" class="formula-two-col">
+        <div class="formula-two-col">
             <div>
                 <div class="section-label" data-i18n="formula.label">세금 계산 공식</div>
                 <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;" data-i18n="formula.title">해외주식 양도소득세 계산법</h2>
@@ -740,16 +771,50 @@
             </div>
             <div>
                 <div class="section-label" data-i18n="broker.label">지원 증권사</div>
-                <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;" data-i18n="broker.title">다양한 증권사 파일을 지원합니다</h2>
+                <h2 style="font-size:20px; font-weight:800; color:var(--text); letter-spacing:-0.3px; margin-bottom:16px;" data-i18n="broker.title">증권사별 지원 형식을 확인하세요</h2>
                 <div class="broker-tag-list">
-                    <span class="broker-tag">한국투자증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
-                    <span class="broker-tag">키움증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
-                    <span class="broker-tag">미래에셋증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
-                    <span class="broker-tag">삼성증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
-                    <span class="broker-tag">NH투자증권<span class="broker-fmt broker-fmt--pdf">PDF·Excel</span></span>
-                    <span class="broker-tag">신한투자증권<span class="broker-fmt">Excel</span></span>
-                    <span class="broker-tag">기타 CSV<span class="broker-fmt">CSV</span></span>
+                    <span class="broker-tag">한국투자증권<span class="broker-fmt broker-fmt--pdf">PDF</span><span class="broker-fmt">Excel·CSV</span></span>
+                    <span class="broker-tag">키움증권<span class="broker-fmt broker-fmt--pdf">PDF*</span><span class="broker-fmt">Excel·CSV</span></span>
+                    <span class="broker-tag">미래에셋증권<span class="broker-fmt broker-fmt--pdf">PDF*</span><span class="broker-fmt">Excel·CSV</span></span>
+                    <span class="broker-tag">삼성증권<span class="broker-fmt broker-fmt--pdf">PDF*</span><span class="broker-fmt">Excel·CSV</span></span>
+                    <span class="broker-tag">NH투자증권<span class="broker-fmt broker-fmt--pdf">PDF*</span><span class="broker-fmt">Excel·CSV</span></span>
+                    <span class="broker-tag">신한투자증권<span class="broker-fmt">Excel·CSV</span></span>
+                    <span class="broker-tag">기타<span class="broker-fmt">CSV</span></span>
                 </div>
+                <p class="broker-format-note" data-i18n="broker.formats.note">* PDF는 증권사별 문서 레이아웃에 따라 처리 결과가 다를 수 있습니다. 현재 실제 PDF 형식을 확인한 것은 한국투자증권입니다. Excel·CSV는 종목명, 수량, 양도가액, 취득가액 등 거래 열을 포함한 파일을 사용하세요. 필요한 값이 빠지면 계산 결과가 달라질 수 있습니다.</p>
+                <details class="broker-download-guide" id="brokerGuide">
+                    <summary data-i18n="broker.guide.title">증권사별 거래내역 받는 방법</summary>
+                    <p class="broker-guide-intro" data-i18n="broker.guide.intro">아래 명세서를 발급해 업로드하세요. PDF는 증권사별 문서 형식에 따라 지원 여부가 다르며, 앱이나 HTS 업데이트에 따라 메뉴 이름은 달라질 수 있습니다.</p>
+                    <div class="broker-guide-list">
+                        <article class="broker-guide-item">
+                            <h3>한국투자증권</h3>
+                            <p data-i18n="broker.guide.ki">홈페이지 고객서비스 → 증명서 발급 → 해외주식 양도소득세 자료 조회/발급 → 계좌와 귀속연도를 선택해 조회 후 PDF로 저장</p>
+                            <a href="https://securities.koreainvestment.com/main/help/popup_online22.jsp?d1=5&d2=22" target="_blank" rel="noopener noreferrer" data-i18n="broker.guide.open">발급 메뉴 안내</a>
+                        </article>
+                        <article class="broker-guide-item">
+                            <h3>키움증권</h3>
+                            <p data-i18n="broker.guide.kiwoom">영웅문S# 또는 HTS 메뉴 검색에서 ‘해외주식 양도소득세’ 또는 ‘양도소득 과세자료’를 검색하세요. 귀속연도 조회 후 PDF로 저장합니다.</p>
+                        </article>
+                        <article class="broker-guide-item">
+                            <h3>미래에셋증권</h3>
+                            <p data-i18n="broker.guide.mirae">홈페이지 서비스 신청/관리 → 증명서 발급/조회 → 해외주식 양도소득세에서 귀속연도 내역을 조회하고 PDF로 저장</p>
+                            <a href="https://securities.miraeasset.com/hku/hku4701/p01.do" target="_blank" rel="noopener noreferrer" data-i18n="broker.guide.open">발급 메뉴 안내</a>
+                        </article>
+                        <article class="broker-guide-item">
+                            <h3>삼성증권</h3>
+                            <p data-i18n="broker.guide.samsung">홈페이지 트레이딩 → 해외주식 → 해외주식양도세조회에서 계좌와 기준연도를 선택해 조회한 뒤 인쇄/PDF로 저장</p>
+                            <a href="https://www.samsungpop.com/ux/kor/trading/overseasStock/overseasStockDealGuide/transferTax.do" target="_blank" rel="noopener noreferrer" data-i18n="broker.guide.open">발급 메뉴 안내</a>
+                        </article>
+                        <article class="broker-guide-item">
+                            <h3>NH투자증권</h3>
+                            <p data-i18n="broker.guide.nh">나무 앱 또는 QV HTS 메뉴 검색에서 ‘해외주식 양도소득세’ 자료를 찾아 귀속연도 내역을 조회하고 PDF로 저장하세요.</p>
+                        </article>
+                        <article class="broker-guide-item">
+                            <h3>신한투자증권</h3>
+                            <p data-i18n="broker.guide.shinhan">앱/HTS에서 해외주식 양도소득세 메뉴를 검색해 귀속연도 자료를 조회하고 Excel 파일로 내려받으세요.</p>
+                        </article>
+                    </div>
+                </details>
                 <p style="font-size:13px; color:var(--muted); margin-top:14px; line-height:1.6;" data-i18n-html="broker.note">신고 기간: 매년 <strong style="color:var(--text);">5월 1일 ~ 5월 31일</strong><br>전년도 거래분 합산 신고</p>
             </div>
         </div>
@@ -845,29 +910,29 @@
         <div class="reaction-label" data-i18n="reaction.label">이 서비스가 어땠나요?</div>
         <div class="reaction-list">
             <button class="reaction-btn" data-key="fast" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon">⚡</span>
+                <span class="r-icon"><svg class="ui-icon"><use href="#icon-spark"/></svg></span>
                 <span data-i18n="reaction.fast">빠르고 편해요</span>
-                <span class="r-count" id="rc-fast">0</span>
+                <span class="r-count" id="rc-fast" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="accurate" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon">✅</span>
+                <span class="r-icon"><svg class="ui-icon"><use href="#icon-check"/></svg></span>
                 <span data-i18n="reaction.accurate">계산이 정확해요</span>
-                <span class="r-count" id="rc-accurate">0</span>
+                <span class="r-count" id="rc-accurate" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="helpful" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon">💡</span>
+                <span class="r-icon"><svg class="ui-icon"><use href="#icon-spark"/></svg></span>
                 <span data-i18n="reaction.helpful">도움이 됐어요</span>
-                <span class="r-count" id="rc-helpful">0</span>
+                <span class="r-count" id="rc-helpful" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="easy" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon">👌</span>
+                <span class="r-icon"><svg class="ui-icon"><use href="#icon-check"/></svg></span>
                 <span data-i18n="reaction.easy">쓰기 쉬워요</span>
-                <span class="r-count" id="rc-easy">0</span>
+                <span class="r-count" id="rc-easy" aria-hidden="true">0</span>
             </button>
             <button class="reaction-btn" data-key="improve" onclick="toggleReaction(this)" aria-pressed="false">
-                <span class="r-icon">🔧</span>
+                <span class="r-icon"><svg class="ui-icon"><use href="#icon-tool"/></svg></span>
                 <span data-i18n="reaction.improve">개선이 필요해요</span>
-                <span class="r-count" id="rc-improve">0</span>
+                <span class="r-count" id="rc-improve" aria-hidden="true">0</span>
             </button>
         </div>
 
@@ -959,4 +1024,3 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
-

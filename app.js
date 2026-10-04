@@ -37,6 +37,16 @@ function goStep(n) {
     if (target) target.classList.remove('hidden');
 }
 
+function focusResultHeading() {
+    const heading = document.getElementById('resultHeading');
+    if (!heading) return;
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+    });
+}
+
 // ===== File Handling =====
 let uploadZone = null;
 let fileInput = null;
@@ -82,7 +92,7 @@ function renderFileList() {
     list.innerHTML = state.files.map((f, i) => `
         <div class="file-item">
             <div class="file-info">
-                <span aria-hidden="true">📄</span>
+                <span aria-hidden="true"><svg class="ui-icon"><use href="#icon-file"/></svg></span>
                 <span class="file-info-name">${escHtml(f.name)}</span>
                 <span class="file-info-size">(${(f.size/1024).toFixed(1)}KB)</span>
             </div>
@@ -400,21 +410,132 @@ async function parseKoreaInvestmentPDF(pdf) {
     return trades;
 }
 
-// ===== 공통 헤더 감지 파서 (키움·미래에셋·삼성·NH·신한) =====
-// PDF 안에 있는 컬럼 헤더의 x좌표를 동적으로 찾아서 파싱합니다.
+// ===== 키움증권 전용 파서 (해외주식양도세 계산내역 - 날짜 없는 종목별 소계 형식) =====
+async function parseKiwoomPDF(pdf) {
+    let allItems = [];
+    for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const vp   = page.getViewport({ scale: 1.0 });
+        const tc   = await page.getTextContent();
+        for (const item of tc.items) {
+            const t = (item.str || '').trim();
+            if (!t) continue;
+            allItems.push({
+                text: t,
+                x: item.transform[4],
+                y: (p - 1) * 2000 + (vp.height - item.transform[5]),
+            });
+        }
+    }
+
+    // 양도소득세 대상 연도 추출 (예: "2024년" → "2024")
+    let docYear = String(new Date().getFullYear() - 1);
+    for (const it of allItems) {
+        const m = it.text.match(/^(20\d{2})년?$/);
+        if (m) { docYear = m[1]; break; }
+    }
+
+    // 헤더 앵커: "주식종목명" 텍스트 위치 기준으로 칼럼 맵 구성
+    const nameHdr = allItems.find(it => /^주식\s*종목명$/.test(it.text));
+    if (!nameHdr) return null;
+
+    const hRegion = allItems.filter(it => Math.abs(it.y - nameHdr.y) <= 120);
+    const findX   = (re) => { const h = hRegion.find(it => re.test(it.text)); return h ? h.x : null; };
+    const maxX    = (re) => { const hits = hRegion.filter(it => re.test(it.text)); return hits.length ? Math.max(...hits.map(it => it.x)) : null; };
+
+    const colPos = { name: nameHdr.x };
+    const isinX    = findX(/^주식\s*종목코드$|^종목코드$/);
+    const sharesX  = findX(/^양도주식수?$|^양도\s*주식\s*수$/);
+    const expX     = findX(/^제비용$/);
+    // 양도가액·취득가액은 per-share(작은 x)와 총액(큰 x) 두 칼럼이 있으므로 rightmost 선택
+    const sellX    = maxX(/양도가액|매도금액/);
+    const buyX     = maxX(/취득가액|매수금액/);
+    const plX      = findX(/비용차감후손익|비용차감\s*후\s*손익/) || findX(/^손익$/);
+
+    if (isinX   !== null) colPos.isin     = isinX;
+    if (sharesX !== null) colPos.shares   = sharesX;
+    if (sellX   !== null) colPos.sell     = sellX;
+    if (buyX    !== null) colPos.buy      = buyX;
+    if (expX    !== null) colPos.expenses = expX;
+    if (plX     !== null) colPos.pl       = plX;
+
+    if (!colPos.sell) return null;
+
+    const sortedCols = Object.entries(colPos).sort((a, b) => a[1] - b[1]);
+    const colRange   = {};
+    for (let i = 0; i < sortedCols.length; i++) {
+        const [field, x] = sortedCols[i];
+        const nextX = sortedCols[i + 1] ? sortedCols[i + 1][1] - 5 : x + 100;
+        colRange[field] = [x - 5, nextX];
+    }
+
+    const bands     = groupIntoBands(allItems, 4);
+    const dataStart = nameHdr.y + 60;
+    const trades    = [];
+
+    for (const band of bands) {
+        if (band.y <= dataStart) continue;
+        const block = allItems.filter(it => Math.abs(it.y - band.y) <= 20);
+
+        const getStr = (field) => {
+            if (!colRange[field]) return '';
+            const [x0, x1] = colRange[field];
+            return block.filter(it => it.x >= x0 && it.x < x1)
+                .sort((a, b) => a.y - b.y || a.x - b.x)
+                .map(it => it.text).join(' ').trim();
+        };
+        const getNum = (field) => {
+            if (!colRange[field]) return 0;
+            const [x0, x1] = colRange[field];
+            const txt = block.filter(it => it.x >= x0 && it.x < x1)
+                .sort((a, b) => a.x - b.x)
+                .map(it => it.text.replace(/,/g, '')).join('');
+            return parseFloat(txt) || 0;
+        };
+
+        const stockName = getStr('name');
+        if (!stockName || /합계|소계|합산|총계/.test(stockName)) continue;
+        const shares = getNum('shares');
+        if (shares <= 0) continue;
+        const sellTotal = getNum('sell');
+        if (sellTotal <= 0) continue;
+        const buyTotal  = getNum('buy');
+        const expenses  = getNum('expenses');
+        const pl = getNum('pl') || (sellTotal - buyTotal - expenses);
+        const stockCode = getStr('isin').replace(/\s+/g, '').toUpperCase();
+
+        trades.push({
+            stock_name: stockName, stock_code: stockCode, shares,
+            sell_date: `${docYear}-12-31`,  // 연간 소계 형식이므로 연말 기준
+            sell_price_per_share: shares > 0 ? Math.round(sellTotal / shares) : 0,
+            sell_total: Math.round(sellTotal), buy_date: '',
+            buy_price_per_share: shares > 0 ? Math.round(buyTotal / shares) : 0,
+            buy_total: Math.round(buyTotal), expenses: Math.round(expenses),
+            profit_loss: Math.round(pl), country_code: detectCountryCS(stockCode),
+        });
+    }
+
+    return trades;
+}
+
+// ===== 공통 헤더 감지 파서 (미래에셋·삼성·NH·신한 등) =====
+// - 부분 매칭: "양도가액 종목별소계" 같은 합성 헤더도 인식
+// - 금액 칼럼 rightmost: per-share/총액 중복 헤더 시 총액(오른쪽) 선택
+// - 날짜 없는 요약 형식: 연말일(docYear-12-31)로 대체
 async function parseGenericBrokerPDF(pdf) {
     const dateRe = /(\d{4})[.\-\/](\d{2})[.\-\/](\d{2})/;
 
     // 컬럼 헤더 키워드 → 내부 필드명
+    // rightmost: true → 같은 헤더 밴드에서 여러 매칭 시 가장 오른쪽 x 사용 (총액 칼럼 우선)
     const HEADER_MAP = [
-        { field: 'name',     re: /^(종목명|주식\s*종목명|종목)$/ },
-        { field: 'date',     re: /^(양도일자?|매도일자?|거래일자?|양도일)$/ },
-        { field: 'sell',     re: /^(양도가액|매도금액|매도대금|양도금액)$/ },
-        { field: 'buy',      re: /^(취득가액|매수금액|매수대금|취득금액)$/ },
-        { field: 'expenses', re: /^(제비용|필요경비|수수료|제세금)$/ },
-        { field: 'shares',   re: /^(양도주식수?|수량|매도수량|주식수)$/ },
-        { field: 'pl',       re: /^(손익|양도차익|손익금액)$/ },
-        { field: 'isin',     re: /^(ISIN|종목코드|주식종목코드|ISIN코드)$/i },
+        { field: 'name',     re: /종목명/ },
+        { field: 'date',     re: /양도일자?|매도일자?|거래일자?/ },
+        { field: 'sell',     re: /양도가액|매도금액|매도대금|양도금액/, rightmost: true },
+        { field: 'buy',      re: /취득가액|매수금액|매수대금|취득금액/, rightmost: true },
+        { field: 'expenses', re: /^제비용$|^필요경비$|^수수료$|제비용\s*종목별|필요경비\s*종목별/ },
+        { field: 'shares',   re: /양도주식\s*수?|매도수량/ },
+        { field: 'pl',       re: /^손익$|^양도차익$|^손익금액$|비용차감후손익/ },
+        { field: 'isin',     re: /ISIN|종목코드/i },
     ];
 
     // 전 페이지 아이템 수집 (페이지 offset으로 y좌표 분리)
@@ -434,6 +555,13 @@ async function parseGenericBrokerPDF(pdf) {
         }
     }
 
+    // 연도 추출 (날짜 없는 요약 형식 대비)
+    let docYear = String(new Date().getFullYear() - 1);
+    for (const it of allItems) {
+        const m = it.text.match(/^(20\d{2})년?$/);
+        if (m) { docYear = m[1]; break; }
+    }
+
     const bands = groupIntoBands(allItems, 4);
 
     // 헤더 밴드 탐색: HEADER_MAP 키워드가 3개 이상 매칭되는 밴드
@@ -441,9 +569,14 @@ async function parseGenericBrokerPDF(pdf) {
     let headerIdx = -1;
     for (let i = 0; i < bands.length; i++) {
         const matched = {};
-        for (const { field, re } of HEADER_MAP) {
-            const hit = bands[i].items.find(it => re.test(it.text));
-            if (hit) matched[field] = hit.x;
+        for (const { field, re, rightmost } of HEADER_MAP) {
+            if (rightmost) {
+                const hits = bands[i].items.filter(it => re.test(it.text));
+                if (hits.length > 0) matched[field] = Math.max(...hits.map(it => it.x));
+            } else {
+                const hit = bands[i].items.find(it => re.test(it.text));
+                if (hit) matched[field] = hit.x;
+            }
         }
         if (Object.keys(matched).length >= 3 && matched.sell) {
             colPos = matched;
@@ -470,21 +603,19 @@ async function parseGenericBrokerPDF(pdf) {
         // ±20px 블록으로 다행 셀 합산
         const block = allItems.filter(it => Math.abs(it.y - band.y) <= 20);
 
-        // 날짜 행 판별
-        let dateItem = null;
+        // 날짜 행 판별: 날짜 칼럼이 있으면 날짜로, 없으면 연말일 사용
+        let sellDate;
         if (colPos.date) {
+            let dateItem = null;
             const [dx0, dx1] = colRange.date;
-            dateItem = band.items.find(it => {
-                return dateRe.test(it.text) && it.x >= dx0 && it.x < dx1;
-            });
+            dateItem = band.items.find(it => dateRe.test(it.text) && it.x >= dx0 && it.x < dx1);
+            if (!dateItem) dateItem = band.items.find(it => dateRe.test(it.text));
+            if (!dateItem) continue;
+            const dm = dateItem.text.match(dateRe);
+            sellDate = `${dm[1]}-${dm[2]}-${dm[3]}`;
+        } else {
+            sellDate = `${docYear}-12-31`; // 날짜 없는 연간 소계 형식
         }
-        if (!dateItem) {
-            dateItem = band.items.find(it => dateRe.test(it.text));
-        }
-        if (!dateItem) continue;
-
-        const dm = dateItem.text.match(dateRe);
-        const sellDate = `${dm[1]}-${dm[2]}-${dm[3]}`;
 
         const getNum = (field) => {
             if (!colRange[field]) return 0;
@@ -566,7 +697,15 @@ async function parsePDFClientSide(file) {
         return { trades: trades, brokerName: '한국투자증권' };
     }
 
-    // 그 외 증권사: 범용 헤더 기반 파서 시도 (키움·미래에셋·삼성·NH·신한)
+    // 키움증권: 날짜 없는 종목별 소계 전용 파서
+    if (brokerId === 'kiwoom') {
+        const kiwoomTrades = await parseKiwoomPDF(pdf);
+        if (kiwoomTrades && kiwoomTrades.length > 0) {
+            return { trades: kiwoomTrades, brokerName: '키움증권' };
+        }
+    }
+
+    // 그 외 증권사: 범용 헤더 기반 파서 시도 (미래에셋·삼성·NH·신한 등)
     const genericTrades = await parseGenericBrokerPDF(pdf);
     if (genericTrades && genericTrades.length > 0) {
         return { trades: genericTrades, brokerName: brokerName || '알 수 없는 증권사' };
@@ -576,8 +715,8 @@ async function parsePDFClientSide(file) {
     var hint = brokerName ? brokerName + ' PDF' : 'PDF';
     throw new Error(
         hint + ' 파싱에 실패했습니다.\n' +
-        '지원 증권사 PDF: 한국투자증권·키움·미래에셋·삼성·NH·신한\n' +
-        '파싱이 안 될 경우 해당 증권사 HTS/MTS에서 Excel 또는 CSV 파일로 내려받아 업로드해주세요.'
+        'PDF는 증권사별 문서 형식에 따라 지원 여부가 다릅니다.\n' +
+        '증권사 안내에서 확인한 Excel 또는 CSV 거래내역 파일도 업로드할 수 있습니다.'
     );
 }
 
@@ -742,6 +881,7 @@ async function uploadFiles() {
                 document.getElementById('processingCard').classList.add('hidden');
                 displayResults();
                 goStep(2);
+                focusResultHeading();
                 return;
             }
         } catch {}
@@ -753,7 +893,7 @@ async function uploadFiles() {
     if (trades.length === 0) {
         document.getElementById('processingCard').classList.add('hidden');
         goStep(1);
-        alert('거래 데이터를 찾지 못했습니다.\n\nPDF: 한국투자증권 양도소득세 내역서 형식을 지원합니다.\nExcel/CSV: 종목명, 양도가액, 취득가액 컬럼이 있어야 합니다.');
+        alert('거래 데이터를 찾지 못했습니다.\n\nPDF는 증권사별 지원 형식이 다릅니다.\nExcel/CSV는 종목명, 수량, 양도가액, 취득가액 등 거래 열이 포함된 파일을 사용해주세요.');
         return;
     }
 
@@ -767,6 +907,7 @@ async function uploadFiles() {
     document.getElementById('processingSpinner').style.display = '';
     displayResults();
     goStep(2);
+    focusResultHeading();
 }
 
 // ===== Add More Files =====
@@ -824,7 +965,7 @@ function displayResults() {
         fr.innerHTML = parsedFiles.map(f => `
             <div class="file-item" style="margin-bottom:8px;">
                 <div class="file-info">
-                    <span aria-hidden="true">📄</span>
+                    <span aria-hidden="true"><svg class="ui-icon"><use href="#icon-file"/></svg></span>
                     <span class="file-info-name">${escHtml(f.filename)}</span>
                     <span class="file-broker">${escHtml(f.broker)}</span>
                     <span class="file-info-size">${f.trade_count}건</span>
@@ -883,11 +1024,11 @@ function displayResults() {
     if (errorFiles.length > 0) {
         const errNames = errorFiles.map(f => escHtml(f.filename)).join(', ');
         document.getElementById('resultAlert').innerHTML =
-            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true">✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건 처리${escHtml(mode)}</span></div>` +
-            `<div class="result-alert result-alert-warn" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;"><span aria-hidden="true">⚠️</span><span>파싱 실패 파일: ${errNames}</span></div>`;
+            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true"><svg class="ui-icon"><use href="#icon-check"/></svg></span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건 처리${escHtml(mode)}</span></div>` +
+            `<div class="result-alert result-alert-warn" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;"><span aria-hidden="true"><svg class="ui-icon"><use href="#icon-alert"/></svg></span><span>파싱 실패 파일: ${errNames}</span></div>`;
     } else {
         document.getElementById('resultAlert').innerHTML =
-            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true">✅</span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다${escHtml(mode)}</span></div>`;
+            `<div class="result-alert result-alert-ok" role="status"><span aria-hidden="true"><svg class="ui-icon"><use href="#icon-check"/></svg></span><span>${parsedFiles.length}개 파일에서 총 ${trades.length}건의 거래가 처리되었습니다${escHtml(mode)}</span></div>`;
     }
 }
 
@@ -988,7 +1129,7 @@ function simulateTaxSaving() {
         desc = `손실 매도 후에도 과세표준이 기본공제(250만원) 이하여서 세금 차이가 없습니다.`;
     }
     // 면책 문구 항상 표시
-    desc += `<br><span style="color:var(--muted);font-size:11px;">⚠️ 이 시뮬레이션은 참고용이며, 실제 절세 효과는 매도 시점의 환율·시세·수수료에 따라 달라질 수 있습니다. 정확한 세금은 세무사와 상담하세요.</span>`;
+    desc += `<br><span style="color:var(--muted);font-size:11px;">이 시뮬레이션은 참고용이며, 실제 절세 효과는 매도 시점의 환율·시세·수수료에 따라 달라질 수 있습니다. 정확한 세금은 세무사와 상담하세요.</span>`;
 
     document.getElementById('simDesc').innerHTML = desc;
     document.getElementById('simResult').classList.remove('hidden');
@@ -1012,7 +1153,7 @@ async function shareResult() {
         penaltyLine = `\n무신고 가산세: ${nonFiling} / 납부불성실 가산세: ${latePay}\n예상 납부세액: ${krw(tax.tax_amount)} + 가산세 → 총 ${total}`;
     }
 
-    const text = `📊 해외주식 양도소득세 계산 결과\n총 양도차익: ${krw(tax.gross_profit_loss)}${penaltyLine || `\n예상 납부세액: ${krw(tax.tax_amount)}`}\n\n양도세이브에서 무료로 계산해보세요!`;
+    const text = `해외주식 양도소득세 계산 결과\n총 양도차익: ${krw(tax.gross_profit_loss)}${penaltyLine || `\n예상 납부세액: ${krw(tax.tax_amount)}`}\n\n양도세이브에서 무료로 계산해보세요!`;
     const url = 'https://yangdosave.kr';
     if (navigator.share) {
         try { await navigator.share({ title: '해외주식 양도소득세 계산 결과 | 양도세이브', text, url }); } catch {}
@@ -1347,7 +1488,7 @@ function initPenaltyCard() {
         if (alertEl) {
             const deadlineFormatted = `${tradeYear + 1}.5.31`;
             const warningBanner = `<div class="result-alert" role="alert" style="background:#FEF3C7;color:#92400E;border:1px solid #FCD34D;margin-top:8px;">
-                <span aria-hidden="true">⚠️</span>
+                <span aria-hidden="true"><svg class="ui-icon"><use href="#icon-alert"/></svg></span>
                 <span>이 거래의 신고 기한(${deadlineFormatted})이 지났습니다. <a href="#penalty-section" style="color:#92400E;text-decoration:underline;">아래 가산세 계산</a>에서 확인하세요.</span>
             </div>`;
             alertEl.innerHTML += warningBanner;

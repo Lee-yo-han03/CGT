@@ -177,7 +177,7 @@ def cleanup_sessions():
     """만료된 세션 정리"""
     now = datetime.now()
     expired = [sid for sid, s in sessions.items()
-               if (now - datetime.fromisoformat(s['created'])).seconds > SESSION_TTL]
+               if (now - datetime.fromisoformat(s['created'])).total_seconds() > SESSION_TTL]
     for sid in expired:
         del sessions[sid]
     # 최대 100개 초과 시 가장 오래된 것 제거
@@ -198,6 +198,7 @@ class TaxEasyHandler(SimpleHTTPRequestHandler):
     STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 
     def do_GET(self):
+        cleanup_sessions()
         parsed = urlparse(self.path)
 
         if parsed.path == '/api/health':
@@ -213,6 +214,7 @@ class TaxEasyHandler(SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
+        cleanup_sessions()
         parsed = urlparse(self.path)
         try:
             if parsed.path == '/api/upload':
@@ -273,12 +275,16 @@ class TaxEasyHandler(SimpleHTTPRequestHandler):
                     'filename': fname,
                     'broker': result['broker'],
                     'trade_count': result['count'],
+                    'parsed_count': result['parsed_count'],
+                    'excluded_count': result['excluded_count'],
                 })
             except Exception as e:
                 parsed_files.append({
                     'filename': fname,
                     'broker': 'Error',
                     'trade_count': 0,
+                    'parsed_count': 0,
+                    'excluded_count': None,
                     'error': str(e),
                 })
             finally:
@@ -328,6 +334,7 @@ class TaxEasyHandler(SimpleHTTPRequestHandler):
         os.makedirs(self.UPLOAD_DIR, exist_ok=True)
         parser = AutoDetectParser()
         new_trades = []
+        parsed_files = []
 
         for fname, fdata in files:
             ext = Path(fname).suffix.lower() if fname else '.pdf'
@@ -337,15 +344,27 @@ class TaxEasyHandler(SimpleHTTPRequestHandler):
                     f.write(fdata)
                 result = parser.parse(tmp_path)
                 new_trades.extend(result['trades'])
-                sessions[sid]['files'].append({
+                parsed_files.append({
                     'filename': fname,
                     'broker': result['broker'],
                     'trade_count': result['count'],
+                    'parsed_count': result['parsed_count'],
+                    'excluded_count': result['excluded_count'],
+                })
+            except Exception as e:
+                parsed_files.append({
+                    'filename': fname,
+                    'broker': 'Error',
+                    'trade_count': 0,
+                    'parsed_count': 0,
+                    'excluded_count': None,
+                    'error': str(e),
                 })
             finally:
                 try: os.unlink(tmp_path)
                 except: pass
 
+        sessions[sid]['files'].extend(parsed_files)
         sessions[sid]['trades'].extend(new_trades)
         all_trades = sessions[sid]['trades']
         tax = calculate_tax(all_trades)
@@ -481,6 +500,11 @@ class TaxEasyHandler(SimpleHTTPRequestHandler):
 
 class ReusableHTTPServer(HTTPServer):
     allow_reuse_address = True
+
+    def service_actions(self):
+        # HTTPServer calls this periodically from its request loop, so expired
+        # in-memory sessions are cleared even when no new upload arrives.
+        cleanup_sessions()
 
 def run_server(port=8080):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))

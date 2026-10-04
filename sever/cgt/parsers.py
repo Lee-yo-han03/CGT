@@ -72,7 +72,34 @@ class BaseBrokerParser:
             trades = self.parse_csv(path)
         else:
             raise ValueError(f'지원하지 않는 파일 형식: {ext}')
-        return {'broker': self.BROKER_NAME, 'trades': trades, 'count': len(trades)}
+        if not trades:
+            raise ValueError(
+                f'{self.BROKER_NAME} PDF에서 거래를 찾지 못했습니다. '
+                '파일 형식이 지원되지 않거나 거래 표를 읽을 수 없습니다.'
+            )
+        _validate_trades(trades, self.BROKER_NAME)
+        return {
+            'broker': self.BROKER_NAME,
+            'trades': trades,
+            'count': len(trades),
+            'parsed_count': len(trades),
+            # 현재 증권사별 표 파서는 인식하지 못한 개별 행을 추적하지 않으므로
+            # 제외 수는 0으로 가장하지 않고 미확인으로 표시한다.
+            'excluded_count': None,
+        }
+
+
+def _validate_trades(trades, broker):
+    """Reject incomplete rows before they can reach tax calculation."""
+    required = ('stock_name', 'shares', 'sell_total', 'buy_total', 'profit_loss')
+    for index, trade in enumerate(trades, 1):
+        missing = [key for key in required if trade.get(key) in (None, '')]
+        if missing:
+            raise ValueError(
+                f'{broker} PDF 거래 {index}번 필수 항목 누락: {", ".join(missing)}'
+            )
+        if parse_num(trade.get('shares')) <= 0:
+            raise ValueError(f'{broker} PDF 거래 {index}번의 수량이 올바르지 않습니다.')
 
 
 # ============================================================
@@ -462,8 +489,7 @@ class AutoDetectParser:
         if ext == '.pdf':
             try:
                 with pdfplumber.open(path) as pdf:
-                    if pdf.pages:
-                        text = pdf.pages[0].extract_text() or ''
+                    text = '\n'.join(page.extract_text() or '' for page in pdf.pages)
             except:
                 pass
         elif ext in ('.xlsx', '.xls'):
@@ -487,25 +513,37 @@ class AutoDetectParser:
         return 'auto'
 
     def parse(self, path: str, broker_hint: str = None) -> dict:
+        ext = Path(path).suffix.lower()
         broker_id = broker_hint or self.detect_broker(path)
 
-        if broker_id in self.PARSERS:
-            parser = self.PARSERS[broker_id]()
-        else:
-            parser = KoreaInvestmentParser()
+        spreadsheet_exts = ('.xlsx', '.xls', '.csv', '.tsv')
+        if broker_id not in self.PARSERS and ext not in spreadsheet_exts:
+            raise ValueError(
+                '증권사를 판별할 수 없는 PDF입니다. 지원 증권사명이 포함된 원본 PDF를 '
+                '사용하거나, 지원되는 Excel/CSV 거래내역을 업로드해주세요.'
+            )
+        parser = self.PARSERS[broker_id]() if broker_id in self.PARSERS else None
+        broker_name = parser.BROKER_NAME if parser else '자동감지(Excel/CSV)'
 
-        ext = Path(path).suffix.lower()
         if ext == '.pdf':
             trades = parser.parse_pdf(path)
-        elif ext in ('.xlsx', '.xls', '.csv', '.tsv'):
+        elif ext in spreadsheet_exts:
             trades = GenericExcelParser().parse(path)
         else:
             raise ValueError(f'지원하지 않는 파일: {ext}')
 
+        if not trades:
+            raise ValueError(
+                f'{broker_name} 파일에서 거래를 찾지 못했습니다. '
+                '지원 형식인지 확인하거나 거래내역 Excel/CSV를 업로드해주세요.'
+            )
+        _validate_trades(trades, broker_name)
         return {
-            'broker': parser.BROKER_NAME,
+            'broker': broker_name,
             'broker_id': broker_id,
             'trades': trades,
             'count': len(trades),
+            'parsed_count': len(trades),
+            'excluded_count': None,
             'file': str(Path(path).name),
         }
